@@ -5,7 +5,7 @@
 | M0 setup | VERIFIED | `src/config.py`, `tests/conftest.py`, `scripts/run_all.sh`, `docs/contracts.md` | 9 tests pass; bot label = `final_team` on 77.17% of train | Split: train Apr 2025-Mar 2026, validation Apr-Jun 2026 (confirmed) | Makefile (`make` not available on the dev machine) |
 | M1 clean | VERIFIED | `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` | 10,822 / 2,178 rows; negative resolution_hours 1,140 -> 0; 12 tests pass | ftfy before lowercasing; fold Latin accents (`the`); pyarrow added; raw `team_label` kept, use `*_canon`; `transfers` as recorded; IDs in text not masked | Raw `first_team`, `final_team`, `resolved_at` in output; marker check on lowercased text alone (cannot fail) |
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` | 48 tests pass; agreement 77.17%; 15 months; Rs 122,171/month (Rs 114,994 from misrouted rows only); 1,744 product conflicts (16.1%); 878 vague (8.1%, estimate) | Cost formula as specified, caveats in `cost_inputs`; text counts on `text_clean` with `_raw` variants; tests build into a temp folder; months, vague and conflict rules in M2 notes | Vague by length or "call back" (that phrase is mostly a suffix on specific requests); product pattern needing "air fryer" |
-| M3 split + evaluation | IMPLEMENTED (not yet VERIFIED) | `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py` | 8,687 / 2,135 rows; Rs 698.06 per misroute; 54 tests pass | Average transfers from misrouted rows only; literal counts in config; macro-F1 over all 7 teams; `align_proba` and `confidence` added | Rejecting `y_pred` that is not the row maximum of `proba` (blocks M5 rules); average over all 3,902 transfers (Rs 741.6) |
+| M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py` | 8,687 / 2,135 rows; Rs 698.06 per misroute (simple Rs 565); bot misroutes Rs 114,994/month; 64 tests pass | Average transfers from misrouted rows only; literal counts in config; macro-F1 over all 7 teams; `align_proba` and `confidence` added; error messages give counts only | Rejecting `y_pred` that is not the row maximum of `proba` (blocks M5 rules); average over all 3,902 transfers (Rs 741.6) |
 | M4 | not started | | | | |
 | M5 | not started | | | | |
 | M6 | not started | | | | |
@@ -114,10 +114,12 @@ ignores `test_committed_reports_current`, which passes again once the reports ar
 
 ## M3 notes
 
-**Verification.** 54 M3 tests pass (123 in all). Cross-check with M2, bot labels on all of train: agreement 77.17%, 2,471
-misroutes, `cost_rs` / 15 = Rs 114,994 per month, all equal to M2. 38 deliberate code breakages were run in a scratch
-copy: first run 36 caught. One miss was an invalid breakage (it edited a comment) and was replaced; the other (`n_boot`
-default) was a real gap and now has a test. Final run: 38 of 38 caught.
+**Verification.** Marked VERIFIED by the project owner after the review and fixes below. 64 M3 tests pass (133 in all).
+Cross-check with M2, bot labels on all of train: agreement 77.17%, 2,471 misroutes, `cost_rs` / 15 = Rs 114,994 per
+month (misrouted rows only), all equal to M2. 38 deliberate code breakages were run in a scratch copy: first run 36
+caught. One miss was an invalid breakage (it edited a comment) and was replaced; the other (`n_boot` default) was a real
+gap and now has a test. Final run: 38 of 38 caught. That run came before the privacy fix and was not repeated; instead,
+putting value-printing messages back made 7 of the 10 new test cases fail (the other 3 cover paths not broken).
 
 **Decisions** (project owner, plan review)
 
@@ -125,8 +127,20 @@ default) was a real gap and now has a test. Final run: 38 of 38 caught.
   stay in.
 - **Literal counts in config**, because `src/audit.py` imports config; a test ties them to the parquet and the JSON.
 - **All 15 months** in the average: accepted as a reporting constant, not for choosing thresholds.
-- **`confidence` argument** instead of a row-maximum check, so rule-overridden predictions (M5) get a coverage curve.
+- **Q5, changed from the plan.** The plan had `evaluate` raise when `y_pred` is not a row maximum of `proba`, to catch
+  misordered columns. The owner dropped that check: it would reject M5's rule-overridden predictions whenever `proba` is
+  passed, so they could get no coverage curve. Instead, `align_proba` handles sklearn's alphabetical columns, and an
+  optional `confidence` (default: row maximum) feeds the curve. Cost: a misordered `proba` array is not detected, so
+  later modules must call `align_proba`.
 - Bootstrap interval is not clamped to the point estimate.
 
 **Beyond the spec:** `confidence` without `proba` gives a coverage curve and no log loss, instead of being ignored.
 `time_split` raises on rows outside both windows.
+
+**Review issues** (gaps found in the acceptance run)
+
+| # | Issue | Status |
+|---|---|---|
+| 1 | Privacy: error messages printed offending values, so a text column passed by mistake would print customer text | Fixed: counts only, not truncated snippets, because even 20 characters can be customer text. Also fixed: numpy's own error quoted text passed as `proba` or `confidence`; it is replaced and kept out of the traceback |
+| 2 | Split sizes not pinned, only their sum | Fixed: 8,687 and 2,135 asserted |
+| 3 | Criterion 6 is tested with 300 resamples, not the default 1,000 | Skipped by the owner: the default is already covered by the call-count and interval-width tests |

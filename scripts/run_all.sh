@@ -32,7 +32,8 @@ run_target() {
   case "$1" in
     clean) "$PY" -m src.clean ;;
     audit) "$PY" -m src.audit ;;
-    baselines | train | evaluate | predict | serve) not_implemented "$1" ;;
+    baselines) "$PY" -m src.baselines ;;
+    train | evaluate | predict | serve) not_implemented "$1" ;;
     test) "$PY" -m pytest tests ;;
     *)
       echo "Unknown target: $1" >&2

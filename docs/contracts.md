@@ -103,7 +103,7 @@ M1's tests rewrite the parquet). No models, no train/validation split.
 
 ## M3
 
-status: IMPLEMENTED (tests pass; not yet VERIFIED by the project owner)
+status: VERIFIED
 
 Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py`, tests
 `tests/test_m3_harness.py`. Imported by later modules: no files written, no run target, no models.
@@ -143,7 +143,9 @@ Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`,
 - `y_pred` may differ from the row maximum of `proba`. `confidence` defaults to `proba.max(axis=1)`; for rule-overridden
   predictions (M5) pass it explicitly, otherwise the curve uses the model's confidence in a team that was not predicted.
 - `ValueError` for: unknown or missing labels, empty or unequal inputs, duplicate `labels`, `proba` with the wrong shape,
-  values outside [0, 1], NaN or rows not summing to 1 (tolerance 1e-6), `confidence` with the wrong shape or range.
+  values outside [0, 1], NaN or rows not summing to 1 (tolerance 1e-6), `confidence` with the wrong shape or range,
+  non-numeric `proba` or `confidence`.
+- `ValueError` messages raised by M3 give counts and shapes, never the offending values (they could be customer text).
 
 **Caveats (state them when quoting results)**
 
@@ -156,7 +158,8 @@ Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`,
 
 **Acceptance criteria**
 
-1. Split: no row in both; max train date < min val date; val months exactly 2026-04 to 2026-06; row counts add up.
+1. Split: no row in both; max train date < min val date; val months exactly 2026-04 to 2026-06; row counts add up
+   (8,687 + 2,135 = 10,822).
 2. Hand-made 10-row example gives the exact accuracy, macro-F1, misroutes and cost.
 3. Perfect predictions: accuracy 1.0, misroutes 0, cost 0.
 4. Unknown label in `y_pred` raises `ValueError`.
@@ -165,6 +168,7 @@ Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`,
 7. `COST_PER_MISROUTE` recomputed from the parquet matches config (about Rs 698).
 8. `align_proba` reorders an alphabetical `classes_`; `evaluate` accepts `y_pred` that differs from argmax when
    `confidence` is given.
+9. A long text passed as a label, probability or confidence does not appear in the error or its traceback.
 
 ## M4
 
