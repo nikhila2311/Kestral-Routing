@@ -107,3 +107,6 @@ VALID_START = date(2026, 4, 1)
 VALID_END = date(2026, 6, 30)
 TEST_START = date(2026, 7, 1)
 TEST_END = date(2026, 9, 30)
+# Inner split of the train window for model selection (M5a). Inner-val ends at TRAIN_END.
+INNER_TRAIN_END = date(2025, 12, 31)
+INNER_VAL_START = date(2026, 1, 1)

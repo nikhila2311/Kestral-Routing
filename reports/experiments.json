@@ -1,0 +1,1301 @@
+{
+  "bot_real_val_accuracy": 0.766745,
+  "candidates": [
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c0.3_none",
+        "params": {
+          "C": 0.3,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.845941,
+        "log_loss": 0.489862,
+        "macro_f1": 0.849825
+      },
+      "log_loss_above_best": 0.034883,
+      "name": "logreg_c0.3_none",
+      "points_minus_chosen": -0.1845
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c0.3_balanced",
+        "params": {
+          "C": 0.3,
+          "class_weight": "balanced",
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.837177,
+        "log_loss": 0.496251,
+        "macro_f1": 0.831284
+      },
+      "log_loss_above_best": 0.041272,
+      "name": "logreg_c0.3_balanced",
+      "points_minus_chosen": -1.0609
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c1_none",
+        "params": {
+          "C": 1.0,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.847786,
+        "log_loss": 0.454979,
+        "macro_f1": 0.848087
+      },
+      "log_loss_above_best": 0.0,
+      "name": "logreg_c1_none",
+      "points_minus_chosen": 0.0
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c1_balanced",
+        "params": {
+          "C": 1.0,
+          "class_weight": "balanced",
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.839483,
+        "log_loss": 0.46005,
+        "macro_f1": 0.833383
+      },
+      "log_loss_above_best": 0.005071,
+      "name": "logreg_c1_balanced",
+      "points_minus_chosen": -0.8303
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c3_none",
+        "params": {
+          "C": 3.0,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.846863,
+        "log_loss": 0.462494,
+        "macro_f1": 0.845087
+      },
+      "log_loss_above_best": 0.007515,
+      "name": "logreg_c3_none",
+      "points_minus_chosen": -0.0923
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c3_balanced",
+        "params": {
+          "C": 3.0,
+          "class_weight": "balanced",
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.839022,
+        "log_loss": 0.46667,
+        "macro_f1": 0.832902
+      },
+      "log_loss_above_best": 0.011691,
+      "name": "logreg_c3_balanced",
+      "points_minus_chosen": -0.8764
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c10_none",
+        "params": {
+          "C": 10.0,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.848247,
+        "log_loss": 0.508226,
+        "macro_f1": 0.844443
+      },
+      "log_loss_above_best": 0.053247,
+      "name": "logreg_c10_none",
+      "points_minus_chosen": 0.0461
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "logreg",
+        "name": "logreg_c10_balanced",
+        "params": {
+          "C": 10.0,
+          "class_weight": "balanced",
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.843173,
+        "log_loss": 0.51273,
+        "macro_f1": 0.837365
+      },
+      "log_loss_above_best": 0.057751,
+      "name": "logreg_c10_balanced",
+      "points_minus_chosen": -0.4613
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": {
+          "folds": 5,
+          "method": "sigmoid"
+        },
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "linear_svc",
+        "name": "linear_svc_c0.1_sigmoid",
+        "params": {
+          "C": 0.1,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.854244,
+        "log_loss": 0.480733,
+        "macro_f1": 0.857722
+      },
+      "log_loss_above_best": 0.025754,
+      "name": "linear_svc_c0.1_sigmoid",
+      "points_minus_chosen": 0.6458
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": {
+          "folds": 5,
+          "method": "isotonic"
+        },
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "linear_svc",
+        "name": "linear_svc_c0.1_isotonic",
+        "params": {
+          "C": 0.1,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.854705,
+        "log_loss": 0.489208,
+        "macro_f1": 0.863587
+      },
+      "log_loss_above_best": 0.034229,
+      "name": "linear_svc_c0.1_isotonic",
+      "points_minus_chosen": 0.6919
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": {
+          "folds": 5,
+          "method": "sigmoid"
+        },
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "linear_svc",
+        "name": "linear_svc_c1_sigmoid",
+        "params": {
+          "C": 1.0,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.850092,
+        "log_loss": 0.511342,
+        "macro_f1": 0.847358
+      },
+      "log_loss_above_best": 0.056363,
+      "name": "linear_svc_c1_sigmoid",
+      "points_minus_chosen": 0.2306
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": {
+          "folds": 5,
+          "method": "isotonic"
+        },
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "linear_svc",
+        "name": "linear_svc_c1_isotonic",
+        "params": {
+          "C": 1.0,
+          "class_weight": null,
+          "max_iter": 2000,
+          "random_state": 42
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.85286,
+        "log_loss": 0.555625,
+        "macro_f1": 0.854553
+      },
+      "log_loss_above_best": 0.100646,
+      "name": "linear_svc_c1_isotonic",
+      "points_minus_chosen": 0.5074
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.850092,
+        "log_loss": 0.611967,
+        "macro_f1": 0.847929
+      },
+      "log_loss_above_best": 0.156988,
+      "name": "complement_nb_a0.1",
+      "points_minus_chosen": 0.2306
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.3",
+        "params": {
+          "alpha": 0.3,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.849631,
+        "log_loss": 0.589311,
+        "macro_f1": 0.847264
+      },
+      "log_loss_above_best": 0.134332,
+      "name": "complement_nb_a0.3",
+      "points_minus_chosen": 0.1845
+    },
+    {
+      "complexity": 0,
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a1",
+        "params": {
+          "alpha": 1.0,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.847325,
+        "log_loss": 0.544542,
+        "macro_f1": 0.845383
+      },
+      "log_loss_above_best": 0.089563,
+      "name": "complement_nb_a1",
+      "points_minus_chosen": -0.0461
+    },
+    {
+      "complexity": 6,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "payment",
+          "install",
+          "fault",
+          "order_id",
+          "conflict",
+          "ivr_conflict"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+all",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.84548,
+        "log_loss": 0.644098,
+        "macro_f1": 0.84158
+      },
+      "log_loss_above_best": 0.189119,
+      "name": "complement_nb_a0.1+all",
+      "points_minus_chosen": -0.2306
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "payment"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+payment",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.848708,
+        "log_loss": 0.619836,
+        "macro_f1": 0.845848
+      },
+      "log_loss_above_best": 0.164857,
+      "name": "complement_nb_a0.1+payment",
+      "points_minus_chosen": 0.0922
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "install"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+install",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.847786,
+        "log_loss": 0.624387,
+        "macro_f1": 0.845417
+      },
+      "log_loss_above_best": 0.169408,
+      "name": "complement_nb_a0.1+install",
+      "points_minus_chosen": 0.0
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "fault"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+fault",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.846402,
+        "log_loss": 0.627426,
+        "macro_f1": 0.843463
+      },
+      "log_loss_above_best": 0.172447,
+      "name": "complement_nb_a0.1+fault",
+      "points_minus_chosen": -0.1384
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "order_id"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+order_id",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.849631,
+        "log_loss": 0.612244,
+        "macro_f1": 0.847298
+      },
+      "log_loss_above_best": 0.157265,
+      "name": "complement_nb_a0.1+order_id",
+      "points_minus_chosen": 0.1845
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "conflict"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+conflict",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.850554,
+        "log_loss": 0.611907,
+        "macro_f1": 0.848646
+      },
+      "log_loss_above_best": 0.156928,
+      "name": "complement_nb_a0.1+conflict",
+      "points_minus_chosen": 0.2768
+    },
+    {
+      "complexity": 1,
+      "config": {
+        "calibration": null,
+        "feature_groups": [
+          "ivr_conflict"
+        ],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1+ivr_conflict",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "inner_val": {
+        "accuracy": 0.849631,
+        "log_loss": 0.611974,
+        "macro_f1": 0.847413
+      },
+      "log_loss_above_best": 0.156995,
+      "name": "complement_nb_a0.1+ivr_conflict",
+      "points_minus_chosen": 0.1845
+    }
+  ],
+  "chosen": {
+    "config": {
+      "calibration": null,
+      "feature_groups": [],
+      "features": [
+        "text_clean",
+        "channel",
+        "product_family",
+        "warranty_status"
+      ],
+      "model_type": "logreg",
+      "name": "logreg_c1_none",
+      "params": {
+        "C": 1.0,
+        "class_weight": null,
+        "max_iter": 2000,
+        "random_state": 42
+      },
+      "text": {
+        "char_wb_ngrams": [
+          3,
+          5
+        ],
+        "min_df": 2,
+        "word_ngrams": [
+          1,
+          2
+        ]
+      }
+    },
+    "name": "logreg_c1_none",
+    "points_below_top": 0.6919,
+    "reason": "has the lowest log loss of the simplest candidates left after the margin and the log loss limit",
+    "top_candidate": "linear_svc_c0.1_isotonic"
+  },
+  "cue_candidates": {
+    "count": 7,
+    "within_log_loss_limit_count": 0,
+    "within_margin": [
+      "complement_nb_a0.1+all",
+      "complement_nb_a0.1+payment",
+      "complement_nb_a0.1+install",
+      "complement_nb_a0.1+fault",
+      "complement_nb_a0.1+order_id",
+      "complement_nb_a0.1+conflict",
+      "complement_nb_a0.1+ivr_conflict"
+    ],
+    "within_margin_count": 7
+  },
+  "discarded": {
+    "complement_nb_a0.1": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+all": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+conflict": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+fault": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+install": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+ivr_conflict": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+order_id": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.1+payment": "within the margin, but log loss is over the limit",
+    "complement_nb_a0.3": "within the margin, but log loss is over the limit",
+    "complement_nb_a1": "passes the margin and the log loss limit and as simple, but lost the tie-break (log loss first)",
+    "linear_svc_c0.1_isotonic": "passes the margin and the log loss limit, but more complex",
+    "linear_svc_c0.1_sigmoid": "passes the margin and the log loss limit, but more complex",
+    "linear_svc_c1_isotonic": "within the margin, but log loss is over the limit",
+    "linear_svc_c1_sigmoid": "passes the margin and the log loss limit, but more complex",
+    "logreg_c0.3_balanced": "outside the margin of the highest accuracy",
+    "logreg_c0.3_none": "passes the margin and the log loss limit and as simple, but lost the tie-break (log loss first)",
+    "logreg_c10_balanced": "outside the margin of the highest accuracy",
+    "logreg_c10_none": "passes the margin and the log loss limit and as simple, but lost the tie-break (log loss first)",
+    "logreg_c1_balanced": "outside the margin of the highest accuracy",
+    "logreg_c3_balanced": "outside the margin of the highest accuracy",
+    "logreg_c3_none": "passes the margin and the log loss limit and as simple, but lost the tie-break (log loss first)"
+  },
+  "inner_split": {
+    "train_first_day": "2025-04-01",
+    "train_last_day": "2025-12-31",
+    "train_rows": 6519,
+    "val_first_day": "2026-01-01",
+    "val_last_day": "2026-03-31",
+    "val_rows": 2168
+  },
+  "meta": {
+    "ci_level": 0.95,
+    "feature_group_columns": {
+      "conflict": [
+        "product_conflict"
+      ],
+      "fault": [
+        "fault_cue"
+      ],
+      "install": [
+        "install_cue"
+      ],
+      "ivr_conflict": [
+        "product_conflict_on_ivr"
+      ],
+      "order_id": [
+        "order_id_present"
+      ],
+      "payment": [
+        "payment_is_problem",
+        "payment_only_mentioned"
+      ]
+    },
+    "seed": 42,
+    "train_rows": 8687,
+    "validation_first_day": "2026-04-01",
+    "validation_last_day": "2026-06-30",
+    "validation_rows": 2135
+  },
+  "original_rule": {
+    "chosen": {
+      "config": {
+        "calibration": null,
+        "feature_groups": [],
+        "features": [
+          "text_clean",
+          "channel",
+          "product_family",
+          "warranty_status"
+        ],
+        "model_type": "complement_nb",
+        "name": "complement_nb_a0.1",
+        "params": {
+          "alpha": 0.1,
+          "norm": false
+        },
+        "text": {
+          "char_wb_ngrams": [
+            3,
+            5
+          ],
+          "min_df": 2,
+          "word_ngrams": [
+            1,
+            2
+          ]
+        }
+      },
+      "name": "complement_nb_a0.1",
+      "points_below_top": 0.4613,
+      "reason": "is the simplest candidate within the margin of the highest inner-val accuracy",
+      "top_candidate": "linear_svc_c0.1_isotonic"
+    },
+    "criterion_4": {
+      "allowed_drop_points": 1.0,
+      "criterion": 4,
+      "points_minus_reference": -1.311475,
+      "result": "failed",
+      "threshold_accuracy": 0.828876
+    },
+    "discarded": {
+      "complement_nb_a0.1+all": "more complex and not more accurate",
+      "complement_nb_a0.1+conflict": "more accurate, but more complex and the gain is within the margin",
+      "complement_nb_a0.1+fault": "more complex and not more accurate",
+      "complement_nb_a0.1+install": "more complex and not more accurate",
+      "complement_nb_a0.1+ivr_conflict": "more complex and not more accurate",
+      "complement_nb_a0.1+order_id": "more complex and not more accurate",
+      "complement_nb_a0.1+payment": "more complex and not more accurate",
+      "complement_nb_a0.3": "as simple, but less accurate",
+      "complement_nb_a1": "as simple, but less accurate",
+      "linear_svc_c0.1_isotonic": "more accurate, but more complex and the gain is within the margin",
+      "linear_svc_c0.1_sigmoid": "more accurate, but more complex and the gain is within the margin",
+      "linear_svc_c1_isotonic": "more accurate, but more complex and the gain is within the margin",
+      "linear_svc_c1_sigmoid": "more complex and not more accurate",
+      "logreg_c0.3_balanced": "outside the margin of the highest accuracy",
+      "logreg_c0.3_none": "as simple, but less accurate",
+      "logreg_c10_balanced": "outside the margin of the highest accuracy",
+      "logreg_c10_none": "as simple, but less accurate",
+      "logreg_c1_balanced": "outside the margin of the highest accuracy",
+      "logreg_c1_none": "as simple, but less accurate",
+      "logreg_c3_balanced": "outside the margin of the highest accuracy",
+      "logreg_c3_none": "as simple, but less accurate"
+    },
+    "real_val": {
+      "accuracy": 0.825761,
+      "accuracy_ci95": {
+        "high": 0.84123,
+        "low": 0.809368,
+        "point": 0.825761
+      },
+      "log_loss": 0.811521,
+      "macro_f1": 0.823309,
+      "paired_accuracy_points_minus_bot": {
+        "high": 7.542155,
+        "low": 4.309133,
+        "point": 5.901639
+      },
+      "per_team_recall": {
+        "Billing": 0.886275,
+        "Filters & Consumables": 0.797101,
+        "Installs & Demo": 0.831776,
+        "Product Advice": 0.780669,
+        "Repairs": 0.873494,
+        "Returns & Replacement": 0.785276,
+        "Warranty Claims": 0.787645
+      },
+      "repairs_precision": 0.833333,
+      "top_confusions": [
+        {
+          "count": 25,
+          "predicted": "Billing",
+          "true": "Product Advice"
+        },
+        {
+          "count": 23,
+          "predicted": "Billing",
+          "true": "Installs & Demo"
+        },
+        {
+          "count": 22,
+          "predicted": "Billing",
+          "true": "Repairs"
+        },
+        {
+          "count": 20,
+          "predicted": "Billing",
+          "true": "Returns & Replacement"
+        },
+        {
+          "count": 19,
+          "predicted": "Repairs",
+          "true": "Returns & Replacement"
+        }
+      ]
+    },
+    "rule": "Highest inner-val accuracy. If other candidates are within the margin of it and simpler (fewer added feature groups, no calibration wrapper), the simplest of them; ties go to accuracy, then log loss, then list order."
+  },
+  "real_val": {
+    "logreg_c1_none": {
+      "accuracy": 0.838876,
+      "accuracy_ci95": {
+        "high": 0.853864,
+        "low": 0.822951,
+        "point": 0.838876
+      },
+      "log_loss": 0.488663,
+      "macro_f1": 0.839821,
+      "paired_accuracy_points_minus_bot": {
+        "high": 8.805621,
+        "low": 5.759953,
+        "point": 7.213115
+      },
+      "per_team_recall": {
+        "Billing": 0.870588,
+        "Filters & Consumables": 0.821256,
+        "Installs & Demo": 0.825545,
+        "Product Advice": 0.776952,
+        "Repairs": 0.905622,
+        "Returns & Replacement": 0.812883,
+        "Warranty Claims": 0.80695
+      },
+      "repairs_precision": 0.774914,
+      "top_confusions": [
+        {
+          "count": 31,
+          "predicted": "Repairs",
+          "true": "Product Advice"
+        },
+        {
+          "count": 29,
+          "predicted": "Repairs",
+          "true": "Returns & Replacement"
+        },
+        {
+          "count": 28,
+          "predicted": "Repairs",
+          "true": "Installs & Demo"
+        },
+        {
+          "count": 15,
+          "predicted": "Repairs",
+          "true": "Filters & Consumables"
+        },
+        {
+          "count": 15,
+          "predicted": "Repairs",
+          "true": "Warranty Claims"
+        }
+      ]
+    }
+  },
+  "reference": "logreg_c1_none",
+  "selection": {
+    "accuracy_first_choice": "logreg_c10_none",
+    "accuracy_floor": 0.844705,
+    "amendment_reason": "M5b triage depends on calibrated probabilities; the original rule ignored calibration although it was a known requirement.",
+    "best_log_loss": 0.454979,
+    "candidate_count": 22,
+    "feature_base": "complement_nb_a0.1",
+    "log_loss_ceiling": 0.554979,
+    "log_loss_limit": 0.1,
+    "margin_points": 1.0,
+    "rule": "Among candidates within the margin of the highest inner-val accuracy, drop any whose inner-val log loss is more than the limit above the best inner-val log loss. Of the rest, take the simplest (fewer added feature groups, no calibration wrapper); ties go to log loss, then accuracy, then list order.",
+    "simplest_count": 5,
+    "within_log_loss_limit_count": 8,
+    "within_margin_count": 18
+  },
+  "supplementary": {
+    "base": "logreg_c1_none",
+    "base_inner_val": {
+      "accuracy": 0.847786,
+      "log_loss": 0.454979,
+      "macro_f1": 0.848087
+    },
+    "candidates": [
+      {
+        "accuracy_points_minus_base": -0.4151,
+        "feature_groups": [
+          "payment",
+          "install",
+          "fault",
+          "order_id",
+          "conflict",
+          "ivr_conflict"
+        ],
+        "inner_val": {
+          "accuracy": 0.843635,
+          "log_loss": 0.45593,
+          "macro_f1": 0.842372
+        },
+        "log_loss_minus_base": 0.000951,
+        "name": "logreg_c1_none+all"
+      },
+      {
+        "accuracy_points_minus_base": 0.0,
+        "feature_groups": [
+          "payment"
+        ],
+        "inner_val": {
+          "accuracy": 0.847786,
+          "log_loss": 0.455602,
+          "macro_f1": 0.848401
+        },
+        "log_loss_minus_base": 0.000623,
+        "name": "logreg_c1_none+payment"
+      },
+      {
+        "accuracy_points_minus_base": -0.2306,
+        "feature_groups": [
+          "install"
+        ],
+        "inner_val": {
+          "accuracy": 0.84548,
+          "log_loss": 0.457337,
+          "macro_f1": 0.84553
+        },
+        "log_loss_minus_base": 0.002358,
+        "name": "logreg_c1_none+install"
+      },
+      {
+        "accuracy_points_minus_base": -0.1845,
+        "feature_groups": [
+          "fault"
+        ],
+        "inner_val": {
+          "accuracy": 0.845941,
+          "log_loss": 0.453097,
+          "macro_f1": 0.845559
+        },
+        "log_loss_minus_base": -0.001882,
+        "name": "logreg_c1_none+fault"
+      },
+      {
+        "accuracy_points_minus_base": 0.0461,
+        "feature_groups": [
+          "order_id"
+        ],
+        "inner_val": {
+          "accuracy": 0.848247,
+          "log_loss": 0.454932,
+          "macro_f1": 0.848219
+        },
+        "log_loss_minus_base": -4.7e-05,
+        "name": "logreg_c1_none+order_id"
+      },
+      {
+        "accuracy_points_minus_base": 0.0922,
+        "feature_groups": [
+          "conflict"
+        ],
+        "inner_val": {
+          "accuracy": 0.848708,
+          "log_loss": 0.454627,
+          "macro_f1": 0.84893
+        },
+        "log_loss_minus_base": -0.000352,
+        "name": "logreg_c1_none+conflict"
+      },
+      {
+        "accuracy_points_minus_base": -0.1384,
+        "feature_groups": [
+          "ivr_conflict"
+        ],
+        "inner_val": {
+          "accuracy": 0.846402,
+          "log_loss": 0.455432,
+          "macro_f1": 0.846814
+        },
+        "log_loss_minus_base": 0.000453,
+        "name": "logreg_c1_none+ivr_conflict"
+      }
+    ],
+    "count": 7,
+    "note": "The selection is unchanged: validation had already been consulted, so the selection is frozen and these results are report-only."
+  }
+}

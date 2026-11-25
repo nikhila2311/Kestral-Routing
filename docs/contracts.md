@@ -250,7 +250,89 @@ rows, the paired interval and the seen / unseen accuracies.
 8. Every number in `baselines.md` is in the results (allowing rounding), no request text (4-word runs) and no old team
    names are in the reports.
 
-## M5
+## M5a
+
+status: BUILT, rule amended, awaiting owner verification (see `PROGRESS.md`)
+
+Model selection. Code `src/experiments.py`, tests `tests/test_m5a_experiments.py`, run
+`bash scripts/run_all.sh experiments` (run `clean` first). No Router class, API, saved model, thresholds or predictions.
+
+**Inputs**
+
+- `data/processed/train_clean.parquet` (M1). `reports/baselines.json` (M4) is read by the tests only.
+- Code: M2 `product_conflict_mask`; M3 `time_split`, `evaluate`, `align_proba` (through M4 `predict_with_proba`),
+  `bootstrap_ci`; M4 `make_pipeline`, `predict_with_proba`, `paired_difference`, `round_floats` and constants; the dates
+  `INNER_TRAIN_END`, `INNER_VAL_START` in `src/config.py`.
+- `ops-policy.pdf` section 3 and `teams.csv`: read once to write the cue patterns, not at run time.
+
+**Protocol**
+
+- Inner split of the train window: inner-train Apr-Dec 2025 (6,519 rows), inner-val Jan-Mar 2026 (2,168). All choices use
+  inner-val numbers. Real validation is scored for the chosen configuration, the reference (d) and the original rule's
+  choice (evidence), each refitted on the whole train window.
+- Candidates (22): LogisticRegression C {0.3, 1, 3, 10} x class_weight {none, balanced} (`logreg_c1_none` is (d));
+  LinearSVC C {0.1, 1} x {sigmoid, isotonic}; ComplementNB alpha {0.1, 0.3, 1}; then 6 feature groups together and each
+  alone on the best of these, picked with the same rule. All share the M4 features.
+- Original rule, on the stored rounded inner-val numbers: among candidates within 1.0 point of the highest accuracy, lowest
+  complexity (added feature groups + 1 if calibrated), then accuracy, log loss, list order. No chaining. It chose
+  `complement_nb_a0.1`, which failed criterion 4 (82.58% against 82.89%); kept as `original_rule`.
+- Amended rule (used): within 1.0 point of the highest accuracy, drop candidates whose log loss is more than 0.1 above the
+  best of all candidates, then lowest complexity, then log loss, accuracy, list order. It chooses `logreg_c1_none` = (d).
+  It was amended after a real-val result had been seen; the disclosure is in `experiments.md`. The base of the feature
+  candidates is still the original rule's, so no candidate was added.
+- Supplementary, report-only: the 7 cue candidates on `logreg_c1_none`, inner-val only, never given to a selection rule and
+  never scored on real validation.
+- Calibration: contiguous `KFold(5, shuffle=False)`, `ensemble=False`, whole pipeline inside each fold.
+
+**Interface**
+
+- `build(out_dir=config.REPORTS_DIR) -> dict`, `compute_experiments(df) -> dict`, `run_selection(train_df) -> dict`,
+  `render_markdown(results) -> str` (pure).
+- `inner_split(train_df) -> (inner_train, inner_val)`: `ValueError` on rows outside the train window.
+- `cue_features(df) -> DataFrame` of 0/1 columns, from the 4 allowed columns only; `FEATURE_GROUPS` maps group -> columns.
+  `ValueError` on an unknown `product_family` (from M2).
+- `build_model(cfg) -> estimator` (unfitted); `fit_predict(cfg, fit_df, score_df) -> (teams, proba)`.
+- `base_candidates()`, `feature_candidates(base)`, `complexity(cfg)`, `select(rows)` (amended), `select_original(rows)`,
+  `supplementary(train_df, base_row)`, `score_inner(...)`,
+  `score_final(cfg, train_df, val_df)`, `top_confusions(matrix, k=5)`.
+
+**Output `reports/experiments.json`** (aggregates only, floats rounded to 6 decimals, sorted keys)
+
+| Key | Content |
+|---|---|
+| candidates | list: `name`, `config`, `complexity`, `inner_val` {accuracy, macro_f1, log_loss}, `log_loss_above_best`, `points_minus_chosen` |
+| chosen | amended choice: `name`, `config` (below), `top_candidate`, `points_below_top`, `reason` |
+| discarded | name -> reason under the amended rule, for every candidate not chosen |
+| selection | `rule` (amended), `amendment_reason`, `margin_points`, `log_loss_limit`, `accuracy_floor`, `best_log_loss`, `log_loss_ceiling`, `within_margin_count`, `within_log_loss_limit_count`, `simplest_count`, `accuracy_first_choice` (choice with the tie-break as first proposed), `feature_base`, `candidate_count` |
+| cue_candidates | `count`, `within_margin` (names), `within_margin_count`, `within_log_loss_limit_count` |
+| supplementary | `base`, `base_inner_val`, `count`, `candidates` (`name`, `feature_groups`, `inner_val`, `accuracy_points_minus_base`, `log_loss_minus_base`), `note` |
+| original_rule | `rule`, `chosen`, `discarded`, `real_val` (same keys as below), `criterion_4` {`criterion`, `result`, `allowed_drop_points`, `threshold_accuracy`, `points_minus_reference`} |
+| inner_split | rows, first and last day of inner-train and inner-val |
+| reference | `logreg_c1_none` |
+| real_val | amended choice and reference names only -> `accuracy`, `accuracy_ci95`, `macro_f1`, `log_loss`, `paired_accuracy_points_minus_bot`, `per_team_recall`, `repairs_precision`, `top_confusions` (5) |
+| bot_real_val_accuracy | share |
+| meta | `train_rows`, `validation_rows`, `validation_first_day`, `validation_last_day`, `ci_level`, `seed`, `feature_group_columns` |
+
+`config` (consumed by `build_model`): `name`, `model_type` (`logreg`, `linear_svc`, `complement_nb`), `params` (classifier
+arguments), `calibration` (null or {method, folds}), `features` (the 4 columns), `feature_groups`, `text` {word_ngrams,
+char_wb_ngrams, min_df}.
+
+**Output `reports/experiments.md`**: rendered from the results only, plus fixed caveats (including the `technician` cue).
+
+**Acceptance criteria**
+
+1. Inner split is chronological and contains no Apr-Jun 2026 row.
+2. Every candidate has inner-val metrics; real-val metrics exist only for the chosen configuration and (d), plus the
+   original choice inside `original_rule`.
+3. The chosen configuration is what the amended rule picks from the stored numbers (`logreg_c1_none`); `original_rule` is
+   present and records the failure.
+4. Chosen real-val accuracy >= M4 (d) - 1.0 point, and above the bot. Applies to the amended choice, which is (d) itself,
+   so the first half cannot fail. The original choice failed it.
+5. Only the 4 allowed columns are used (scrambling the others changes nothing).
+6. Deterministic with `config.SEED`; JSON floats rounded to 6 decimals.
+7. Every number in `experiments.md` is in `experiments.json`.
+
+## M5b
 
 status: not started
 

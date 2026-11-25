@@ -7,7 +7,8 @@
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` | 48 tests pass; agreement 77.17%; 15 months; Rs 122,171/month (Rs 114,994 from misrouted rows only); 1,744 product conflicts (16.1%); 878 vague (8.1%, estimate) | Cost formula as specified, caveats in `cost_inputs`; text counts on `text_clean` with `_raw` variants; tests build into a temp folder; months, vague and conflict rules in M2 notes | Vague by length or "call back" (that phrase is mostly a suffix on specific requests); product pattern needing "air fryer" |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py` | 8,687 / 2,135 rows; Rs 698.06 per misroute (simple Rs 565); bot misroutes Rs 114,994/month; 64 tests pass | Average transfers from misrouted rows only; literal counts in config; macro-F1 over all 7 teams; `align_proba` and `confidence` added; error messages give counts only | Rejecting `y_pred` that is not the row maximum of `proba` (blocks M5 rules); average over all 3,902 transfers (Rs 741.6) |
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md`, `src/baselines.py` | Validation accuracy: bot 76.67%, rules 65.95%, (d) 83.89%, (e) 76.21%; (d) minus bot 7.21 points (paired 5.76 to 8.81); 57 tests pass | Train window is the one reference set for repeated text; JSON rounded to 6 decimals; `technician` removed from Repairs | "Likely optimistic" verdict on repeated text; exact-text check of the committed reports |
-| M5 | not started | | | | |
+| M5a model selection | BUILT, awaiting verification | `reports/experiments.json`, `reports/experiments.md`, `src/experiments.py` | Original rule: `complement_nb_a0.1`, real-val 82.58%, failed criterion 4 (82.89%). Amended rule: `logreg_c1_none` = (d), real-val 83.89% (bot 76.67%) | Q1-Q8 as recommended; rule amended after a real-val result, see M5a notes | Added features, balanced class weights, calibrated LinearSVC (more complex), ComplementNB (log loss) |
+| M5b | not started | | | | |
 | M6 | not started | | | | |
 | M7 | not started | | | | |
 | M8 | not started | | | | |
@@ -206,3 +207,65 @@ the rules' validation score is not fully blind. No other rule was changed. (d), 
 | L4 | Report prose and duplicate fields add complexity | Deferred |
 
 Deferred by the project owner: test strictness and tidiness only, no effect on results.
+
+## M5a notes
+
+**Status: rule amended by the project owner; awaiting verification.** The original rule chose `complement_nb_a0.1`, which
+scores 82.58% on real validation, below the criterion 4 floor of 82.89% (M4 (d) 83.89% minus 1.0 point), and beats the bot
+by 5.90 points (paired 4.31 to 7.54). Owner: accepted as a finding, evidence kept as `original_rule` in both reports. The
+amended rule chooses `logreg_c1_none`, which is (d): 83.89%, 7.21 points above the bot (paired 5.76 to 8.81).
+
+| Candidate | Inner-val accuracy | Inner-val log loss | Real-val accuracy | Real-val log loss |
+|---|---:|---:|---:|---:|
+| `complement_nb_a0.1` (original choice, failed criterion 4) | 85.01% | 0.6120 | 82.58% | 0.8115 |
+| `logreg_c1_none` = (d) (amended choice) | 84.78% | 0.4550 | 83.89% | 0.4887 |
+| `linear_svc_c0.1_isotonic` (highest) | 85.47% | 0.4892 | not scored | not scored |
+
+**What went wrong.** Inner-val accuracy barely separates the candidates: the original choice beat (d) by 0.23 points (5 of 2,168
+requests). It also has the worst inner-val log loss of the 15 candidates without added features, which the original rule
+only used as a tie-break; (d) has the best of all 22. Four of the original choice's five largest real-val confusions send
+other teams' requests to Billing.
+
+**Amended rule** (inner-val numbers only). Within 1.0 point of the highest accuracy (18 of 22 left); drop log loss more than
+0.1 above the best (8 left); lowest complexity (5 left); lowest log loss: `logreg_c1_none`. Reason: M5b triage depends on
+calibrated probabilities; the original rule ignored calibration although it was a known requirement.
+
+**Disclosure**
+
+- The amendment was made after seeing one real-val result, and knowing which candidate it would select.
+- As first proposed, the amendment kept accuracy before log loss in the tie-break. Checked on the stored numbers before
+  coding, that picks `logreg_c10_none` (1 request of 2,168 ahead on inner-val; log loss 0.053 above the best, so within the
+  limit), not the expected `logreg_c1_none`. The owner chose to put log loss first. `logreg_c10_none` and the LinearSVC
+  candidates were never scored on real validation.
+- The chosen model's real-val score was already seen in M4, so it is not an untouched estimate. It is (d), so criterion 4
+  cannot fail for it.
+- The three contenders (highest, original choice, amended choice) span 0.69 points on inner-val, within noise. Paired 95%
+  intervals against `logreg_c1_none`, in points, measured once and not in the JSON: `linear_svc_c0.1_isotonic` -0.05 to
+  1.38, `complement_nb_a0.1` -0.69 to 1.15. Exception: `linear_svc_c0.1_sigmoid` 0.14 to 1.15, which excludes zero, with no
+  allowance for picking among 22 candidates.
+- The amended choice has lower Repairs precision than the original one on real validation (77.49% against 83.33%): its five
+  largest confusions all send other teams' requests to Repairs.
+
+**Decisions** (project owner, plan review): complexity = added feature groups + 1 if calibrated; the base for the added
+features is picked with the same rule; groups together and alone; extra grids for LinearSVC C and ComplementNB alpha;
+contiguous unshuffled calibration folds; IVR x product conflict only; order id = `ko` + 7 digits (`sr` ids excluded); ids
+in text are not masked; `experiments` run target.
+
+**`technician` caveat (Q8).** Cue words come from policy section 3, `teams.csv` and the spec, and their counts were checked
+on inner-train only. "technician" is the exception: it comes from the M4 finding, whose counts covered the whole train
+window (inner-val included) and which was made after validation had been seen. It may flatter the `install` group and the
+candidate with all groups. Neither was chosen, so it does not affect the chosen configuration.
+
+**Discarded** (inner-val)
+
+- Added features, against their ComplementNB base: at most +0.05 points alone, -0.46 with all 6 groups. All 7 cue candidates
+  came within 1.0 point of the highest accuracy and none met the log loss limit. The selection tried them on
+  ComplementNB only.
+- Supplementary, report-only (owner request, inner-val only): the same 7 cue candidates on `logreg_c1_none` range from -0.42
+  points (all 6 groups) to +0.09 (product conflict, 2 of 2,168 requests); log loss moves by at most 0.0024. The selection is
+  unchanged: validation had already been consulted, so the selection is frozen. None were scored on real validation.
+- `class_weight="balanced"`: lower accuracy and macro F-score than none at every C.
+- Calibrated LinearSVC: up to 0.69 points above the chosen one, within the margin and one step more complex.
+
+**Limits.** ComplementNB alpha 0.1 and LinearSVC C 0.1 are the lowest values tried, so the best may lie beyond the grid.
+`CLAUDE.md` still lists the run targets without `experiments`.

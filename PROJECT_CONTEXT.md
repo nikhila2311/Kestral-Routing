@@ -31,7 +31,8 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py` |
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md` |
-| M5 | not started | |
+| M5a model selection | BUILT, awaiting verification | `reports/experiments.json`, `reports/experiments.md` |
+| M5b | not started | |
 | M6 | not started | |
 | M7 | not started | |
 | M8 | not started | |
@@ -51,9 +52,9 @@ One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md
   Pass sklearn `predict_proba` output through `align_proba`; pass `confidence` when rules override predictions.
 - M4: `reports/baselines.json` (`reports/baselines.md` is rendered from it); `src/baselines.py: make_pipeline, fit_model,
   predict_with_proba` — schema and signatures in docs/contracts.md#m4.
-- M5–M10: none verified yet.
+- M5a–M10: none verified yet. Do not consume `reports/experiments.json` until M5a is verified.
 
-Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines` and `test` are
+Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines`, `experiments` and `test` are
 implemented; other targets exit 2.
 
 ## 5. Key numbers
@@ -92,8 +93,13 @@ M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% boot
 - Keyword rules changed once after validation had been seen (`technician`, train-count justified); see `PROGRESS.md`.
 - Seen / unseen text: bot 80.28% / 76.27%, `tfidf_final` 84.98% / 83.77%.
 
+M5a (`reports/experiments.json`, not verified): amended rule chose `logreg_c1_none` = (d), inner-val 84.78%, real-val 83.89%.
+Original rule: `complement_nb_a0.1`, 85.01% / 82.58%, failed criterion 4.
+
 ## 6. Open questions / known risks
 
+- M5a's rule was amended after a real-val result; its choice (d) was already scored in M4, so 83.89% is not an untouched
+  estimate. Cue features add at most 0.09 points to it on inner-val (report-only). See `PROGRESS.md`, M5a notes.
 - Ritu's 90% bar is stated against the bot's labels (~77% right); restate it against `final_team`.
 - Ritu says "eighteen months" of labels; there are 15 (the other 3 months are the unlabelled test set).
 - `transfers` disagrees with the teams: 351 rows have transfers although first = final team; 126 rows changed team
