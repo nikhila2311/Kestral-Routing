@@ -7,8 +7,8 @@
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` | 48 tests pass; agreement 77.17%; 15 months; Rs 122,171/month (Rs 114,994 from misrouted rows only); 1,744 product conflicts (16.1%); 878 vague (8.1%, estimate) | Cost formula as specified, caveats in `cost_inputs`; text counts on `text_clean` with `_raw` variants; tests build into a temp folder; months, vague and conflict rules in M2 notes | Vague by length or "call back" (that phrase is mostly a suffix on specific requests); product pattern needing "air fryer" |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py` | 8,687 / 2,135 rows; Rs 698.06 per misroute (simple Rs 565); bot misroutes Rs 114,994/month; 64 tests pass | Average transfers from misrouted rows only; literal counts in config; macro-F1 over all 7 teams; `align_proba` and `confidence` added; error messages give counts only | Rejecting `y_pred` that is not the row maximum of `proba` (blocks M5 rules); average over all 3,902 transfers (Rs 741.6) |
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md`, `src/baselines.py` | Validation accuracy: bot 76.67%, rules 65.95%, (d) 83.89%, (e) 76.21%; (d) minus bot 7.21 points (paired 5.76 to 8.81); 57 tests pass | Train window is the one reference set for repeated text; JSON rounded to 6 decimals; `technician` removed from Repairs | "Likely optimistic" verdict on repeated text; exact-text check of the committed reports |
-| M5a model selection | BUILT, awaiting verification | `reports/experiments.json`, `reports/experiments.md`, `src/experiments.py` | Original rule: `complement_nb_a0.1`, real-val 82.58%, failed criterion 4 (82.89%). Amended rule: `logreg_c1_none` = (d), real-val 83.89% (bot 76.67%) | Q1-Q8 as recommended; rule amended after a real-val result, see M5a notes | Added features, balanced class weights, calibrated LinearSVC (more complex), ComplementNB (log loss) |
-| M5b | not started | | | | |
+| M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md`, `src/experiments.py` | Original rule: `complement_nb_a0.1`, real-val 82.58%, failed criterion 4 (82.89%). Amended rule: `logreg_c1_none` = (d), real-val 83.89% (bot 76.67%) | Q1-Q8 as recommended; rule amended after a real-val result, see M5a notes | Added features, balanced class weights, calibrated LinearSVC (more complex), ComplementNB (log loss) |
+| M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md`, `models/` (git-ignored) | Auto-routed 81.55% at 96.32%; triaged 18.45% at 28.93%; Rs 49,039/month best case, 80,044 no triage, 114,191 fixes nothing, bot 115,878; break-even 52.41%; 101 M5b tests pass | Q1-Q5 as recommended, see M5b notes; scikit-learn, joblib, numpy pinned; wording revised twice, model unchanged | Threshold from `COST_PER_MISROUTE` (covers validation); character n-grams in reasons; question template per team pair |
 | M6 | not started | | | | |
 | M7 | not started | | | | |
 | M8 | not started | | | | |
@@ -210,7 +210,7 @@ Deferred by the project owner: test strictness and tidiness only, no effect on r
 
 ## M5a notes
 
-**Status: rule amended by the project owner; awaiting verification.** The original rule chose `complement_nb_a0.1`, which
+**Status: rule amended by the project owner; VERIFIED.** The original rule chose `complement_nb_a0.1`, which
 scores 82.58% on real validation, below the criterion 4 floor of 82.89% (M4 (d) 83.89% minus 1.0 point), and beats the bot
 by 5.90 points (paired 4.31 to 7.54). Owner: accepted as a finding, evidence kept as `original_rule` in both reports. The
 amended rule chooses `logreg_c1_none`, which is (d): 83.89%, 7.21 points above the bot (paired 5.76 to 8.81).
@@ -269,3 +269,43 @@ candidate with all groups. Neither was chosen, so it does not affect the chosen 
 
 **Limits.** ComplementNB alpha 0.1 and LinearSVC C 0.1 are the lowest values tried, so the best may lie beyond the grid.
 `CLAUDE.md` still lists the run targets without `experiments`.
+
+## M5b notes
+
+**Decisions** (project owner, plan review). Q1: M5a verified. Q2: triage threshold from the train window
+(`COST_PER_MISROUTE_TRAIN` 699.49, threshold 0.6283) instead of 698.06 (0.6275), which covers validation months; 698.06 stays
+for reporting. Q3: bot cost on the same validation rows (498 misroutes, Rs 115,878 per month); the 15-month Rs 114,994 is not
+comparable. Q4: "clarified requests are never misrouted" is the headline, with no-triage and fixes-nothing beside it. Q5: cue
+reasons in neutral wording. Addition: scikit-learn, joblib and numpy pinned; `load` refuses a version mismatch.
+
+**Findings**
+
+- Triage only beats no triage if clarification fixes 52.41% of triaged misroutes. With none fixed, the router costs about as
+  much as the bot (Rs 114,191 against Rs 115,878 per month).
+- Triaged requests are nearly unroutable from the text: 28.93% right at a mean confidence of 32.96%. All 173 validation messages
+  the M2 rule calls vague are triaged.
+- Invented §3 cases: none of the three "paid" messages about another problem went to Billing; both payment problems did.
+
+**Wording changes** (project owner, after seeing invented example outputs). Reasons and questions only: team, confidence, top3,
+triage and model version were identical before and after on all 2,135 validation rows, and a test freezes 500 of them.
+
+| Change | Why |
+|---|---|
+| One question builder from a plain phrase per team replaced 10 pair templates | The top-two pair asked a vague request about a payment nobody mentioned |
+| General question when vague or confidence < 0.40; otherwise teams with probability >= 0.10, at most 3 | A two-way question hid a likely third team ("want replacement") |
+| At most 3 phrases, no lone "not" or function word, no word in two phrases | 'not' alone and 'grinder stopped' told an agent nothing |
+| A longer phrase wins with at least 65% of its word's score, or always if it adds a negation | 80% was tried first: "not working" (69%) and "stopped working" (68%) lost to 'working', which says the opposite |
+| §3 line also when the team is not Billing | Explains why "I paid" did not go to Billing |
+| Agent wording in reasons, customer wording only in the question | "you're waiting" is wrong when an agent reads it |
+| "may be that" instead of "looks like" when triaged | A 36% guess should not sound certain |
+
+**Open.** README: `Router.load`'s message says "see README", which does not exist yet; until M7 the rebuild step is
+`bash scripts/run_all.sh router`. How often clarification works is unknown (ask operations). Wording is untested with
+customers and agents.
+
+**Verification.** Marked VERIFIED by the project owner. 101 M5b tests pass. The full suite (333 passed, 11 min 2 s) was last run
+before the wording changes. Deliberate breakages in a scratch copy: all 20 of the first build and 9 of 10 for the wording
+were caught; the miss (the longer-phrase rule switched off) now has a test that catches it.
+
+**Discarded.** Character n-grams in reasons (unreadable); bigrams that skip a word or punctuation (not literally in the text);
+checking the committed report text exactly (as in M4).

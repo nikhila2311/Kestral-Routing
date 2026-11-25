@@ -31,8 +31,8 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py` |
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md` |
-| M5a model selection | BUILT, awaiting verification | `reports/experiments.json`, `reports/experiments.md` |
-| M5b | not started | |
+| M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md` |
+| M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md` |
 | M6 | not started | |
 | M7 | not started | |
 | M8 | not started | |
@@ -52,10 +52,14 @@ One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md
   Pass sklearn `predict_proba` output through `align_proba`; pass `confidence` when rules override predictions.
 - M4: `reports/baselines.json` (`reports/baselines.md` is rendered from it); `src/baselines.py: make_pipeline, fit_model,
   predict_with_proba` — schema and signatures in docs/contracts.md#m4.
-- M5a–M10: none verified yet. Do not consume `reports/experiments.json` until M5a is verified.
+- M5a: `reports/experiments.json` (`reports/experiments.md` is rendered from it), chosen configuration in `chosen.config`;
+  `src/experiments.py: build_model, cue_features` — schema in docs/contracts.md#m5a.
+- M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`); `models/router.joblib` + `router_meta.json`
+  (git-ignored, train window only); `reports/router.json` (`reports/router.md` is rendered from it);
+  `config.TRIAGE_THRESHOLD` — interface and schema in docs/contracts.md#m5b. Load only our own joblib file.
 
-Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines`, `experiments` and `test` are
-implemented; other targets exit 2.
+Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines`, `experiments`,
+`router` and `test` are implemented; other targets exit 2.
 
 ## 5. Key numbers
 
@@ -82,7 +86,6 @@ M3 (covered by M3 tests unless noted):
 - `COST_PER_MISROUTE` Rs 698.06 (1.436 transfers each); `COST_PER_MISROUTE_SIMPLE` Rs 565 (1 transfer each).
 - Bot misroute cost Rs 114,994 per month (2,471 x Rs 698.06 / 15 months, licence excluded). Same as M2's misrouted-only
   figure; the match was checked by hand, the M2 value is not asserted in M3 tests.
-- `cost_rs` from `evaluate` is per evaluated set, not per month.
 
 M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% bootstrap interval):
 
@@ -90,14 +93,24 @@ M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% boot
 - TF-IDF trained on the final team 83.89% (82.30 to 85.39). Same model trained on the bot label 76.21% (74.47 to 77.99).
 - Best baseline: `tfidf_final`, 7.21 points above the bot (paired interval 5.76 to 8.81); the number to beat in later modules.
 - The training target alone is worth 7.68 points: trained on bot labels, the model copies the bot (95.64% agreement).
-- Keyword rules changed once after validation had been seen (`technician`, train-count justified); see `PROGRESS.md`.
 - Seen / unseen text: bot 80.28% / 76.27%, `tfidf_final` 84.98% / 83.77%.
 
-M5a (`reports/experiments.json`, not verified): amended rule chose `logreg_c1_none` = (d), inner-val 84.78%, real-val 83.89%.
+M5a (`reports/experiments.json`): amended rule chose `logreg_c1_none` = (d), inner-val 84.78%, real-val 83.89%.
 Original rule: `complement_nb_a0.1`, 85.01% / 82.58%, failed criterion 4.
+
+M5b (`reports/router.json`, validation; M5b tests recompute the report, the values are not hard-coded):
+
+- Auto-routed 81.55% (1,741) at 96.32% accuracy. Triaged 18.45% (394): accuracy 28.93%, mean confidence 32.96%.
+- All 173 of 173 vague requests (M2 rule) are triaged. Threshold 0.6283, from the train-window misroute cost, not tuned.
+- Rs per month: 49,039 best case (clarification always works), 80,044 no triage, 114,191 clarification fixes nothing, bot
+  115,878 on the same rows (licence 26,667 not included). Break-even clarification rate 52.41%.
+- Repairs precision 97.35% on auto-routed, 77.49% on all.
 
 ## 6. Open questions / known risks
 
+- The router's headline cost is a best case; triage pays only if clarification fixes over 52.41% of triaged misroutes. How
+  often a question settles the team is not in the data: ask operations.
+- README to write: `Router.load`'s error message points to it. Rebuild step is the `router` target until M7.
 - M5a's rule was amended after a real-val result; its choice (d) was already scored in M4, so 83.89% is not an untouched
   estimate. Cue features add at most 0.09 points to it on inner-val (report-only). See `PROGRESS.md`, M5a notes.
 - Ritu's 90% bar is stated against the bot's labels (~77% right); restate it against `final_team`.

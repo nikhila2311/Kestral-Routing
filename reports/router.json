@@ -1,0 +1,130 @@
+{
+  "accuracy": {
+    "all": 0.838876,
+    "bot": 0.766745,
+    "sent": 0.96324,
+    "triaged": 0.28934
+  },
+  "break_even_clarification_formula": "triaged requests x cost_clarify / (triaged misroutes x cost_per_misroute_reporting)",
+  "break_even_clarification_rate": 0.524106,
+  "cost_per_misroute_reporting": 698.05949,
+  "cost_per_month_rs": {
+    "bot": 115877.875354,
+    "bot_licence": 26666.666667,
+    "bot_minus_router": 66839.272899,
+    "router": 49038.602455,
+    "router_if_clarification_fixes_nothing": 114190.82153,
+    "router_without_triage": 80044.154863
+  },
+  "misroutes": {
+    "all": 344,
+    "bot": 498,
+    "sent": 64,
+    "triaged": 280
+  },
+  "policy3_cases": [
+    {
+      "confidence": 0.990976,
+      "needs_triage": false,
+      "team": "Installs & Demo",
+      "text": "I paid for installation but technician never came",
+      "warning": false
+    },
+    {
+      "confidence": 0.363748,
+      "needs_triage": true,
+      "team": "Installs & Demo",
+      "text": "I have paid the full amount and the filter has not been delivered",
+      "warning": false
+    },
+    {
+      "confidence": 0.901772,
+      "needs_triage": false,
+      "team": "Repairs",
+      "text": "Paid by card last week, now the heater is not working",
+      "warning": false
+    },
+    {
+      "confidence": 0.979724,
+      "needs_triage": false,
+      "team": "Billing",
+      "text": "I was charged twice for the same order",
+      "warning": false
+    },
+    {
+      "confidence": 0.853303,
+      "needs_triage": false,
+      "team": "Billing",
+      "text": "Please convert my payment to EMI and send the GST invoice",
+      "warning": false
+    }
+  ],
+  "repairs": {
+    "precision_all": 0.774914,
+    "precision_sent": 0.973494,
+    "sent_count": 415
+  },
+  "router": {
+    "config": {
+      "calibration": null,
+      "feature_groups": [],
+      "features": [
+        "text_clean",
+        "channel",
+        "product_family",
+        "warranty_status"
+      ],
+      "model_type": "logreg",
+      "name": "logreg_c1_none",
+      "params": {
+        "C": 1.0,
+        "class_weight": null,
+        "max_iter": 2000,
+        "random_state": 42
+      },
+      "text": {
+        "char_wb_ngrams": [
+          3,
+          5
+        ],
+        "min_df": 2,
+        "word_ngrams": [
+          1,
+          2
+        ]
+      }
+    },
+    "cost_inputs": {
+      "cost_clarify": 260,
+      "cost_per_misroute_contact": 260,
+      "cost_per_misroute_train": 699.490623,
+      "cost_per_transfer": 305
+    },
+    "joblib_version": "1.6.0",
+    "model_version": "logreg_c1_none-37d79393afea",
+    "numpy_version": "2.5.5",
+    "sklearn_version": "1.9.1",
+    "threshold": 0.628301,
+    "training_window": {
+      "first_day": "2025-04-01",
+      "last_day": "2026-03-31",
+      "rows": 8687
+    }
+  },
+  "triage": {
+    "count": 394,
+    "mean_confidence": 0.329629,
+    "rate": 0.184543,
+    "sent_count": 1741
+  },
+  "vague": {
+    "count": 173,
+    "triaged_count": 173
+  },
+  "validation": {
+    "first_day": "2026-04-01",
+    "last_day": "2026-06-30",
+    "months": 3,
+    "rows": 2135
+  }
+}

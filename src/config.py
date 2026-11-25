@@ -66,6 +66,12 @@ TEST_CLEAN_COLUMNS = _RAW_COLUMNS + ("text_clean", "created_month")
 AUDIT_METRICS_JSON = REPORTS_DIR / "audit_metrics.json"
 DATA_AUDIT_MD = REPORTS_DIR / "data_audit.md"
 
+# --- M5b outputs (models/ is git-ignored) ----------------------------------
+ROUTER_JOBLIB = MODELS_DIR / "router.joblib"
+ROUTER_META_JSON = MODELS_DIR / "router_meta.json"
+ROUTER_JSON = REPORTS_DIR / "router.json"
+ROUTER_MD = REPORTS_DIR / "router.md"
+
 # --- Teams -----------------------------------------------------------------
 TEAMS = (
     "Installs & Demo",
@@ -96,6 +102,14 @@ BOT_LICENCE_PER_YEAR = 320_000
 COST_PER_MISROUTE = COST_PER_TRANSFER * 3549 / 2471 + COST_PER_MISROUTE_CONTACT  # about Rs 698.06
 # Sensitivity: assumes exactly 1 transfer per misroute (Rs 565).
 COST_PER_MISROUTE_SIMPLE = COST_PER_TRANSFER + COST_PER_MISROUTE_CONTACT
+
+# Cost per misroute from the train window only (Apr 2025-Mar 2026): 2843 transfers over 1973 misroutes. This one sets the
+# triage threshold (CLAUDE.md rule 6); COST_PER_MISROUTE stays the reporting constant. Checked by the M5b tests.
+COST_PER_MISROUTE_TRAIN = COST_PER_TRANSFER * 2843 / 1973 + COST_PER_MISROUTE_CONTACT  # about Rs 699.49
+# One clarifying contact costs the same as an extra customer contact.
+COST_CLARIFY = COST_PER_MISROUTE_CONTACT
+# Triage when (1 - confidence) x COST_PER_MISROUTE_TRAIN > COST_CLARIFY, i.e. confidence below this. Derived, not tuned.
+TRIAGE_THRESHOLD = 1 - COST_CLARIFY / COST_PER_MISROUTE_TRAIN  # about 0.6283
 
 # --- Dates (IST, all bounds inclusive calendar days) -----------------------
 TEAM_RENAME_DATE = date(2026, 1, 15)

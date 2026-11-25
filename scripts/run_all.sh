@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Task runner (Git Bash on Windows, bash elsewhere).
 # Usage: bash scripts/run_all.sh <target> [<target> ...]
-# Targets: clean audit baselines experiments train evaluate predict serve test
+# Targets: clean audit baselines experiments router train evaluate predict serve test
 #   clean = data cleaning; it does not delete files.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -25,7 +25,7 @@ not_implemented() {
 
 usage() {
   echo "Usage: bash scripts/run_all.sh <target> [<target> ...]"
-  echo "Targets: clean audit baselines experiments train evaluate predict serve test"
+  echo "Targets: clean audit baselines experiments router train evaluate predict serve test"
 }
 
 run_target() {
@@ -34,6 +34,7 @@ run_target() {
     audit) "$PY" -m src.audit ;;
     baselines) "$PY" -m src.baselines ;;
     experiments) "$PY" -m src.experiments ;;
+    router) "$PY" -m src.router ;;
     train | evaluate | predict | serve) not_implemented "$1" ;;
     test) "$PY" -m pytest tests ;;
     *)

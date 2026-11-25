@@ -252,7 +252,7 @@ rows, the paired interval and the seen / unseen accuracies.
 
 ## M5a
 
-status: BUILT, rule amended, awaiting owner verification (see `PROGRESS.md`)
+status: VERIFIED (selection rule amended, see `PROGRESS.md`)
 
 Model selection. Code `src/experiments.py`, tests `tests/test_m5a_experiments.py`, run
 `bash scripts/run_all.sh experiments` (run `clean` first). No Router class, API, saved model, thresholds or predictions.
@@ -334,7 +334,101 @@ char_wb_ngrams, min_df}.
 
 ## M5b
 
-status: not started
+status: VERIFIED
+
+Router: the M5a configuration with confidence, triage, reasons and a clarifying question. Code `src/router.py`, tests
+`tests/test_m5b_router.py`, run `bash scripts/run_all.sh router` (run `clean` first). The final retrain on all data is M7.
+
+**Inputs**
+
+- `data/processed/train_clean.parquet` (M1); `reports/experiments.json` (M5a) `chosen.config`.
+- Code: M1 `clean_text`; M2 `PRODUCT_PATTERNS`, `vague_mask`; M3 `time_split`, `align_proba`, `evaluate`; M4 column constants and
+  `round_floats`; M5a `build_model`, `cue_features`.
+
+**Interface (M8 depends on this exactly)**
+
+- `Router.train(df, cfg) -> Router` fits on every row of `df` (M1 schema). `ValueError` unless `cfg` is a plain `logreg` (no
+  calibration, no feature groups), because reasons are read from its coefficients.
+- `save(path)` writes the joblib file and `<stem>_meta.json` next to it. `Router.load(path) -> Router`.
+- `predict(records: list[dict]) -> list[dict]`, one output per record in order; `[]` gives `[]`.
+- `build(reports_dir, models_dir) -> dict`, `evaluate_router(router, val_df) -> dict`, `render_markdown(results) -> str`
+  (pure), `to_records(df) -> list[dict]`.
+
+| Input key | Rule |
+|---|---|
+| request_text | required string (raw; `clean_text` is applied). Missing or not a string: `ValueError` with the record's index only |
+| channel, product_family, warranty_status | optional; missing, unknown or non-string values count as unknown. Exact match after `strip` |
+| any other key | ignored |
+
+| Output key | Type | Content |
+|---|---|---|
+| team | str | one of `config.TEAMS`; always the model's first choice, no rule overrides it |
+| confidence | float | equals `top3[0].prob` |
+| top3 | list of {team, prob} | highest first; ties in `config.TEAMS` order |
+| needs_triage | bool | see below; never changes `team` |
+| reasons | list of str | never empty |
+| clarifying_question | str or None | a string exactly when `needs_triage`; see Clarifying question |
+| model_version | str | configuration name + hash of configuration, training rows and library versions |
+
+**Triage**
+
+- `needs_triage = (1 - confidence) x COST_PER_MISROUTE_TRAIN > COST_CLARIFY`, i.e. confidence below
+  `config.TRIAGE_THRESHOLD` = 1 - 260 / 699.49 = 0.6283. Also true when the text has no letter or digit.
+- `config.COST_PER_MISROUTE_TRAIN` = 305 x 2843 / 1973 + 260, train window only (`CLAUDE.md` rule 6). The spec's
+  `COST_PER_MISROUTE` (698.06, all labelled months) stays the reporting constant. `COST_CLARIFY` = 260. Not tuned.
+
+**Reasons**
+
+- Up to 3 phrases, `mentions '...'`: word features with positive coefficient x tf-idf for the predicted team, strongest
+  first, without function words or digits, only if literally in the cleaned text, never a lone negation. A longer
+  phrase replaces its word when it has at least 65% of its score, or always when it adds a negation. No two
+  phrases share a word. Fewer (or none) when fewer qualify.
+- Cue sentences from M5a `cue_features`, in neutral wording (a cue may point to another team). `product_conflict_on_ivr` is
+  not shown; `product_conflict` is dropped for an unknown product.
+- Policy §3, only when `payment_only_mentioned` (mentions paying, no payment-problem cue): a warning when the team is
+  Billing, otherwise "mentions a payment, but the problem looks like {agent phrase}, not the payment itself (policy §3)",
+  with "may be that" instead of "looks like" when triaged. Reasons use agent wording (`AGENT_PHRASES`), never "you".
+- "close call between X and Y" when the top two probabilities are within 0.10.
+- Outside the quotes there is only fixed wording. Phrases come from the request itself, so treat reasons as customer data.
+
+**Clarifying question** (wording only, from one plain phrase per team, `TEAM_PHRASES`)
+
+- If the M2 vague rule matches (so also with no text) or confidence < 0.40: "So we can send you to the right team[ about
+  your {product}]: is this because {phrases of the top 4 teams}?" Product: the only one the text names, otherwise the
+  known `product_family` if the text names none.
+- Otherwise: "Can you confirm whether {phrases}?" for teams with probability >= 0.10, at most 3, most likely first.
+
+**Outputs**
+
+- `models/router.joblib`, `models/router_meta.json` (git-ignored). Meta: `model_version`, `training_window` {first_day,
+  last_day, rows}, `threshold`, `cost_inputs` {cost_per_transfer, cost_per_misroute_contact, cost_per_misroute_train,
+  cost_clarify}, `sklearn_version`, `joblib_version`, `numpy_version`, `config`.
+- **joblib files are pickles and can run code when loaded: load only a file `Router.save` wrote on this machine.**
+- `load` compares the three library versions before unpickling. Mismatch: `RuntimeError` "Model was built with scikit-learn
+  X; installed is Y. Run the train step (see README) to rebuild." (or joblib, numpy). `requirements.txt` pins all three.
+- `reports/router.json` (aggregates and invented text only, floats rounded to 6 decimals): `validation`, `triage`,
+  `misroutes`, `accuracy`, `repairs`, `cost_per_month_rs`, `vague` {count, triaged_count},
+  `break_even_clarification_rate`, `break_even_clarification_formula`, `cost_per_misroute_reporting`, `policy3_cases`
+  (5 invented), `router` (the meta). `reports/router.md` is rendered from it.
+- Cost per month = (misroutes sent straight on x 698.06 + triaged x 260) / validation months. **Assumes a clarified request
+  is never misrouted** (best case). Also reported: no triage, clarification fixes nothing, bot on the same rows.
+
+**Acceptance criteria**
+
+1. Output keys and types as above; teams canonical; `top3` sorted, probabilities in [0, 1]; `confidence` = `top3[0].prob`.
+2. `team` equals the pipeline argmax on 500 validation rows.
+3. Threshold equals 1 - 260 / `COST_PER_MISROUTE_TRAIN`; `needs_triage` matches the formula row by row.
+4. Empty text is triaged; missing or unknown optional fields do not crash.
+5. Save and load give identical outputs; meta has all fields; version mismatch gives the exact message before unpickling;
+   `requirements.txt` pins the installed scikit-learn, joblib and numpy.
+6. Reasons never empty; quoted words occur in that request; no other row's text; at most 3 phrases, no lone negation or
+   function word, no word in two phrases; never addressed to the customer.
+7. §3 warning appears for an invented "paid for installation" message when Billing is predicted; 5 invented cases reported.
+8. Clarifying question present exactly when `needs_triage`.
+9. 1,000 predictions in under 5 s on CPU; deterministic.
+10. Every number in `router.md` is in `router.json`.
+11. Wording changes leave team, confidence, top3 and triage as they were: 500 validation rows against values frozen before
+    the first one. The frozen digest belongs to the train-window model; a deliberate model change must replace it.
 
 ## M6
 
