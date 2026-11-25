@@ -88,6 +88,15 @@ COST_PER_TRANSFER = 305
 COST_PER_MISROUTE_CONTACT = 260
 BOT_LICENCE_PER_YEAR = 320_000
 
+# Expected cost of one misrouted request = transfer cost x average transfers per misrouted request + extra contact.
+# Average = 3549 / 2471 = 1.436, from reports/audit_metrics.json `cost_inputs`: transfers 3902 minus 353 on correctly
+# labelled rows, over 2471 misroutes (all 15 labelled months; includes 126 misroutes with 0 recorded transfers).
+# Literal counts because src/audit.py imports this file; tests/test_m3_harness.py checks them against the data.
+# Reporting only: to choose a threshold, derive the average from the training window instead (CLAUDE.md rule 6).
+COST_PER_MISROUTE = COST_PER_TRANSFER * 3549 / 2471 + COST_PER_MISROUTE_CONTACT  # about Rs 698.06
+# Sensitivity: assumes exactly 1 transfer per misroute (Rs 565).
+COST_PER_MISROUTE_SIMPLE = COST_PER_TRANSFER + COST_PER_MISROUTE_CONTACT
+
 # --- Dates (IST, all bounds inclusive calendar days) -----------------------
 TEAM_RENAME_DATE = date(2026, 1, 15)
 

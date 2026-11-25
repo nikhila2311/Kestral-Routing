@@ -29,7 +29,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M0 setup | VERIFIED | `src/config.py` |
 | M1 clean | VERIFIED | `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` |
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` |
-| M3 | not started | |
+| M3 split + evaluation | IMPLEMENTED (not yet VERIFIED) | `src/split.py`, `src/evaluate.py` |
 | M4 | not started | |
 | M5 | not started | |
 | M6 | not started | |
@@ -46,7 +46,8 @@ One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md
 - M1: `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet`; `src/clean.py: clean_text` — schema in
   docs/contracts.md#m1. Target column is `final_team_canon`; raw `team_label` still holds old names, do not use it.
 - M2: `reports/audit_metrics.json` — keys in docs/contracts.md#m2 (`reports/data_audit.md` is rendered from it).
-- M3–M10: none verified yet.
+- M3 (implemented, not yet VERIFIED): `time_split`, `evaluate`, `align_proba`, `bootstrap_ci` — docs/contracts.md#m3.
+- M4–M10: none verified yet.
 
 Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit` and `test` are implemented; other
 targets exit 2.
@@ -69,6 +70,11 @@ M2 (`reports/audit_metrics.json`, all of train):
 - Bot cost: Rs 122,171 per month (transfers + misroute contacts, licence excluded); Rs 114,994 from misrouted rows only.
 - Vague requests: 8.1% (878 rows, rule-based estimate). Product named in text conflicts with `product_family`: 1,744
   rows (16.1%).
+
+M3 (covered by M3 tests unless noted):
+
+- Split: 8,687 train / 2,135 validation rows (sum tested, the two sizes are not).
+- Cost per misroute: Rs 698.06 (1.436 transfers each); Rs 565 if each bounced once. `cost_rs` caveats: contracts #m3.
 
 Model results: none yet.
 

@@ -103,7 +103,68 @@ M1's tests rewrite the parquet). No models, no train/validation split.
 
 ## M3
 
-status: not started
+status: IMPLEMENTED (tests pass; not yet VERIFIED by the project owner)
+
+Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py`, tests
+`tests/test_m3_harness.py`. Imported by later modules: no files written, no run target, no models.
+
+**Inputs:** none at run time (callers pass data). `data/processed/train_clean.parquet` (M1) and
+`reports/audit_metrics.json` `cost_inputs` (M2) were used to derive `COST_PER_MISROUTE` and are read by the tests.
+
+**Interface**
+
+- `time_split(df) -> (train_df, val_df)`: by `created_at_ist` and the config dates (inclusive days); keeps row order and
+  index, returns copies. `ValueError` if any row is in neither window. On `train_clean`: 8,687 / 2,135 rows.
+- `evaluate(y_true, y_pred, proba=None, labels=config.TEAMS, confidence=None) -> dict`, JSON-safe, keys below.
+- `coverage_curve(y_true, y_pred, proba, thresholds=0.30..0.90 step 0.05, confidence=None) -> list[dict]`
+- `align_proba(proba, classes_, labels=config.TEAMS) -> ndarray`: reorders columns from `classes_` to `labels` order.
+  `ValueError` unless both hold the same names, without duplicates, one per column.
+- `bootstrap_ci(y_true, y_pred, metric_fn, n_boot=1000, seed=config.SEED) -> (low, point, high)`: 95% percentile
+  interval; resamples (true, predicted) pairs; `metric_fn(y_true, y_pred) -> float`.
+- `config.COST_PER_MISROUTE` = 305 x 3549 / 2471 + 260 = Rs 698.06 (1.436 transfers per misrouted request);
+  `config.COST_PER_MISROUTE_SIMPLE` = Rs 565 (1 transfer), for sensitivity.
+
+| `evaluate` key | Content |
+|---|---|
+| accuracy | share correct |
+| macro_f1 | mean F1 over all `labels`; a label in neither `y_true` nor `y_pred` counts as 0 |
+| per_class | label -> `precision`, `recall`, `f1` (0 where undefined), `support` |
+| confusion_matrix | list of lists in `labels` order, rows = true, columns = predicted |
+| n, misroutes | row count, wrong predictions |
+| cost_rs | misroutes x `COST_PER_MISROUTE` |
+| log_loss | only with `proba`; scores `proba` (clipped at 1e-15), not `y_pred` |
+| coverage_curve | with `proba` or `confidence`: list of `threshold`, `coverage` (share with confidence >= threshold), `accuracy_on_covered` (of `y_pred`; None if nothing is covered) |
+
+**Rules**
+
+- Inputs are matched by position, not by pandas index.
+- **`proba` columns must follow `labels`; an array in another order cannot be detected. Pass sklearn output through
+  `align_proba`** (`classes_` is alphabetical).
+- `y_pred` may differ from the row maximum of `proba`. `confidence` defaults to `proba.max(axis=1)`; for rule-overridden
+  predictions (M5) pass it explicitly, otherwise the curve uses the model's confidence in a team that was not predicted.
+- `ValueError` for: unknown or missing labels, empty or unequal inputs, duplicate `labels`, `proba` with the wrong shape,
+  values outside [0, 1], NaN or rows not summing to 1 (tolerance 1e-6), `confidence` with the wrong shape or range.
+
+**Caveats (state them when quoting results)**
+
+- `cost_rs` is for the evaluated set, not per month, and excludes the bot licence.
+- It assumes our misroutes bounce as often as the bot's did. The average covers all 15 labelled months, including
+  validation, so it is a reporting constant: a module that picks a threshold by cost must derive a train-window value.
+- The 126 bot misroutes with 0 recorded transfers are in the average; transfers on correctly labelled rows are not.
+- Bootstrap intervals are slightly too narrow because repeated texts are resampled as independent rows. A percentile
+  interval is not guaranteed to contain the point estimate (macro-F1 on small sets); it is not clamped.
+
+**Acceptance criteria**
+
+1. Split: no row in both; max train date < min val date; val months exactly 2026-04 to 2026-06; row counts add up.
+2. Hand-made 10-row example gives the exact accuracy, macro-F1, misroutes and cost.
+3. Perfect predictions: accuracy 1.0, misroutes 0, cost 0.
+4. Unknown label in `y_pred` raises `ValueError`.
+5. `proba` rows summing to 1 is validated; coverage at threshold 0 is 1.0; coverage does not increase with threshold.
+6. `bootstrap_ci`: low <= point <= high; same seed gives the same result.
+7. `COST_PER_MISROUTE` recomputed from the parquet matches config (about Rs 698).
+8. `align_proba` reorders an alphabetical `classes_`; `evaluate` accepts `y_pred` that differs from argmax when
+   `confidence` is given.
 
 ## M4
 
