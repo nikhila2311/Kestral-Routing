@@ -157,6 +157,34 @@ def _clarifying_question(proba, vague: bool, product: str | None) -> str:
     return f"Can you confirm whether {_either([TEAM_PHRASES[config.TEAMS[j]] for j in likely])}?"
 
 
+def _merge_phrases(phrases: list[str], text: str) -> list[str]:
+    """Phrases that overlap or stand next to each other in the text, with only a space between, become one quoted span.
+
+    A span takes the place of its strongest phrase. Each phrase is used once. Wording only.
+    """
+    spots = sorted(
+        (*match.span(), k)
+        for k, phrase in enumerate(phrases)
+        for match in re.finditer(_APART.format(re.escape(phrase)), text)
+    )
+    runs: list[tuple[int, int, set]] = []  # start, end, phrases in it
+    for start, end, k in spots:
+        if runs and (start <= runs[-1][1] or not text[runs[-1][1] : start].strip()):
+            first, last, members = runs[-1]
+            runs[-1] = (first, max(last, end), members | {k})
+        else:
+            runs.append((start, end, {k}))
+    spans = dict(enumerate(phrases))
+    used: set[int] = set()
+    for start, end, members in sorted(runs, key=lambda run: -len(run[2])):  # most phrases first, then text order
+        if len(members) > 1 and not members & used:
+            used |= members
+            for k in members:
+                del spans[k]
+            spans[min(members)] = text[start:end]
+    return [spans[k] for k in sorted(spans)]
+
+
 def _reasons(phrases: list[str], cues: dict, has_text: bool, top: list[dict], triage: bool) -> list[str]:
     reasons = [] if has_text else [EMPTY_REASON]
     reasons += [f"mentions '{phrase}'" for phrase in phrases]
@@ -295,6 +323,7 @@ class Router:
             top = [{"team": config.TEAMS[j], "prob": float(proba[i, j])} for j in order]
             team, confidence, has_text = top[0]["team"], top[0]["prob"], _has_text(text)
             triage = self._needs_triage(confidence, has_text)
+            phrases = _merge_phrases(self._phrases(words[i], text, team), text)
             question = _clarifying_question(proba[i], vague[i], _product_name(text, families[i])) if triage else None
             output.append(
                 {
@@ -302,7 +331,7 @@ class Router:
                     "confidence": confidence,
                     "top3": top,
                     "needs_triage": triage,
-                    "reasons": _reasons(self._phrases(words[i], text, team), cues[i], has_text, top, triage),
+                    "reasons": _reasons(phrases, cues[i], has_text, top, triage),
                     "clarifying_question": question,
                     "model_version": self.meta["model_version"],
                 }

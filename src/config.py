@@ -93,6 +93,20 @@ TEAM_NAME_MAP = {
     "Consumables": "Filters & Consumables",
 }
 
+# --- Request fields offered by the service (M8): the final model's categories, checked by the M8 tests ---
+CHANNELS = ("chat", "email", "ivr", "whatsapp")
+PRODUCT_FAMILIES = (
+    "Air Fryer",
+    "Ceiling Fan",
+    "Induction Cooktop",
+    "Mixer Grinder",
+    "Robot Vacuum",
+    "Room Heater",
+    "Water Purifier",
+)
+WARRANTY_STATUSES = ("in_warranty", "out_of_warranty", "shield")
+MAX_REQUEST_CHARS = 2000
+
 # --- Costs in Rs (ops-policy section 4) ------------------------------------
 COST_PER_TRANSFER = 305
 COST_PER_MISROUTE_CONTACT = 260

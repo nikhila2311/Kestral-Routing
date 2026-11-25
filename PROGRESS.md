@@ -11,7 +11,7 @@
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md`, `models/` (git-ignored) | Auto-routed 81.55% at 96.32%; triaged 18.45% at 28.93%; Rs 49,039/month best case, 80,044 no triage, 114,191 fixes nothing, bot 115,878; break-even 52.41%; 101 M5b tests pass | Q1-Q5 as recommended, see M5b notes; scikit-learn, joblib, numpy pinned; wording revised twice, model unchanged | Threshold from `COST_PER_MISROUTE` (covers validation); character n-grams in reasons; question template per team pair |
 | M6 evaluation | VERIFIED | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
 | M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json`, `reports/predictions_summary.md`, `models/router.joblib` (git-ignored), `src/predictions.py` | 2,178 rows; triaged 18.14%; vague 8.13%; largest gap Repairs +4.41 points; 25 M7 tests pass | Q1-Q9 as recommended, see M7 notes | Correcting volumes for the validation bias; lookup override for repeated texts; row-level confidence in the output |
-| M8 | not started | | | | |
+| M8 service | VERIFIED | `app/main.py`, `app/static/index.html`, `README.md` | 56 M8 tests pass; 20 calls under 2 s | No LLM or external API; Q2 changed (unknown product accepted with a reason), others as recommended, see M8 notes | `/options` endpoint; default 422 messages |
 | M9 | not started | | | | |
 | M10 | not started | | | | |
 
@@ -435,3 +435,38 @@ M7 (`reports/predictions_summary.json`, test):
 
 - Triaged 395 of 2,178 (18.14%); vague 177 (8.13%), all triaged. Largest gap to the Apr-Jun 2026 closing teams:
   Repairs, +4.41 points (604 predicted, 447 auto-routed); over-predicted by 3.93 points on validation.
+
+## M8 notes
+
+**Decision (project owner): no LLM, no external API.** No per-request AI cost (Farhan, Finance); no evidence that an LLM would
+be more accurate; policy section 10 restricts sharing customer data.
+
+**Decisions** (project owner, plan review). Q1: field values in config, copied from the final model's categories, not from the
+data. Q2, changed from the plan: strict 422 for channel and warranty only; an unknown product is accepted and the reason
+"product not recognised; routed without the product" is added (first wording "on the text only" was wrong: channel and
+warranty still count). Q3: server fills one placeholder in the page. Q4: `load_final`.
+Q5: a test counts example texts equal to a real message (0; the spec's purifier text is exempt). Q6: close-call text chosen by
+trying 18 invented texts on the final model. Q7: triaged team labelled as a first guess. Q8: `/docs`, `/redoc` off. Q9: fixed
+500, class-only log, `no-store`. Q10: odd text is accepted and triaged. Q11: window as "first to last". Q12: tests fail if the
+model file is missing. Q13: README covers setup and running only.
+
+**Findings**
+
+- FastAPI passed a lone surrogate in `request_text` through as valid text; it is now refused with 422, as planned.
+- For "stopped working", a reason could be the lone word 'working' next to 'grinder stopped'. Fixed in `src/router.py`
+  (`_merge_phrases`): chosen phrases next to each other become one quoted span. Team, confidence, top3, triage and question are
+  identical before and after on all 4,313 validation and test rows, for the final and the train-window model; the M5b freeze
+  test is unchanged. `test_phrases_are_the_strongest_pushes` now takes the unmerged phrases from `_phrases` and also checks that
+  the reasons are their merge. The train-window model already chose 'stopped working' for this text.
+- `reports/router.json` and `.md` do not change. The phrase lists in `reports/evaluation.json` and `.md` (M6) do, and are stale
+  until `bash scripts/run_all.sh evaluate` is run; no other M6 value was seen to change.
+- Examples: repair 98.9%, installation 80.9%, paid / technician 99.1% Installs & Demo, purifier 32.9% triaged, close call
+  Product Advice against Repairs, triaged.
+
+**Verification.** Marked VERIFIED by the project owner. 56 M8 tests pass. The page was opened in headless Chrome: examples render, and markup typed into the
+request is shown as text.
+
+**Discarded.** An `/options` endpoint; reading the dropdown values from the data; FastAPI's default 422 (repeats the input).
+
+**Open.** Starlette warns that `httpx` in its test client is deprecated in favour of `httpx2`: harmless, left as pinned.
+The page was not tried in other browsers.

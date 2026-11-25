@@ -17,12 +17,6 @@ else
   exit 1
 fi
 
-# Placeholders exit non-zero so an unbuilt step cannot look like a success.
-not_implemented() {
-  echo "Target not implemented yet: $1" >&2
-  exit 2
-}
-
 usage() {
   echo "Usage: bash scripts/run_all.sh <target> [<target> ...]"
   echo "Targets: clean audit baselines experiments router train evaluate predict serve test"
@@ -38,7 +32,7 @@ run_target() {
     evaluate) "$PY" -m src.evaluation ;;
     train) "$PY" -m src.predictions train ;;
     predict) "$PY" -m src.predictions predict ;;
-    serve) not_implemented "$1" ;;
+    serve) "$PY" -m uvicorn app.main:app --host 127.0.0.1 --port 8000 ;;
     test) "$PY" -m pytest tests ;;
     *)
       echo "Unknown target: $1" >&2

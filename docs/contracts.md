@@ -382,7 +382,8 @@ Router: the M5a configuration with confidence, triage, reasons and a clarifying 
 - Up to 3 phrases, `mentions '...'`: word features with positive coefficient x tf-idf for the predicted team, strongest
   first, without function words or digits, only if literally in the cleaned text, never a lone negation. A longer
   phrase replaces its word when it has at least 65% of its score, or always when it adds a negation. No two
-  phrases share a word. Fewer (or none) when fewer qualify.
+  phrases share a word. Fewer (or none) when fewer qualify. Chosen phrases that overlap or have only a space between them
+  in the text are shown as one span ('grinder stopped working'), in place of the strongest of them.
 - Cue sentences from M5a `cue_features`, in neutral wording (a cue may point to another team). `product_conflict_on_ivr` is
   not shown; `product_conflict` is dropped for an unknown product.
 - Policy §3, only when `payment_only_mentioned` (mentions paying, no payment-problem cue): a warning when the team is
@@ -563,7 +564,55 @@ requests carry a first guess, so they are not headcount.
 
 ## M8
 
-status: not started
+status: VERIFIED
+
+Service: FastAPI and one HTML page. Code `app/main.py`, `app/static/index.html`, tests `tests/test_m8_api.py`, run
+`bash scripts/run_all.sh serve` (run `clean train` first). Setup and commands: `README.md`, "Run the service".
+
+**Decision (project owner): no LLM and no external API calls.** Farhan (Finance) wants no per-request AI cost; there is no
+evidence that an LLM would be more accurate; policy section 10 restricts sharing customer data.
+
+**Inputs**
+
+- `models/router.joblib` and its meta (M7), through M7 `load_final`; M5b `Router.predict`. No data or training step at run time.
+- `src/config.py`: `CHANNELS`, `PRODUCT_FAMILIES`, `WARRANTY_STATUSES` (copied once from the final model's categories; a test
+  compares them with the model), `MAX_REQUEST_CHARS` = 2,000.
+- Tests only: the parquet files, `text_clean`, to count example texts that equal a real message (must be 0).
+
+**Interface**
+
+- `create_app(models_dir) -> FastAPI`; `app = create_app()`. The model is loaded once, at startup. If it cannot be loaded
+  (missing, version mismatch, wrong window, corrupt), the app starts without it.
+- `options_json(options) -> str`: JSON that is safe inside a script element; it fills the one placeholder in `index.html`.
+
+| Endpoint | Answer |
+|---|---|
+| GET /health | `status` "ok", `model_loaded`, `model_version`, `training_window` ("first day to last day"); the last two are null without a model |
+| POST /predict | 200: the `Router.predict` output for the record. 422: see below. 503: polite message naming the train step and README. 500: fixed message |
+| GET / | the page, self-contained (no build step, CDN or external address) |
+
+| Field | Rule |
+|---|---|
+| request_text | required text, not only whitespace, at most 2,000 characters before trimming; a lone surrogate is refused. Text without a letter or digit is accepted and triaged |
+| channel, warranty_status | optional; null or blank means not given; otherwise exactly one of the config values after trimming |
+| product_family | optional, lenient: an unknown value counts as unknown in the router, and the reason "product not recognised; routed without the product" is added. Must be text |
+| other keys | ignored |
+
+- Every error is `{"detail": text}`, fixed wording, never any submitted value. `/predict` answers carry `Cache-Control: no-store`.
+- Logs: never request text. Failures are logged by exception class only (messages and tracebacks can hold the text).
+- `/docs` and `/redoc` are off (they load from a CDN). The run target binds to 127.0.0.1:8000. No login.
+- The page shows server output with `textContent` only. A triaged team is labelled "First guess, not yet sent to a team".
+
+**Acceptance criteria**
+
+1. `/health` with the model loaded has all fields.
+2. `/predict` equals `Router.load(final).predict([record])[0]` (plus the one reason for an unknown product).
+3. 422 for missing, empty, whitespace-only or too long text and unknown channel or warranty; readable; no submitted text.
+4. Without a usable model: app starts, `model_loaded` false, `/predict` 503 with the polite message.
+5. The page has the form, 5 example buttons and no "innerHTML".
+6. No request text in logs (success, 422, crash, and a real uvicorn process).
+7. 20 sequential calls in under 2 s.
+8. Mojibake gives the same answer as the repaired text.
 
 ## M9
 

@@ -365,7 +365,7 @@ def test_reasons_quote_only_own_words(outputs, val, config):
     assert bad == []
 
 
-def test_phrases_are_the_strongest_pushes(router, outputs, val):
+def test_phrases_are_the_strongest_pushes(mod, router, outputs, val):
     """The first phrase has positive weight for the team, and no usable word of the text has a larger push."""
     vectoriser = router.model.named_steps["features"].named_transformers_["word"]
     classifier = router.model.named_steps["classifier"]
@@ -374,7 +374,10 @@ def test_phrases_are_the_strongest_pushes(router, outputs, val):
     for i, out in enumerate(outputs[:200]):
         coef = classifier.coef_[list(classifier.classes_).index(out["team"]), where]
         pushes = {names[c]: v * coef[c] for c, v in zip(matrix[i].indices, matrix[i].data)}
-        shown = [q for r in out["reasons"] for q in QUOTED.findall(r)]
+        # The phrases as chosen; the reasons show them with neighbours merged into one span.
+        text = val["text_clean"].iloc[i]
+        shown = router._phrases(matrix[i], text, out["team"])
+        assert [q for r in out["reasons"] for q in QUOTED.findall(r)] == mod._merge_phrases(shown, text)
         assert sum(pushes[q] <= 0 for q in shown) == 0
         if len(shown) == 3:
             hidden = [w for w, p in pushes.items() if router._word_usable[list(names).index(w)] and " " not in w
@@ -411,6 +414,50 @@ def test_phrase_choice(mod, scores, expected):
     )
     row = SimpleNamespace(data=np.ones(len(words)), indices=np.arange(len(words)))
     assert mod.Router._phrases(stub, row, ", ".join(words), "Repairs") == expected
+
+
+@pytest.mark.parametrize(
+    "phrases, text, expected",
+    [
+        (["working", "smell", "grinder stopped"], "my grinder stopped working, odd smell", ["grinder stopped working", "smell"]),
+        (["smell", "working", "grinder stopped"], "my grinder stopped working, odd smell", ["smell", "grinder stopped working"]),
+        (["fan", "loud", "noise"], "loud noise fan", ["loud noise fan"]),  # in the order of the text
+        (["fan", "noise"], "noise, fan", ["fan", "noise"]),  # punctuation between: not adjacent
+        (["air", "fryer"], "air-fryer", ["air", "fryer"]),  # quoted words stay whole words
+        (["fan", "noise"], "fan makes noise", ["fan", "noise"]),  # an unchosen word between
+        (["fan", "noise"], "noise from the kitchen. the fan noise", ["fan noise"]),  # any adjacent place counts
+        (["fan", "loud", "noise"], "fan noise. loud noise", ["fan noise", "loud"]),  # no word in two spans
+        (["fan loud", "loud noise"], "fan loud noise", ["fan loud noise"]),  # overlapping
+        (["fan"], "fan fan", ["fan"]),  # a repeated word is not two phrases
+        (["fan", "loud"], "fans loud fan", ["loud fan"]),  # whole words only
+        ([], "fan", []),
+    ],
+)
+def test_adjacent_phrases_are_merged(mod, phrases, text, expected):
+    merged = mod._merge_phrases(phrases, text)
+    assert merged == expected
+    assert all(span in text for span in merged) and len(merged) <= len(phrases)
+
+
+def test_grinder_stopped_working(router, monkeypatch):
+    """The phrases the final model chooses; the train-window model picks 'stopped working'. M8 tests the final model."""
+    monkeypatch.setattr(router, "_phrases", lambda *args: ["working", "smell", "grinder stopped"])
+    reasons = one(router, "My mixer grinder stopped working and makes a burning smell")["reasons"]
+    quotes = [q for r in reasons for q in QUOTED.findall(r)]
+    assert quotes == ["grinder stopped working", "smell"]
+
+
+def test_no_adjacent_quotes_are_left(outputs, val):
+    """Two quotes of one request are never next to each other in its text; some spans were merged."""
+    left = 0
+    for out, text in zip(outputs, val["text_clean"]):
+        quotes = [q for r in out["reasons"] for q in QUOTED.findall(r)]
+        for a in quotes:
+            for b in quotes:
+                found = a != b and re.search(rf"(?<![\w'’]){re.escape(a)} {re.escape(b)}(?![\w'’])", text)
+                left += bool(found)
+    assert left == 0
+    assert any(len(q.split()) > 2 for o in outputs for r in o["reasons"] for q in QUOTED.findall(r))
 
 
 def test_no_phrase_reason(router):

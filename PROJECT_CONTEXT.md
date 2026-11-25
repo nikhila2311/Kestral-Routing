@@ -35,7 +35,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md` |
 | M6 evaluation | VERIFIED | `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/` |
 | M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json` + `.md`, `models/router.joblib` |
-| M8 | not started | |
+| M8 service | VERIFIED | `app/main.py`, `app/static/index.html`, `README.md` |
 | M9 | not started | |
 | M10 | not started | |
 
@@ -52,10 +52,11 @@ One line per module; schemas, signatures and rules are in docs/contracts.md#mN (
 - M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`), `config.TRIAGE_THRESHOLD`. Load only our own joblib file.
 - M6: `reports/evaluation.json`.
 - M7: `src/predictions.py: load_final` (M8 loads the final model with it), `predictions.csv`, `reports/predictions_summary.json`.
+- M8: `app/main.py: create_app`; `GET /health`, `POST /predict`, `GET /`.
 
 Model files (git-ignored): `models/router.joblib` is the final model (M7, all labelled rows); M5b's train-window model is in
-`models/train_window/`. Run `bash scripts/run_all.sh <target>`; every target except `serve` (exits 2) is implemented. `train`
-fits and saves the final model; `predict` writes `predictions.csv` and the summary.
+`models/train_window/`. Run `bash scripts/run_all.sh <target>`; every target is implemented. `train` fits and saves the final
+model; `predict` writes `predictions.csv` and the summary; `serve` starts the service on 127.0.0.1:8000 (M8, no LLM).
 
 ## 5. Key numbers
 
@@ -74,9 +75,10 @@ Accuracies are on validation against `final_team`. Full list: `PROGRESS.md`, "De
 
 - The router's headline cost is a best case; triage pays only if clarification fixes over 52.41% of triaged misroutes. How
   often a question settles the team is not in the data: ask operations.
-- README to write: `Router.load`'s error message points to it. Rebuild step: the `train` target.
+- `README.md` covers setup and running the service only; the rest is to write.
 - M7 volumes are not headcount: Repairs is over-predicted and triaged requests are first guesses. No correction.
-- The final model has no held-out score. M8 should load it through `src/predictions.py: load_final`.
+- The final model has no held-out score.
+- The service has no login: local use only. Answers quote words of the request, so treat them as customer data.
 - M5a's rule was amended after a real-val result; its choice (d) was already scored in M4, so 83.89% is not an untouched
   estimate. Cue features add at most 0.09 points to it on inner-val (report-only). See `PROGRESS.md`, M5a notes.
 - Ritu's 90% bar is stated against the bot's labels (~77% right); restate it against `final_team`.
@@ -88,7 +90,7 @@ Accuracies are on validation against `final_team`. Full list: `PROGRESS.md`, "De
   `text_clean`). Scores may look optimistic.
 - Tuning on Apr–Jun 2026 would inflate the validation score; tune with time-based folds inside the train window.
 - Farhan (Finance) wants the monthly run cost in writing before the switch; Ritu wants busiest teams for headcount.
-- FastAPI's test client may need `httpx`, which is not in `requirements.txt`.
+- `httpx` is pinned for the test client; Starlette warns it will be replaced by `httpx2`.
 - M2 tests check the headline lines of `data_audit.md` but not its table cells; read table values from the JSON.
 - Request text contains order and registration numbers; M1 does not mask them. Decide in the feature module.
 - M1 review findings are open (code unchanged since the review; list in `PROGRESS.md`). Relevant downstream: no test
