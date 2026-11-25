@@ -1,0 +1,1502 @@
+{
+  "breakdowns": {
+    "channel": [
+      {
+        "bot_accuracy": 0.78806,
+        "group": "chat",
+        "lead_points": 6.119403,
+        "router_accuracy": 0.849254,
+        "rows": 670,
+        "triage_rate": 0.177612
+      },
+      {
+        "bot_accuracy": 0.745614,
+        "group": "email",
+        "lead_points": 9.649123,
+        "router_accuracy": 0.842105,
+        "rows": 228,
+        "triage_rate": 0.171053
+      },
+      {
+        "bot_accuracy": 0.746114,
+        "group": "ivr",
+        "lead_points": 7.944732,
+        "router_accuracy": 0.825561,
+        "rows": 579,
+        "triage_rate": 0.183074
+      },
+      {
+        "bot_accuracy": 0.770517,
+        "group": "whatsapp",
+        "lead_points": 6.838906,
+        "router_accuracy": 0.838906,
+        "rows": 658,
+        "triage_rate": 0.197568
+      }
+    ],
+    "month": [
+      {
+        "bot_accuracy": 0.789096,
+        "group": "2026-04",
+        "lead_points": 6.169297,
+        "router_accuracy": 0.850789,
+        "rows": 697,
+        "triage_rate": 0.169297
+      },
+      {
+        "bot_accuracy": 0.769755,
+        "group": "2026-05",
+        "lead_points": 7.356948,
+        "router_accuracy": 0.843324,
+        "rows": 734,
+        "triage_rate": 0.179837
+      },
+      {
+        "bot_accuracy": 0.741477,
+        "group": "2026-06",
+        "lead_points": 8.096591,
+        "router_accuracy": 0.822443,
+        "rows": 704,
+        "triage_rate": 0.204545
+      }
+    ],
+    "text": [
+      {
+        "bot_accuracy": 0.802817,
+        "group": "seen",
+        "lead_points": 4.694836,
+        "router_accuracy": 0.849765,
+        "rows": 213,
+        "triage_rate": 0.159624
+      },
+      {
+        "bot_accuracy": 0.762747,
+        "group": "unseen",
+        "lead_points": 7.492196,
+        "router_accuracy": 0.837669,
+        "rows": 1922,
+        "triage_rate": 0.187305
+      }
+    ],
+    "warranty_status": [
+      {
+        "bot_accuracy": 0.768696,
+        "group": "in_warranty",
+        "lead_points": 6.608696,
+        "router_accuracy": 0.834783,
+        "rows": 1150,
+        "triage_rate": 0.187826
+      },
+      {
+        "bot_accuracy": 0.759398,
+        "group": "out_of_warranty",
+        "lead_points": 7.894737,
+        "router_accuracy": 0.838346,
+        "rows": 532,
+        "triage_rate": 0.195489
+      },
+      {
+        "bot_accuracy": 0.770419,
+        "group": "shield",
+        "lead_points": 7.94702,
+        "router_accuracy": 0.84989,
+        "rows": 453,
+        "triage_rate": 0.163355
+      }
+    ]
+  },
+  "calibration": {
+    "accuracy": 0.838876,
+    "bin_count": 10,
+    "bins": [
+      {
+        "accuracy": 0.24,
+        "from": 0.1,
+        "mean_confidence": 0.190634,
+        "rows": 25,
+        "to": 0.2
+      },
+      {
+        "accuracy": 0.179104,
+        "from": 0.2,
+        "mean_confidence": 0.246289,
+        "rows": 201,
+        "to": 0.3
+      },
+      {
+        "accuracy": 0.272727,
+        "from": 0.3,
+        "mean_confidence": 0.33859,
+        "rows": 66,
+        "to": 0.4
+      },
+      {
+        "accuracy": 0.307692,
+        "from": 0.4,
+        "mean_confidence": 0.460483,
+        "rows": 39,
+        "to": 0.5
+      },
+      {
+        "accuracy": 0.604167,
+        "from": 0.5,
+        "mean_confidence": 0.544538,
+        "rows": 48,
+        "to": 0.6
+      },
+      {
+        "accuracy": 0.735294,
+        "from": 0.6,
+        "mean_confidence": 0.634998,
+        "rows": 34,
+        "to": 0.7
+      },
+      {
+        "accuracy": 0.652174,
+        "from": 0.7,
+        "mean_confidence": 0.75834,
+        "rows": 23,
+        "to": 0.8
+      },
+      {
+        "accuracy": 0.842697,
+        "from": 0.8,
+        "mean_confidence": 0.870221,
+        "rows": 89,
+        "to": 0.9
+      },
+      {
+        "accuracy": 0.978261,
+        "from": 0.9,
+        "mean_confidence": 0.956284,
+        "rows": 1610,
+        "to": 1.0
+      }
+    ],
+    "expected_calibration_error": 0.033532,
+    "mean_confidence": 0.832231
+  },
+  "confusion": {
+    "bot": [
+      [
+        224,
+        40,
+        17,
+        32,
+        4,
+        1,
+        3
+      ],
+      [
+        3,
+        385,
+        62,
+        43,
+        1,
+        2,
+        2
+      ],
+      [
+        1,
+        25,
+        173,
+        1,
+        2,
+        2,
+        3
+      ],
+      [
+        0,
+        29,
+        4,
+        219,
+        0,
+        0,
+        3
+      ],
+      [
+        1,
+        55,
+        6,
+        22,
+        238,
+        3,
+        1
+      ],
+      [
+        0,
+        36,
+        14,
+        14,
+        4,
+        190,
+        1
+      ],
+      [
+        1,
+        47,
+        9,
+        0,
+        3,
+        1,
+        208
+      ]
+    ],
+    "router": [
+      [
+        265,
+        28,
+        2,
+        4,
+        10,
+        7,
+        5
+      ],
+      [
+        9,
+        451,
+        5,
+        8,
+        10,
+        10,
+        5
+      ],
+      [
+        8,
+        15,
+        170,
+        2,
+        3,
+        4,
+        5
+      ],
+      [
+        7,
+        13,
+        3,
+        222,
+        3,
+        3,
+        4
+      ],
+      [
+        3,
+        29,
+        4,
+        10,
+        265,
+        9,
+        6
+      ],
+      [
+        10,
+        15,
+        4,
+        5,
+        11,
+        209,
+        5
+      ],
+      [
+        6,
+        31,
+        4,
+        3,
+        5,
+        11,
+        209
+      ]
+    ]
+  },
+  "consistency": {
+    "checks": [
+      {
+        "key": "headline > router > accuracy",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > accuracy",
+        "source_value": 0.838876,
+        "value": 0.838876
+      },
+      {
+        "key": "headline > router > accuracy",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > accuracy",
+        "source_value": 0.838876,
+        "value": 0.838876
+      },
+      {
+        "key": "headline > router > accuracy",
+        "source": "router.json",
+        "source_key": "accuracy > all",
+        "source_value": 0.838876,
+        "value": 0.838876
+      },
+      {
+        "key": "headline > router > macro_f1",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > macro_f1",
+        "source_value": 0.839821,
+        "value": 0.839821
+      },
+      {
+        "key": "headline > router > macro_f1",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > macro_f1",
+        "source_value": 0.839821,
+        "value": 0.839821
+      },
+      {
+        "key": "headline > router > misroutes",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > misroutes",
+        "source_value": 344,
+        "value": 344
+      },
+      {
+        "key": "headline > router > misroutes",
+        "source": "router.json",
+        "source_key": "misroutes > all",
+        "source_value": 344,
+        "value": 344
+      },
+      {
+        "key": "headline > bot > accuracy",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > accuracy",
+        "source_value": 0.766745,
+        "value": 0.766745
+      },
+      {
+        "key": "headline > bot > accuracy",
+        "source": "experiments.json",
+        "source_key": "bot_real_val_accuracy",
+        "source_value": 0.766745,
+        "value": 0.766745
+      },
+      {
+        "key": "headline > bot > accuracy",
+        "source": "router.json",
+        "source_key": "accuracy > bot",
+        "source_value": 0.766745,
+        "value": 0.766745
+      },
+      {
+        "key": "headline > bot > macro_f1",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > macro_f1",
+        "source_value": 0.779507,
+        "value": 0.779507
+      },
+      {
+        "key": "headline > bot > misroutes",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > misroutes",
+        "source_value": 498,
+        "value": 498
+      },
+      {
+        "key": "headline > bot > misroutes",
+        "source": "router.json",
+        "source_key": "misroutes > bot",
+        "source_value": 498,
+        "value": 498
+      },
+      {
+        "key": "headline > rows",
+        "source": "router.json",
+        "source_key": "validation > rows",
+        "source_value": 2135,
+        "value": 2135
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > low",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > accuracy_ci95 > low",
+        "source_value": 0.822951,
+        "value": 0.822951
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > low",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > accuracy_ci95 > low",
+        "source_value": 0.822951,
+        "value": 0.822951
+      },
+      {
+        "key": "headline > bot > accuracy_ci95 > low",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > accuracy_ci95 > low",
+        "source_value": 0.748946,
+        "value": 0.748946
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > low",
+        "source": "baselines.json",
+        "source_key": "paired_accuracy_points_tfidf_final_minus_bot > low",
+        "source_value": 5.759953,
+        "value": 5.759953
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > low",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > paired_accuracy_points_minus_bot > low",
+        "source_value": 5.759953,
+        "value": 5.759953
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > point",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > accuracy_ci95 > point",
+        "source_value": 0.838876,
+        "value": 0.838876
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > point",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > accuracy_ci95 > point",
+        "source_value": 0.838876,
+        "value": 0.838876
+      },
+      {
+        "key": "headline > bot > accuracy_ci95 > point",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > accuracy_ci95 > point",
+        "source_value": 0.766745,
+        "value": 0.766745
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > point",
+        "source": "baselines.json",
+        "source_key": "paired_accuracy_points_tfidf_final_minus_bot > point",
+        "source_value": 7.213115,
+        "value": 7.213115
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > point",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > paired_accuracy_points_minus_bot > point",
+        "source_value": 7.213115,
+        "value": 7.213115
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > high",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > accuracy_ci95 > high",
+        "source_value": 0.853864,
+        "value": 0.853864
+      },
+      {
+        "key": "headline > router > accuracy_ci95 > high",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > accuracy_ci95 > high",
+        "source_value": 0.853864,
+        "value": 0.853864
+      },
+      {
+        "key": "headline > bot > accuracy_ci95 > high",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > accuracy_ci95 > high",
+        "source_value": 0.783618,
+        "value": 0.783618
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > high",
+        "source": "baselines.json",
+        "source_key": "paired_accuracy_points_tfidf_final_minus_bot > high",
+        "source_value": 8.805621,
+        "value": 8.805621
+      },
+      {
+        "key": "headline > paired_accuracy_points_router_minus_bot > high",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > paired_accuracy_points_minus_bot > high",
+        "source_value": 8.805621,
+        "value": 8.805621
+      },
+      {
+        "key": "triage > count",
+        "source": "router.json",
+        "source_key": "triage > count",
+        "source_value": 394,
+        "value": 394
+      },
+      {
+        "key": "triage > rate",
+        "source": "router.json",
+        "source_key": "triage > rate",
+        "source_value": 0.184543,
+        "value": 0.184543
+      },
+      {
+        "key": "triage > sent_count",
+        "source": "router.json",
+        "source_key": "triage > sent_count",
+        "source_value": 1741,
+        "value": 1741
+      },
+      {
+        "key": "triage > mean_confidence_triaged",
+        "source": "router.json",
+        "source_key": "triage > mean_confidence",
+        "source_value": 0.329629,
+        "value": 0.329629
+      },
+      {
+        "key": "triage > accuracy_sent",
+        "source": "router.json",
+        "source_key": "accuracy > sent",
+        "source_value": 0.96324,
+        "value": 0.96324
+      },
+      {
+        "key": "triage > accuracy_triaged",
+        "source": "router.json",
+        "source_key": "accuracy > triaged",
+        "source_value": 0.28934,
+        "value": 0.28934
+      },
+      {
+        "key": "triage > misroutes_sent",
+        "source": "router.json",
+        "source_key": "misroutes > sent",
+        "source_value": 64,
+        "value": 64
+      },
+      {
+        "key": "triage > misroutes_triaged",
+        "source": "router.json",
+        "source_key": "misroutes > triaged",
+        "source_value": 280,
+        "value": 280
+      },
+      {
+        "key": "triage > threshold",
+        "source": "router.json",
+        "source_key": "router > threshold",
+        "source_value": 0.628301,
+        "value": 0.628301
+      },
+      {
+        "key": "triage > vague_count",
+        "source": "router.json",
+        "source_key": "vague > count",
+        "source_value": 173,
+        "value": 173
+      },
+      {
+        "key": "triage > vague_triaged_count",
+        "source": "router.json",
+        "source_key": "vague > triaged_count",
+        "source_value": 173,
+        "value": 173
+      },
+      {
+        "key": "coverage_curve > policy_point > accuracy_on_covered",
+        "source": "router.json",
+        "source_key": "accuracy > sent",
+        "source_value": 0.96324,
+        "value": 0.96324
+      },
+      {
+        "key": "costs > per_month_rs > router_clarification_always_works",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > router",
+        "source_value": 49038.602455,
+        "value": 49038.602455
+      },
+      {
+        "key": "costs > per_month_rs > router_without_triage",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > router_without_triage",
+        "source_value": 80044.154863,
+        "value": 80044.154863
+      },
+      {
+        "key": "costs > per_month_rs > router_without_triage",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > cost_rs_per_month",
+        "source_value": 80044.154863,
+        "value": 80044.154863
+      },
+      {
+        "key": "costs > per_month_rs > router_clarification_fixes_nothing",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > router_if_clarification_fixes_nothing",
+        "source_value": 114190.82153,
+        "value": 114190.82153
+      },
+      {
+        "key": "costs > per_month_rs > bot",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > bot",
+        "source_value": 115877.875354,
+        "value": 115877.875354
+      },
+      {
+        "key": "costs > per_month_rs > bot",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > cost_rs_per_month",
+        "source_value": 115877.875354,
+        "value": 115877.875354
+      },
+      {
+        "key": "costs > per_month_rs > bot_licence",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > bot_licence",
+        "source_value": 26666.666667,
+        "value": 26666.666667
+      },
+      {
+        "key": "costs > per_month_rs > bot_licence",
+        "source": "baselines.json",
+        "source_key": "meta > bot_licence_rs_per_month",
+        "source_value": 26666.666667,
+        "value": 26666.666667
+      },
+      {
+        "key": "costs > bot_minus_router_rs",
+        "source": "router.json",
+        "source_key": "cost_per_month_rs > bot_minus_router",
+        "source_value": 66839.272899,
+        "value": 66839.272899
+      },
+      {
+        "key": "costs > break_even_clarification_rate",
+        "source": "router.json",
+        "source_key": "break_even_clarification_rate",
+        "source_value": 0.524106,
+        "value": 0.524106
+      },
+      {
+        "key": "costs > inputs > cost_per_misroute_rs",
+        "source": "router.json",
+        "source_key": "cost_per_misroute_reporting",
+        "source_value": 698.05949,
+        "value": 698.05949
+      },
+      {
+        "key": "expected_score > bot_label > point",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > agreement_with_team_label",
+        "source_value": 0.805152,
+        "value": 0.805152
+      },
+      {
+        "key": "expected_score > final_team > inner_val_accuracy",
+        "source": "experiments.json",
+        "source_key": "supplementary > base_inner_val > accuracy",
+        "source_value": 0.847786,
+        "value": 0.847786
+      },
+      {
+        "key": "seen_text > test_seen_share",
+        "source": "baselines.json",
+        "source_key": "repeated_text > test_seen_share",
+        "source_value": 0.101469,
+        "value": 0.101469
+      },
+      {
+        "key": "breakdowns > text > 0 > router_accuracy",
+        "source": "baselines.json",
+        "source_key": "repeated_text > accuracy > tfidf_final > seen",
+        "source_value": 0.849765,
+        "value": 0.849765
+      },
+      {
+        "key": "breakdowns > text > 0 > bot_accuracy",
+        "source": "baselines.json",
+        "source_key": "repeated_text > accuracy > bot > seen",
+        "source_value": 0.802817,
+        "value": 0.802817
+      },
+      {
+        "key": "breakdowns > text > 1 > router_accuracy",
+        "source": "baselines.json",
+        "source_key": "repeated_text > accuracy > tfidf_final > unseen",
+        "source_value": 0.837669,
+        "value": 0.837669
+      },
+      {
+        "key": "breakdowns > text > 1 > bot_accuracy",
+        "source": "baselines.json",
+        "source_key": "repeated_text > accuracy > bot > unseen",
+        "source_value": 0.762747,
+        "value": 0.762747
+      },
+      {
+        "key": "per_team > Installs & Demo > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Installs & Demo > precision",
+        "source_value": 0.86039,
+        "value": 0.86039
+      },
+      {
+        "key": "per_team > Installs & Demo > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Installs & Demo > recall",
+        "source_value": 0.825545,
+        "value": 0.825545
+      },
+      {
+        "key": "per_team > Installs & Demo > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Installs & Demo > precision",
+        "source_value": 0.973913,
+        "value": 0.973913
+      },
+      {
+        "key": "per_team > Installs & Demo > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Installs & Demo > recall",
+        "source_value": 0.697819,
+        "value": 0.697819
+      },
+      {
+        "key": "per_team > Installs & Demo > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Installs & Demo",
+        "source_value": 0.825545,
+        "value": 0.825545
+      },
+      {
+        "key": "per_team > Repairs > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Repairs > precision",
+        "source_value": 0.774914,
+        "value": 0.774914
+      },
+      {
+        "key": "per_team > Repairs > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Repairs > recall",
+        "source_value": 0.905622,
+        "value": 0.905622
+      },
+      {
+        "key": "per_team > Repairs > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Repairs > precision",
+        "source_value": 0.623987,
+        "value": 0.623987
+      },
+      {
+        "key": "per_team > Repairs > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Repairs > recall",
+        "source_value": 0.773092,
+        "value": 0.773092
+      },
+      {
+        "key": "per_team > Repairs > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Repairs",
+        "source_value": 0.905622,
+        "value": 0.905622
+      },
+      {
+        "key": "per_team > Filters & Consumables > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Filters & Consumables > precision",
+        "source_value": 0.885417,
+        "value": 0.885417
+      },
+      {
+        "key": "per_team > Filters & Consumables > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Filters & Consumables > recall",
+        "source_value": 0.821256,
+        "value": 0.821256
+      },
+      {
+        "key": "per_team > Filters & Consumables > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Filters & Consumables > precision",
+        "source_value": 0.607018,
+        "value": 0.607018
+      },
+      {
+        "key": "per_team > Filters & Consumables > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Filters & Consumables > recall",
+        "source_value": 0.835749,
+        "value": 0.835749
+      },
+      {
+        "key": "per_team > Filters & Consumables > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Filters & Consumables",
+        "source_value": 0.821256,
+        "value": 0.821256
+      },
+      {
+        "key": "per_team > Billing > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Billing > precision",
+        "source_value": 0.874016,
+        "value": 0.874016
+      },
+      {
+        "key": "per_team > Billing > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Billing > recall",
+        "source_value": 0.870588,
+        "value": 0.870588
+      },
+      {
+        "key": "per_team > Billing > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Billing > precision",
+        "source_value": 0.661631,
+        "value": 0.661631
+      },
+      {
+        "key": "per_team > Billing > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Billing > recall",
+        "source_value": 0.858824,
+        "value": 0.858824
+      },
+      {
+        "key": "per_team > Billing > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Billing",
+        "source_value": 0.870588,
+        "value": 0.870588
+      },
+      {
+        "key": "per_team > Returns & Replacement > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Returns & Replacement > precision",
+        "source_value": 0.863192,
+        "value": 0.863192
+      },
+      {
+        "key": "per_team > Returns & Replacement > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Returns & Replacement > recall",
+        "source_value": 0.812883,
+        "value": 0.812883
+      },
+      {
+        "key": "per_team > Returns & Replacement > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Returns & Replacement > precision",
+        "source_value": 0.944444,
+        "value": 0.944444
+      },
+      {
+        "key": "per_team > Returns & Replacement > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Returns & Replacement > recall",
+        "source_value": 0.730061,
+        "value": 0.730061
+      },
+      {
+        "key": "per_team > Returns & Replacement > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Returns & Replacement",
+        "source_value": 0.812883,
+        "value": 0.812883
+      },
+      {
+        "key": "per_team > Warranty Claims > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Warranty Claims > precision",
+        "source_value": 0.826087,
+        "value": 0.826087
+      },
+      {
+        "key": "per_team > Warranty Claims > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Warranty Claims > recall",
+        "source_value": 0.80695,
+        "value": 0.80695
+      },
+      {
+        "key": "per_team > Warranty Claims > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Warranty Claims > precision",
+        "source_value": 0.954774,
+        "value": 0.954774
+      },
+      {
+        "key": "per_team > Warranty Claims > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Warranty Claims > recall",
+        "source_value": 0.733591,
+        "value": 0.733591
+      },
+      {
+        "key": "per_team > Warranty Claims > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Warranty Claims",
+        "source_value": 0.80695,
+        "value": 0.80695
+      },
+      {
+        "key": "per_team > Product Advice > router > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Product Advice > precision",
+        "source_value": 0.874477,
+        "value": 0.874477
+      },
+      {
+        "key": "per_team > Product Advice > router > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > tfidf_final > evaluate > per_class > Product Advice > recall",
+        "source_value": 0.776952,
+        "value": 0.776952
+      },
+      {
+        "key": "per_team > Product Advice > bot > precision",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Product Advice > precision",
+        "source_value": 0.941176,
+        "value": 0.941176
+      },
+      {
+        "key": "per_team > Product Advice > bot > recall",
+        "source": "baselines.json",
+        "source_key": "baselines > bot > evaluate > per_class > Product Advice > recall",
+        "source_value": 0.773234,
+        "value": 0.773234
+      },
+      {
+        "key": "per_team > Product Advice > router > recall",
+        "source": "experiments.json",
+        "source_key": "real_val > logreg_c1_none > per_team_recall > Product Advice",
+        "source_value": 0.776952,
+        "value": 0.776952
+      },
+      {
+        "key": "per_team > Repairs > router > precision",
+        "source": "router.json",
+        "source_key": "repairs > precision_all",
+        "source_value": 0.774914,
+        "value": 0.774914
+      }
+    ],
+    "count": 95,
+    "tolerance": 1e-06
+  },
+  "costs": {
+    "bot_minus_router_clarification_fixes_nothing_rs": 1687.053824,
+    "bot_minus_router_rs": 66839.272899,
+    "break_even_clarification_rate": 0.524106,
+    "inputs": {
+      "bot_licence_per_year_rs": 320000,
+      "cost_clarify_rs": 260,
+      "cost_per_misroute_contact_rs": 260,
+      "cost_per_misroute_rs": 698.05949,
+      "cost_per_misroute_train_rs": 699.490623,
+      "cost_per_transfer_rs": 305,
+      "months": 3
+    },
+    "per_month_rs": {
+      "bot": 115877.875354,
+      "bot_licence": 26666.666667,
+      "router_clarification_always_works": 49038.602455,
+      "router_clarification_fixes_nothing": 114190.82153,
+      "router_without_triage": 80044.154863
+    }
+  },
+  "coverage_curve": {
+    "points": [
+      {
+        "accuracy_on_covered": 0.838876,
+        "coverage": 1.0,
+        "threshold": 0.0
+      },
+      {
+        "accuracy_on_covered": 0.838876,
+        "coverage": 1.0,
+        "threshold": 0.05
+      },
+      {
+        "accuracy_on_covered": 0.838876,
+        "coverage": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "accuracy_on_covered": 0.838876,
+        "coverage": 1.0,
+        "threshold": 0.15
+      },
+      {
+        "accuracy_on_covered": 0.845972,
+        "coverage": 0.98829,
+        "threshold": 0.2
+      },
+      {
+        "accuracy_on_covered": 0.882735,
+        "coverage": 0.938642,
+        "threshold": 0.25
+      },
+      {
+        "accuracy_on_covered": 0.916186,
+        "coverage": 0.894145,
+        "threshold": 0.3
+      },
+      {
+        "accuracy_on_covered": 0.929796,
+        "coverage": 0.874005,
+        "threshold": 0.35
+      },
+      {
+        "accuracy_on_covered": 0.93923,
+        "coverage": 0.863232,
+        "threshold": 0.4
+      },
+      {
+        "accuracy_on_covered": 0.943716,
+        "coverage": 0.857143,
+        "threshold": 0.45
+      },
+      {
+        "accuracy_on_covered": 0.952882,
+        "coverage": 0.844965,
+        "threshold": 0.5
+      },
+      {
+        "accuracy_on_covered": 0.959414,
+        "coverage": 0.830913,
+        "threshold": 0.55
+      },
+      {
+        "accuracy_on_covered": 0.962415,
+        "coverage": 0.822482,
+        "threshold": 0.6
+      },
+      {
+        "accuracy_on_covered": 0.965896,
+        "coverage": 0.810304,
+        "threshold": 0.65
+      },
+      {
+        "accuracy_on_covered": 0.966899,
+        "coverage": 0.806557,
+        "threshold": 0.7
+      },
+      {
+        "accuracy_on_covered": 0.97021,
+        "coverage": 0.801874,
+        "threshold": 0.75
+      },
+      {
+        "accuracy_on_covered": 0.97116,
+        "coverage": 0.795785,
+        "threshold": 0.8
+      },
+      {
+        "accuracy_on_covered": 0.975552,
+        "coverage": 0.78548,
+        "threshold": 0.85
+      },
+      {
+        "accuracy_on_covered": 0.978261,
+        "coverage": 0.754098,
+        "threshold": 0.9
+      },
+      {
+        "accuracy_on_covered": 0.976562,
+        "coverage": 0.479625,
+        "threshold": 0.95
+      }
+    ],
+    "policy_point": {
+      "accuracy_on_covered": 0.96324,
+      "coverage": 0.815457,
+      "threshold": 0.628301
+    }
+  },
+  "expected_score": {
+    "bot_label": {
+      "ci95": {
+        "high": 0.822951,
+        "low": 0.788747,
+        "point": 0.805152
+      },
+      "high": 0.830323,
+      "low": 0.781952,
+      "macro_f1": 0.810255,
+      "point": 0.805152
+    },
+    "final_team": {
+      "ci95": {
+        "high": 0.853864,
+        "low": 0.822951,
+        "point": 0.838876
+      },
+      "drift_allowance_points": 0.891012,
+      "high": 0.860073,
+      "inner_val_accuracy": 0.847786,
+      "low": 0.807444,
+      "macro_f1": 0.839821,
+      "point": 0.838876,
+      "width_factor": 1.414214
+    },
+    "monthly_lead": {
+      "bot_declines": true,
+      "intervals_overlap": true,
+      "lead_rises_every_month": true,
+      "months": [
+        {
+          "bot_accuracy": 0.789096,
+          "lead_points": {
+            "high": 8.608321,
+            "low": 3.730273,
+            "point": 6.169297
+          },
+          "month": "2026-04",
+          "router_accuracy": 0.850789
+        },
+        {
+          "bot_accuracy": 0.769755,
+          "lead_points": {
+            "high": 10.354223,
+            "low": 4.768392,
+            "point": 7.356948
+          },
+          "month": "2026-05",
+          "router_accuracy": 0.843324
+        },
+        {
+          "bot_accuracy": 0.741477,
+          "lead_points": {
+            "high": 10.795455,
+            "low": 5.539773,
+            "point": 8.096591
+          },
+          "month": "2026-06",
+          "router_accuracy": 0.822443
+        }
+      ],
+      "router_declines": true
+    },
+    "vague_ceiling": {
+      "ceiling_accuracy": 0.936114,
+      "test_vague_share": 0.081267,
+      "validation_vague_accuracy": 0.213873,
+      "validation_vague_share": 0.08103
+    }
+  },
+  "failures": {
+    "categories": [
+      {
+        "category": "vague",
+        "error_rate": 0.786127,
+        "errors": 136,
+        "errors_sent": 0,
+        "exclusive_errors": 136,
+        "phrases": [
+          {
+            "count": 18,
+            "phrase": "mixer"
+          },
+          {
+            "count": 14,
+            "phrase": "service request"
+          },
+          {
+            "count": 12,
+            "phrase": "heater"
+          },
+          {
+            "count": 11,
+            "phrase": "need help"
+          },
+          {
+            "count": 11,
+            "phrase": "someone contact"
+          }
+        ],
+        "rows": 173
+      },
+      {
+        "category": "close_call",
+        "error_rate": 0.80083,
+        "errors": 193,
+        "errors_sent": 0,
+        "exclusive_errors": 94,
+        "phrases": [
+          {
+            "count": 11,
+            "phrase": "not happy"
+          },
+          {
+            "count": 10,
+            "phrase": "vacuum"
+          },
+          {
+            "count": 8,
+            "phrase": "water purifier"
+          },
+          {
+            "count": 7,
+            "phrase": "purifier"
+          },
+          {
+            "count": 7,
+            "phrase": "service request"
+          }
+        ],
+        "rows": 241
+      },
+      {
+        "category": "product_conflict",
+        "error_rate": 0.20944,
+        "errors": 71,
+        "errors_sent": 15,
+        "exclusive_errors": 29,
+        "phrases": [
+          {
+            "count": 7,
+            "phrase": "box"
+          },
+          {
+            "count": 4,
+            "phrase": "open"
+          },
+          {
+            "count": 4,
+            "phrase": "scratched"
+          },
+          {
+            "count": 3,
+            "phrase": "missing parts"
+          },
+          {
+            "count": 3,
+            "phrase": "paid"
+          }
+        ],
+        "rows": 339
+      },
+      {
+        "category": "ivr",
+        "error_rate": 0.174439,
+        "errors": 101,
+        "errors_sent": 24,
+        "exclusive_errors": 23,
+        "phrases": [
+          {
+            "count": 3,
+            "phrase": "return"
+          },
+          {
+            "count": 3,
+            "phrase": "warranty"
+          },
+          {
+            "count": 2,
+            "phrase": "between lite"
+          },
+          {
+            "count": 2,
+            "phrase": "cancel"
+          },
+          {
+            "count": 2,
+            "phrase": "issue"
+          }
+        ],
+        "rows": 579
+      },
+      {
+        "category": "other",
+        "error_rate": 0.054291,
+        "errors": 62,
+        "errors_sent": 33,
+        "exclusive_errors": 62,
+        "phrases": [
+          {
+            "count": 7,
+            "phrase": "order"
+          },
+          {
+            "count": 5,
+            "phrase": "not happy"
+          },
+          {
+            "count": 5,
+            "phrase": "paid"
+          },
+          {
+            "count": 5,
+            "phrase": "warranty"
+          },
+          {
+            "count": 5,
+            "phrase": "water purifier"
+          }
+        ],
+        "rows": 1142
+      }
+    ],
+    "close_call_gap": 0.1,
+    "error_rate": 0.161124,
+    "errors": 344,
+    "errors_sent": 64,
+    "errors_with_right_team_in_top3": 150,
+    "phrase_max_words": 3,
+    "phrase_min_train_texts": 10
+  },
+  "figures": [
+    "figures/confusion_matrices.png",
+    "figures/coverage_accuracy.png",
+    "figures/reliability.png",
+    "figures/per_team_recall.png"
+  ],
+  "headline": {
+    "bot": {
+      "accuracy": 0.766745,
+      "accuracy_ci95": {
+        "high": 0.783618,
+        "low": 0.748946,
+        "point": 0.766745
+      },
+      "macro_f1": 0.779507,
+      "misroutes": 498
+    },
+    "paired_accuracy_points_router_minus_bot": {
+      "high": 8.805621,
+      "low": 5.759953,
+      "point": 7.213115
+    },
+    "router": {
+      "accuracy": 0.838876,
+      "accuracy_ci95": {
+        "high": 0.853864,
+        "low": 0.822951,
+        "point": 0.838876
+      },
+      "macro_f1": 0.839821,
+      "misroutes": 344
+    },
+    "rows": 2135
+  },
+  "meta": {
+    "ci_level": 0.95,
+    "labelled_months": 15,
+    "model_name": "logreg_c1_none",
+    "model_version": "logreg_c1_none-37d79393afea",
+    "seed": 42,
+    "teams": [
+      "Installs & Demo",
+      "Repairs",
+      "Filters & Consumables",
+      "Billing",
+      "Returns & Replacement",
+      "Warranty Claims",
+      "Product Advice"
+    ],
+    "training_window": {
+      "first_day": "2025-04-01",
+      "last_day": "2026-03-31",
+      "rows": 8687
+    },
+    "validation": {
+      "first_day": "2026-04-01",
+      "last_day": "2026-06-30",
+      "months": 3,
+      "rows": 2135
+    }
+  },
+  "per_team": {
+    "Billing": {
+      "bot": {
+        "precision": 0.661631,
+        "recall": 0.858824
+      },
+      "router": {
+        "precision": 0.874016,
+        "recall": 0.870588
+      },
+      "support": 255
+    },
+    "Filters & Consumables": {
+      "bot": {
+        "precision": 0.607018,
+        "recall": 0.835749
+      },
+      "router": {
+        "precision": 0.885417,
+        "recall": 0.821256
+      },
+      "support": 207
+    },
+    "Installs & Demo": {
+      "bot": {
+        "precision": 0.973913,
+        "recall": 0.697819
+      },
+      "router": {
+        "precision": 0.86039,
+        "recall": 0.825545
+      },
+      "support": 321
+    },
+    "Product Advice": {
+      "bot": {
+        "precision": 0.941176,
+        "recall": 0.773234
+      },
+      "router": {
+        "precision": 0.874477,
+        "recall": 0.776952
+      },
+      "support": 269
+    },
+    "Repairs": {
+      "bot": {
+        "precision": 0.623987,
+        "recall": 0.773092
+      },
+      "router": {
+        "precision": 0.774914,
+        "recall": 0.905622
+      },
+      "support": 498
+    },
+    "Returns & Replacement": {
+      "bot": {
+        "precision": 0.944444,
+        "recall": 0.730061
+      },
+      "router": {
+        "precision": 0.863192,
+        "recall": 0.812883
+      },
+      "support": 326
+    },
+    "Warranty Claims": {
+      "bot": {
+        "precision": 0.954774,
+        "recall": 0.733591
+      },
+      "router": {
+        "precision": 0.826087,
+        "recall": 0.80695
+      },
+      "support": 259
+    }
+  },
+  "seen_text": {
+    "test_seen_share": 0.101469,
+    "validation_seen_share": 0.099766
+  },
+  "triage": {
+    "accuracy_sent": 0.96324,
+    "accuracy_triaged": 0.28934,
+    "count": 394,
+    "mean_confidence_triaged": 0.329629,
+    "misroutes_sent": 64,
+    "misroutes_triaged": 280,
+    "rate": 0.184543,
+    "sent_count": 1741,
+    "threshold": 0.628301,
+    "vague_count": 173,
+    "vague_triaged_count": 173,
+    "vague_triaged_share": 1.0
+  }
+}

@@ -35,7 +35,8 @@ run_target() {
     baselines) "$PY" -m src.baselines ;;
     experiments) "$PY" -m src.experiments ;;
     router) "$PY" -m src.router ;;
-    train | evaluate | predict | serve) not_implemented "$1" ;;
+    evaluate) "$PY" -m src.evaluation ;;
+    train | predict | serve) not_implemented "$1" ;;
     test) "$PY" -m pytest tests ;;
     *)
       echo "Unknown target: $1" >&2

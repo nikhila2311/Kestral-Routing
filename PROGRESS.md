@@ -9,7 +9,7 @@
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md`, `src/baselines.py` | Validation accuracy: bot 76.67%, rules 65.95%, (d) 83.89%, (e) 76.21%; (d) minus bot 7.21 points (paired 5.76 to 8.81); 57 tests pass | Train window is the one reference set for repeated text; JSON rounded to 6 decimals; `technician` removed from Repairs | "Likely optimistic" verdict on repeated text; exact-text check of the committed reports |
 | M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md`, `src/experiments.py` | Original rule: `complement_nb_a0.1`, real-val 82.58%, failed criterion 4 (82.89%). Amended rule: `logreg_c1_none` = (d), real-val 83.89% (bot 76.67%) | Q1-Q8 as recommended; rule amended after a real-val result, see M5a notes | Added features, balanced class weights, calibrated LinearSVC (more complex), ComplementNB (log loss) |
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md`, `models/` (git-ignored) | Auto-routed 81.55% at 96.32%; triaged 18.45% at 28.93%; Rs 49,039/month best case, 80,044 no triage, 114,191 fixes nothing, bot 115,878; break-even 52.41%; 101 M5b tests pass | Q1-Q5 as recommended, see M5b notes; scikit-learn, joblib, numpy pinned; wording revised twice, model unchanged | Threshold from `COST_PER_MISROUTE` (covers validation); character n-grams in reasons; question template per team pair |
-| M6 | not started | | | | |
+| M6 evaluation | BUILT, awaiting owner verification | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
 | M7 | not started | | | | |
 | M8 | not started | | | | |
 | M9 | not started | | | | |
@@ -309,3 +309,28 @@ were caught; the miss (the longer-phrase rule switched off) now has a test that 
 
 **Discarded.** Character n-grams in reasons (unreadable); bigrams that skip a word or punctuation (not literally in the text);
 checking the committed report text exactly (as in M4).
+
+## M6 notes
+
+**Decisions** (project owner, plan review). Q1: refit the router in memory and require the `router.json` model version. Q2: both
+overlapping and exclusive failure categories. Q3: quoted phrases only if in at least 10 different train texts. Q4: expected range
+= CI half-widths x square root of two, low end minus the 0.89-point drift. Q5: bot-label case from agreement, 80.52%. Q6: test
+`text_clean` read for shares only. Q7: licence on its own line. Addition: one sentence on the lead over the bot by month.
+
+**Findings**
+
+- The requested sentence said the lead stays roughly constant. Measured leads are 6.17, 7.36 and 8.10 points (Apr, May, Jun): the
+  paired intervals all overlap, so a constant lead is compatible with the data, but the point estimates rise every month. The
+  report says both, and the wording is built from the values.
+- The router's accuracy falls each month (85.08%, 84.33%, 82.24%) and so does the bot's (78.91%, 76.98%, 74.15%). Why is not known.
+- The bot is better on precision for Installs & Demo, Returns & Replacement, Warranty Claims and Product Advice, and on recall
+  for Filters & Consumables (validation, every request counted).
+- Vague requests and close calls are 230 of the 344 misroutes (counted once each). IVR is a weak driver (17.44% misrouted
+  against 16.11% overall).
+- Confidence between 0.2 and 0.5 is too high (for example 46.05% mean against 30.77% right, 39 requests).
+- If clarification fixes nothing, the router saves only Rs 1,687 per month against the bot, licence left out.
+
+**Verification.** Not yet verified by the owner. 12 deliberate breakages in a scratch copy were all caught (4 of them by the
+build's own consistency check). JSON key order once changed the markdown; the renderer now uses `meta.teams`.
+
+**Open.** 83.89% is not an untouched estimate (M5a). The drift allowance is rough: the inner model saw fewer months.

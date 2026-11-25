@@ -432,7 +432,72 @@ Router: the M5a configuration with confidence, triage, reasons and a clarifying 
 
 ## M6
 
-status: not started
+status: BUILT, awaiting owner verification
+
+Evaluation evidence. Code `src/evaluation.py` (not `src/evaluate.py`, which is the M3 harness), tests
+`tests/test_m6_evaluation.py`, run `bash scripts/run_all.sh evaluate` (run `clean`, `baselines`, `experiments`, `router`
+first). Reporting only: no tuning, no model choice, no test predictions, no saved model.
+
+**Inputs**
+
+- `data/processed/train_clean.parquet` (M1); `data/processed/test_clean.parquet` (M1), column `text_clean` only, for vague
+  and seen shares.
+- `reports/baselines.json` (M4), `reports/experiments.json` (M5a), `reports/router.json` (M5b), always from `reports/`.
+- Code: M2 `vague_mask`, `product_conflict_mask`; M3 `time_split`, `evaluate`, `coverage_curve`, `bootstrap_ci`; M4
+  `paired_difference`, `round_floats` and constants; M5b `Router`, `to_records`, `CLOSE_CALL`.
+
+**Interface**
+
+- `build(reports_dir=config.REPORTS_DIR) -> dict`; `compute_evaluation(train, val, test_text, outputs, sources, meta) -> dict`;
+  `load_sources(reports_dir) -> dict`; `train_router(train_df, sources) -> Router`.
+- Blocks: `headline`, `per_team`, `breakdowns`, `triage_block`, `costs`, `failures`, `calibration`, `expected_score`,
+  `consistency(results, sources)`.
+- `plot_figures(results, out_dir) -> list[Path]`, `render_markdown(results) -> str`: from the results only.
+
+**Rules**
+
+- The router is refitted in memory on the train window with `chosen.config`; `models/router.joblib` is never read (M7 may
+  replace it with a model that has seen validation). `RuntimeError` unless `model_version` equals the one in `router.json`.
+- Every compared number must equal its source within 1e-6, otherwise `ValueError` and nothing is written.
+- Failure categories, first match in the exclusive view: vague (M2), close call (top two within 0.10), product conflict (M2),
+  IVR channel, other. Quoted phrases are the router's own, at most 3 words, no digits, in at least 10 different train texts.
+- Expected score: validation CI half-widths x square root of two; low end also minus (inner-val accuracy - validation
+  accuracy). Bot-label case: router/bot agreement, same widening, no drift allowance. Vague ceiling: 1 - test vague share x
+  (1 - accuracy on vague validation rows).
+- Costs as in M5b. The licence is its own line and is in no total.
+
+**Output `reports/evaluation.json`** (aggregates, fixed wording and common phrases only; floats rounded to 6 decimals;
+sorted keys, so take team order from `meta.teams`)
+
+| Key | Content |
+|---|---|
+| meta | model name and version, training window, validation window, `teams`, `ci_level`, `labelled_months`, `seed` |
+| headline | `rows`; `router`, `bot` -> `accuracy`, `accuracy_ci95`, `macro_f1`, `misroutes`; `paired_accuracy_points_router_minus_bot` |
+| per_team | team -> `support`, `router` / `bot` {precision, recall} |
+| confusion | `router`, `bot`: counts, rows = final team, `meta.teams` order |
+| coverage_curve | `points` (thresholds 0.00 to 0.95), `policy_point` |
+| calibration | `bins`, `bin_count`, `expected_calibration_error`, `mean_confidence`, `accuracy` |
+| breakdowns | `channel`, `month`, `warranty_status`, `text` -> list of group, rows, accuracies, lead, triage rate |
+| seen_text | `validation_seen_share`, `test_seen_share` |
+| triage | counts, rate, accuracy and misroutes sent / triaged, mean confidence, threshold, vague counts |
+| costs | `per_month_rs` (3 router cases, bot, licence), savings, `break_even_clarification_rate`, `inputs` |
+| failures | `categories` (rows, errors, error rate, errors sent, exclusive errors, phrases), totals |
+| expected_score | `final_team`, `bot_label`, `vague_ceiling`, `monthly_lead` |
+| figures | paths relative to `reports/` |
+| consistency | `tolerance`, `count`, `checks` (key, value, source, source_key, source_value) |
+
+**Other outputs:** `reports/evaluation.md` (rendered from the results); `reports/figures/confusion_matrices.png`,
+`coverage_accuracy.png`, `reliability.png`, `per_team_recall.png`.
+
+**Acceptance criteria**
+
+1. All figure files exist, are valid PNGs and larger than 10 KB.
+2. Headline and per-team numbers recomputed independently from Router predictions match the JSON.
+3. Headline accuracy, triage share and costs equal the M4, M5a and M5b JSON values (1e-6).
+4. CI low <= point <= high; the expected range contains the validation point estimate.
+5. No 4-word run shared with any train or test text.
+6. Every number in `evaluation.md` is in `evaluation.json`.
+7. Deterministic (figures byte for byte on one machine); floats rounded to 6 decimals.
 
 ## M7
 

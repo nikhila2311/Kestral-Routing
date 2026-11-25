@@ -33,7 +33,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md` |
 | M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md` |
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md` |
-| M6 | not started | |
+| M6 evaluation | BUILT, awaiting owner verification | `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/` |
 | M7 | not started | |
 | M8 | not started | |
 | M9 | not started | |
@@ -59,7 +59,7 @@ One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md
   `config.TRIAGE_THRESHOLD` — interface and schema in docs/contracts.md#m5b. Load only our own joblib file.
 
 Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines`, `experiments`,
-`router` and `test` are implemented; other targets exit 2.
+`router`, `evaluate` and `test` are implemented; other targets exit 2.
 
 ## 5. Key numbers
 
@@ -105,6 +105,12 @@ M5b (`reports/router.json`, validation; M5b tests recompute the report, the valu
 - Rs per month: 49,039 best case (clarification always works), 80,044 no triage, 114,191 clarification fixes nothing, bot
   115,878 on the same rows (licence 26,667 not included). Break-even clarification rate 52.41%.
 - Repairs precision 97.35% on auto-routed, 77.49% on all.
+
+M6 (`reports/evaluation.json`, validation; not yet verified; headline numbers equal the M4/M5a/M5b values):
+
+- Expected hidden-test accuracy 83.89%, range 80.74 to 86.01%; 80.52% (78.20 to 83.03) if labels are the bot's.
+- Accuracy Apr, May, Jun: router 85.08, 84.33, 82.24%; bot 78.91, 76.98, 74.15%; lead 6.17, 7.36, 8.10 (intervals overlap).
+- Vague ceiling 93.61%. 230 of 344 misroutes are vague or close calls. Clarification fixing nothing: Rs 1,687/month under bot.
 
 ## 6. Open questions / known risks
 
