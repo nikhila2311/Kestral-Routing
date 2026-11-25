@@ -30,7 +30,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M1 clean | VERIFIED | `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` |
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py` |
-| M4 | not started | |
+| M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md` |
 | M5 | not started | |
 | M6 | not started | |
 | M7 | not started | |
@@ -49,10 +49,12 @@ One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md
 - M3: `src/split.py: time_split`; `src/evaluate.py: evaluate, coverage_curve, align_proba, bootstrap_ci`;
   `config.COST_PER_MISROUTE`, `config.COST_PER_MISROUTE_SIMPLE` — signatures, rules and caveats in docs/contracts.md#m3.
   Pass sklearn `predict_proba` output through `align_proba`; pass `confidence` when rules override predictions.
-- M4–M10: none verified yet.
+- M4: `reports/baselines.json` (`reports/baselines.md` is rendered from it); `src/baselines.py: make_pipeline, fit_model,
+  predict_with_proba` — schema and signatures in docs/contracts.md#m4.
+- M5–M10: none verified yet.
 
-Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit` and `test` are implemented; other
-targets exit 2.
+Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines` and `test` are
+implemented; other targets exit 2.
 
 ## 5. Key numbers
 
@@ -81,7 +83,14 @@ M3 (covered by M3 tests unless noted):
   figure; the match was checked by hand, the M2 value is not asserted in M3 tests.
 - `cost_rs` from `evaluate` is per evaluated set, not per month.
 
-Model results: none yet.
+M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% bootstrap interval):
+
+- Bot label 76.67% (74.89 to 78.36). Keyword rules 65.95% (64.07 to 67.96).
+- TF-IDF trained on the final team 83.89% (82.30 to 85.39). Same model trained on the bot label 76.21% (74.47 to 77.99).
+- Best baseline: `tfidf_final`, 7.21 points above the bot (paired interval 5.76 to 8.81); the number to beat in later modules.
+- The training target alone is worth 7.68 points: trained on bot labels, the model copies the bot (95.64% agreement).
+- Keyword rules changed once after validation had been seen (`technician`, train-count justified); see `PROGRESS.md`.
+- Seen / unseen text: bot 80.28% / 76.27%, `tfidf_final` 84.98% / 83.77%.
 
 ## 6. Open questions / known risks
 

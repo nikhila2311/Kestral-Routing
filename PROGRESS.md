@@ -6,7 +6,7 @@
 | M1 clean | VERIFIED | `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` | 10,822 / 2,178 rows; negative resolution_hours 1,140 -> 0; 12 tests pass | ftfy before lowercasing; fold Latin accents (`the`); pyarrow added; raw `team_label` kept, use `*_canon`; `transfers` as recorded; IDs in text not masked | Raw `first_team`, `final_team`, `resolved_at` in output; marker check on lowercased text alone (cannot fail) |
 | M2 audit | VERIFIED | `reports/audit_metrics.json`, `reports/data_audit.md` | 48 tests pass; agreement 77.17%; 15 months; Rs 122,171/month (Rs 114,994 from misrouted rows only); 1,744 product conflicts (16.1%); 878 vague (8.1%, estimate) | Cost formula as specified, caveats in `cost_inputs`; text counts on `text_clean` with `_raw` variants; tests build into a temp folder; months, vague and conflict rules in M2 notes | Vague by length or "call back" (that phrase is mostly a suffix on specific requests); product pattern needing "air fryer" |
 | M3 split + evaluation | VERIFIED | `src/split.py`, `src/evaluate.py`, cost constants in `src/config.py` | 8,687 / 2,135 rows; Rs 698.06 per misroute (simple Rs 565); bot misroutes Rs 114,994/month; 64 tests pass | Average transfers from misrouted rows only; literal counts in config; macro-F1 over all 7 teams; `align_proba` and `confidence` added; error messages give counts only | Rejecting `y_pred` that is not the row maximum of `proba` (blocks M5 rules); average over all 3,902 transfers (Rs 741.6) |
-| M4 | not started | | | | |
+| M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md`, `src/baselines.py` | Validation accuracy: bot 76.67%, rules 65.95%, (d) 83.89%, (e) 76.21%; (d) minus bot 7.21 points (paired 5.76 to 8.81); 57 tests pass | Train window is the one reference set for repeated text; JSON rounded to 6 decimals; `technician` removed from Repairs | "Likely optimistic" verdict on repeated text; exact-text check of the committed reports |
 | M5 | not started | | | | |
 | M6 | not started | | | | |
 | M7 | not started | | | | |
@@ -144,3 +144,65 @@ putting value-printing messages back made 7 of the 10 new test cases fail (the o
 | 1 | Privacy: error messages printed offending values, so a text column passed by mistake would print customer text | Fixed: counts only, not truncated snippets, because even 20 characters can be customer text. Also fixed: numpy's own error quoted text passed as `proba` or `confidence`; it is replaced and kept out of the traceback |
 | 2 | Split sizes not pinned, only their sum | Fixed: 8,687 and 2,135 asserted |
 | 3 | Criterion 6 is tested with 300 resamples, not the default 1,000 | Skipped by the owner: the default is already covered by the call-count and interval-width tests |
+
+## M4 notes
+
+**Verification.** Marked VERIFIED by the project owner after the review and fixes below, with M2, M3, L3 and L4 deferred.
+57 M4 tests pass (190 in all). Best baseline: `tfidf_final` (d).
+
+| Baseline | Validation accuracy | 95% interval |
+|---|---:|---:|
+| (b) bot label | 76.67% | 74.89 to 78.36 |
+| (c) keyword rules | 65.95% | 64.07 to 67.96 |
+| (d) TF-IDF trained on the final team | 83.89% | 82.30 to 85.39 |
+| (e) TF-IDF trained on the bot label | 76.21% | 74.47 to 77.99 |
+
+(d) is the highest baseline but below the client's 90% bar, which is stated against the bot's labels.
+
+**Finding, (d) against (e).** Same pipeline and features, only the training target differs. Trained on the final team it
+reaches 83.89% on validation; trained on the bot's labels it reaches 76.21%, no better than the bot itself (76.67%), and
+agrees with the bot on 95.64% of requests (against 80.52%). A model trained on the bot's labels mostly learns to copy
+the bot, errors included; the 7.68 points come from the target alone. This supports `CLAUDE.md` rule 1.
+
+**`technician` rule (review item M1).** Justified by train-window counts only: of 139 train requests with the word, 134
+closed at Installs & Demo, 2 at Product Advice, 2 at Filters & Consumables and 1 at Repairs, while the rule sent 135 to
+Repairs. Removing it moved the rules from 64.59% to 66.09% on train. **Validation had already been seen when this change
+was made:** the review measured the rule on both windows. Validation went from 64.36% (761 misroutes) to 65.95% (727), so
+the rules' validation score is not fully blind. No other rule was changed. (d), (e) and the bot are unaffected.
+
+**Decisions**
+
+- Reading `test_clean.parquet` is limited to `text_clean` overlap counts, as authorised in the contract.
+- Repeated text: validation and test are both compared with the train window (9.98% and 10.15% seen). The earlier 11.94%
+  for test used all labelled data as its reference.
+- Rs 698.06 is kept as the headline cost; the report adds the M3 caveats and the Rs 565 sensitivity row.
+- The paired interval resamples both baselines on the same rows with M3's `bootstrap_ci`.
+- Exact-value tests now use the unrounded results; another test requires the JSON to equal them rounded to 6 decimals.
+
+**Tried and discarded**
+
+- The "likely optimistic / pessimistic" verdict and its tests: it compared a re-weighted accuracy with the interval, and at
+  these seen shares could not realistically fall outside it. Seen and unseen accuracies are reported instead.
+- Exact-text comparison of the committed JSON: replaced by a 1e-4 tolerance (one validation row moves accuracy by 4.7e-4)
+  because model floats may differ between machines. The markdown must still equal the rendering of the committed JSON.
+
+**Review issues.** 17 deliberate code breakages were run in memory after the fixes, ignoring
+`test_committed_reports_current`: 15 caught, 2 not (items M2 and M3).
+
+| ID | Issue | Status |
+|---|---|---|
+| H1 | No M4 contract | Fixed |
+| H2 | Tests did not enforce (d) = (e) except the target | Fixed: parameters compared with sub-steps, settings pinned. Both already came from one `make_pipeline()` |
+| H3 | No test that (c) ignores the bot label | Fixed, together with L2 |
+| M1 | `technician` in the Repairs rule was wrong | Fixed (see above) |
+| M2 | Source of the keyword fallback team is untested | Deferred |
+| M3 | Only the bot's interval is recomputed | Deferred |
+| M4 | Repeated-text verdict could not fail; two reference sets | Fixed |
+| M5 | M3 cost caveats missing | Fixed |
+| M6 | Committed reports compared as exact text | Fixed |
+| L1 | Interval overlap used for paired predictions | Fixed: paired interval added, overlap wording kept |
+| L2 | Forbidden-column test was weak | Fixed: scramble test added, old test kept |
+| L3 | Privacy check skips test text | Deferred |
+| L4 | Report prose and duplicate fields add complexity | Deferred |
+
+Deferred by the project owner: test strictness and tidiness only, no effect on results.

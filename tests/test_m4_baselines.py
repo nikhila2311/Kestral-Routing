@@ -7,6 +7,9 @@ import warnings
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import OneHotEncoder
 
 NAMES = {"majority", "bot", "keywords", "tfidf_final", "tfidf_bot"}
 TITLES = {
@@ -28,6 +31,23 @@ COMPARISON_KEYS = {
 }
 ALLOWED = {"text_clean", "channel", "product_family", "warranty_status"}
 PLANTED = "zzqxplanted"
+FORBIDDEN = (
+    "team_label",
+    "team_label_canon",
+    "first_team_canon",
+    "transfers",
+    "misrouted",
+    "resolved_at_ist",
+    "resolution_hours",
+)
+TOP_KEYS = {
+    "baselines",
+    "comparisons",
+    "paired_accuracy_points_tfidf_final_minus_bot",
+    "cost_sensitivity",
+    "repeated_text",
+    "meta",
+}
 
 DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?%?")
@@ -43,6 +63,11 @@ def mod():
 @pytest.fixture(scope="module")
 def df(processed_dir):
     return pd.read_parquet(processed_dir / "train_clean.parquet")
+
+
+@pytest.fixture(scope="module")
+def test_text(processed_dir):
+    return pd.read_parquet(processed_dir / "test_clean.parquet")["text_clean"]
 
 
 @pytest.fixture(scope="module")
@@ -70,8 +95,40 @@ def md(out_dir):
     return (out_dir / "baselines.md").read_text(encoding="utf-8")
 
 
+def run_and_record(mod, df, test_text):
+    """compute_baselines, plus the (predictions, probabilities) each baseline was scored on."""
+    calls, original = [], mod.score
+
+    def recording_score(val_df, pred, proba=None):
+        calls.append((np.asarray(pred, dtype=object).copy(), proba))
+        return original(val_df, pred, proba)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(mod, "score", recording_score)
+        result = mod.compute_baselines(df, test_text)
+    assert len(calls) == len(result["baselines"])
+    return result, dict(zip(result["baselines"], calls))
+
+
 @pytest.fixture(scope="module")
-def planted_run(mod, df):
+def full_run(mod, df, test_text):
+    return run_and_record(mod, df, test_text)
+
+
+@pytest.fixture(scope="module")
+def full(full_run):
+    """Unrounded results, so values are checked exactly; test_json_is_rounded_results ties the JSON to them."""
+    return full_run[0]
+
+
+@pytest.fixture(scope="module")
+def pipelines():
+    """Every pipeline make_pipeline returned during planted_run."""
+    return []
+
+
+@pytest.fixture(scope="module")
+def planted_run(mod, df, test_text, pipelines):
     """compute_baselines with an invented token in every validation text; returns the fits it made."""
     planted = df.copy()
     in_val = planted["created_at_ist"] >= "2026-04-01"
@@ -84,10 +141,17 @@ def planted_run(mod, df):
         fits.append((train_df, target_col, model))
         return model
 
+    original_make = mod.make_pipeline
+
+    def recording_make():
+        pipelines.append(original_make())
+        return pipelines[-1]
+
     with pytest.MonkeyPatch.context() as patch, warnings.catch_warnings():
         warnings.simplefilter("error")  # a non-converged fit fails here
         patch.setattr(mod, "fit_model", recording_fit)
-        mod.compute_baselines(planted)
+        patch.setattr(mod, "make_pipeline", recording_make)
+        mod.compute_baselines(planted, test_text)
     return fits
 
 
@@ -144,7 +208,7 @@ def word_runs(text, n=4):
 
 # --- Criterion 1 -----------------------------------------------------------
 def test_all_baselines_and_keys(results, config, val):
-    assert set(results) == {"baselines", "comparisons", "meta"}
+    assert set(results) == TOP_KEYS
     assert set(results["baselines"]) == NAMES
     assert set(results["comparisons"]) == COMPARISON_KEYS
     for name, scores in results["baselines"].items():
@@ -157,39 +221,73 @@ def test_all_baselines_and_keys(results, config, val):
         assert ci["low"] < ci["point"] == scores["evaluate"]["accuracy"] < ci["high"]
 
 
-def test_costs_and_comparisons_recomputed(results, config):
-    for scores in results["baselines"].values():
+def test_costs_and_comparisons_recomputed(full, config):
+    for scores in full["baselines"].values():
         cost = scores["evaluate"]["misroutes"] * config.COST_PER_MISROUTE
         assert scores["cost_rs"] == scores["evaluate"]["cost_rs"] == pytest.approx(cost)
         assert scores["cost_rs_per_month"] == pytest.approx(cost / 3)
-    c = results["comparisons"]
-    points = 100 * (accuracy(results, "tfidf_final") - accuracy(results, "bot"))
+    c = full["comparisons"]
+    points = 100 * (accuracy(full, "tfidf_final") - accuracy(full, "bot"))
     assert c["accuracy_points_tfidf_final_minus_bot"] == pytest.approx(points)
-    points = 100 * (accuracy(results, "tfidf_final") - accuracy(results, "tfidf_bot"))
+    points = 100 * (accuracy(full, "tfidf_final") - accuracy(full, "tfidf_bot"))
     assert c["accuracy_points_tfidf_final_minus_tfidf_bot"] == pytest.approx(points)
-    points = 100 * (accuracy(results, "keywords") - accuracy(results, "bot"))
+    points = 100 * (accuracy(full, "keywords") - accuracy(full, "bot"))
     assert c["accuracy_points_keywords_minus_bot"] == pytest.approx(points)
-    points = 100 * (agreement(results, "tfidf_bot") - agreement(results, "tfidf_final"))
+    points = 100 * (agreement(full, "tfidf_bot") - agreement(full, "tfidf_final"))
     assert c["agreement_points_tfidf_bot_minus_tfidf_final"] == pytest.approx(points)
-    monthly = {name: s["cost_rs_per_month"] for name, s in results["baselines"].items()}
+    monthly = {name: s["cost_rs_per_month"] for name, s in full["baselines"].items()}
     assert c["cost_rs_per_month_bot_minus_tfidf_final"] == pytest.approx(monthly["bot"] - monthly["tfidf_final"])
-    assert results["meta"]["bot_licence_rs_per_month"] == pytest.approx(320_000 / 12)
+    assert full["meta"]["bot_licence_rs_per_month"] == pytest.approx(320_000 / 12)
 
 
-def test_interval_matches_m3_bootstrap(results, val, config):
+def test_interval_matches_m3_bootstrap(full, val, config):
     from src.evaluate import bootstrap_ci
 
     low, _, high = bootstrap_ci(
         val["final_team_canon"], val["team_label_canon"], lambda t, p: float((t == p).mean()), seed=config.SEED
     )
-    ci = results["baselines"]["bot"]["accuracy_ci95"]
+    ci = full["baselines"]["bot"]["accuracy_ci95"]
     assert (ci["low"], ci["high"]) == (low, high)
 
 
+def test_json_is_rounded_results(results, full):
+    json_leaves, full_leaves = dict(leaves(results)), dict(leaves(full))
+    assert set(json_leaves) == set(full_leaves)
+    for path, value in full_leaves.items():
+        assert json_leaves[path] == (round(value, 6) if isinstance(value, float) else value), path
+
+
+def test_paired_interval_recomputed(full, full_run, val, config):
+    truth = val["final_team_canon"].to_numpy(dtype=object)
+    final_ok = (full_run[1]["tfidf_final"][0] == truth).astype(int)
+    bot_ok = (val["team_label_canon"].to_numpy(dtype=object) == truth).astype(int)
+    difference = final_ok - bot_ok
+    rng = np.random.default_rng(config.SEED)
+    samples = [difference[rng.integers(0, len(val), len(val))].mean() for _ in range(1000)]
+    low, high = 100 * np.percentile(samples, [2.5, 97.5])
+    paired = full["paired_accuracy_points_tfidf_final_minus_bot"]
+    assert set(paired) == {"low", "point", "high"}
+    assert (paired["low"], paired["high"]) == (pytest.approx(low), pytest.approx(high))
+    assert paired["point"] == pytest.approx(full["comparisons"]["accuracy_points_tfidf_final_minus_bot"])
+    assert paired["low"] < paired["point"] < paired["high"]
+
+
+def test_cost_sensitivity_recomputed(full, config):
+    assert set(full["cost_sensitivity"]) == {"average", "simple"}
+    for key, cost in (("average", config.COST_PER_MISROUTE), ("simple", 565)):
+        s = full["cost_sensitivity"][key]
+        assert s["cost_per_misroute_rs"] == cost
+        assert set(s["cost_rs_per_month"]) == NAMES
+        for name, monthly in s["cost_rs_per_month"].items():
+            assert monthly == pytest.approx(full["baselines"][name]["evaluate"]["misroutes"] * cost / 3)
+        saving = s["cost_rs_per_month"]["bot"] - s["cost_rs_per_month"]["tfidf_final"]
+        assert s["saving_rs_per_month_bot_minus_tfidf_final"] == pytest.approx(saving)
+
+
 # --- Criterion 2 -----------------------------------------------------------
-def test_bot_accuracy_matches_parquet(results, val):
-    assert accuracy(results, "bot") == (val["team_label_canon"] == val["final_team_canon"]).mean()
-    assert agreement(results, "bot") == 1.0
+def test_bot_accuracy_matches_parquet(full, val):
+    assert accuracy(full, "bot") == (val["team_label_canon"] == val["final_team_canon"]).mean()
+    assert agreement(full, "bot") == 1.0
 
 
 # --- Criterion 3 -----------------------------------------------------------
@@ -204,13 +302,13 @@ def test_final_target_vs_bot_target(results):
 
 
 # --- Criterion 5 -----------------------------------------------------------
-def test_majority_is_lowest(results, df, val):
+def test_majority_is_lowest(full, df, val):
     for name in NAMES - {"majority"}:
-        assert accuracy(results, "majority") < accuracy(results, name)
+        assert accuracy(full, "majority") < accuracy(full, name)
     # The majority team comes from the train window, and its score is that team's share of validation.
     team = df.loc[df["created_at_ist"] < "2026-04-01", "final_team_canon"].value_counts().idxmax()
-    assert results["meta"]["majority_team"] == team
-    assert accuracy(results, "majority") == (val["final_team_canon"] == team).mean()
+    assert full["meta"]["majority_team"] == team
+    assert accuracy(full, "majority") == (val["final_team_canon"] == team).mean()
 
 
 def test_majority_tie(mod):
@@ -218,12 +316,12 @@ def test_majority_tie(mod):
     assert mod.majority_class(["Billing", "Billing", "Repairs"]) == "Billing"
 
 
-def test_majority_comes_from_train_window(mod, df, results):
+def test_majority_comes_from_train_window(mod, df, test_text, results):
     # The real majority team is the same in both windows, so give validation a different one.
     changed = df.copy()
     changed.loc[changed["created_at_ist"] >= "2026-04-01", "final_team_canon"] = "Product Advice"
     assert results["meta"]["majority_team"] != "Product Advice"
-    assert mod.compute_baselines(changed)["meta"]["majority_team"] == results["meta"]["majority_team"]
+    assert mod.compute_baselines(changed, test_text)["meta"]["majority_team"] == results["meta"]["majority_team"]
 
 
 # --- Criterion 6 -----------------------------------------------------------
@@ -243,6 +341,22 @@ def test_predictions_ignore_forbidden_columns(mod, df, val, planted_run):
     _, expected = mod.predict_with_proba(model, val)
     _, actual = mod.predict_with_proba(model, val[sorted(ALLOWED)])
     assert np.array_equal(actual, expected)
+
+
+def test_forbidden_columns_do_not_change_predictions(mod, config, df, test_text, full_run):
+    rng = np.random.default_rng(config.SEED)
+    scrambled = df.copy()
+    for column in FORBIDDEN:
+        # One permutation per column, so the columns do not stay consistent with each other.
+        scrambled[column] = df[column].to_numpy()[rng.permutation(len(df))]
+    _, before = full_run
+    _, after = run_and_record(mod, scrambled, test_text)
+    for name in ("majority", "keywords", "tfidf_final"):
+        assert bool((before[name][0] == after[name][0]).all()), name
+    assert np.array_equal(before["tfidf_final"][1], after["tfidf_final"][1])
+    # Control: the scramble did reach the baselines that are meant to depend on the bot label.
+    for name in ("bot", "tfidf_bot"):
+        assert bool((before[name][0] != after[name][0]).any()), name
 
 
 def test_vocab_fitted_on_train_only(mod, planted_run):
@@ -285,6 +399,49 @@ def test_model_settings(mod, config, planted_run):
         assert features["word"].ngram_range == (1, 2)
         assert features["char"].ngram_range == (3, 5)
         assert features["char"].analyzer == "char_wb"
+
+
+def comparable(params):
+    """get_params as plain values: estimators become their type, step lists become names, types and columns."""
+
+    def plain(value):
+        if hasattr(value, "get_params"):
+            return type(value)
+        if isinstance(value, (list, tuple)):
+            return [plain(v) for v in value]
+        return value
+
+    return {key: plain(value) for key, value in params.items()}
+
+
+def test_final_and_bot_models_differ_only_in_target(planted_run, pipelines):
+    (_, _, final), (_, _, as_bot) = planted_run
+    # Both come straight from the shared make_pipeline, which was called once for each.
+    assert len(pipelines) == 2 and final is pipelines[0] and as_bot is pipelines[1]
+    assert comparable(final.get_params()) == comparable(as_bot.get_params())
+    assert list(final.named_steps) == list(as_bot.named_steps) == ["features", "classifier"]
+    # ColumnTransformer fits clones, so the fitted sub-steps are compared as well.
+    fitted = [m.named_steps["features"].named_transformers_ for m in (final, as_bot)]
+    assert set(fitted[0]) == set(fitted[1]) >= {"word", "char", "category"}
+    for step in ("word", "char", "category"):
+        assert type(fitted[0][step]) is type(fitted[1][step])
+        assert comparable(fitted[0][step].get_params()) == comparable(fitted[1][step].get_params())
+
+
+def test_settings_pinned(planted_run):
+    for _, _, model in planted_run:
+        features, classifier = model.named_steps["features"], model.named_steps["classifier"]
+        assert features.transformer_weights is None and features.remainder == "drop"
+        fitted = features.named_transformers_
+        assert type(fitted["word"]) is type(fitted["char"]) is TfidfVectorizer
+        assert type(fitted["category"]) is OneHotEncoder
+        assert (fitted["word"].analyzer, fitted["char"].analyzer) == ("word", "char_wb")
+        for step in ("word", "char"):
+            assert fitted[step].min_df == 2
+            assert fitted[step].sublinear_tf is True
+        assert type(classifier) is LogisticRegression
+        assert classifier.C == 1.0
+        assert classifier.max_iter == 2000
 
 
 def test_proba_columns_follow_teams(mod, config, df, planted_run):
@@ -364,6 +521,73 @@ def test_findings_wording_follows_values(mod, results):
     assert "do not overlap" not in mod.render_markdown(flipped)
 
 
+# --- Repeated text --------------------------------------------------------
+def test_repeated_text_shares_recomputed(full, df, val, test_text):
+    train_texts = set(df.loc[df["created_at_ist"] < "2026-04-01", "text_clean"])
+    val_seen = sum(t in train_texts for t in val["text_clean"])
+    test_seen = sum(t in train_texts for t in test_text)
+    r = full["repeated_text"]
+    # Numbers only: a failure must not print customer text.
+    assert r["validation_seen_rows"] == val_seen
+    assert r["validation_unseen_rows"] == len(val) - val_seen
+    assert r["validation_seen_share"] == val_seen / len(val)
+    assert r["test_seen_share"] == test_seen / len(test_text)
+
+
+def test_repeated_text_accuracy(full, df, val):
+    r = full["repeated_text"]
+    assert set(r["accuracy"]) == {"bot", "tfidf_final"}
+    train_texts = set(df.loc[df["created_at_ist"] < "2026-04-01", "text_clean"])
+    seen = np.array([t in train_texts for t in val["text_clean"]])
+    correct = (val["team_label_canon"] == val["final_team_canon"]).to_numpy()
+    assert r["accuracy"]["bot"] == {"seen": correct[seen].mean(), "unseen": correct[~seen].mean()}
+
+    # Both groups together must give the overall accuracy.
+    for name, acc in r["accuracy"].items():
+        total = acc["seen"] * r["validation_seen_rows"] + acc["unseen"] * r["validation_unseen_rows"]
+        assert total / len(val) == pytest.approx(accuracy(full, name))
+    final, share = r["accuracy"]["tfidf_final"], r["test_seen_share"]
+    expected = share * final["seen"] + (1 - share) * final["unseen"]
+    assert r["tfidf_final_accuracy_at_test_share"] == pytest.approx(expected)
+
+
+def test_repeated_text_lines_match_json(md, results):
+    r, lines = results["repeated_text"], md.splitlines()
+    for name in ("bot", "tfidf_final"):
+        acc = r["accuracy"][name]
+        assert lines.count(f"| {TITLES[name]} | {acc['seen'] * 100:.2f}% | {acc['unseen'] * 100:.2f}% |") == 1
+    assert lines.count(f"- Test texts also in the train window: {r['test_seen_share'] * 100:.2f}%.") == 1
+    assert (
+        lines.count(
+            f"- Validation texts also in the train window: {r['validation_seen_share'] * 100:.2f}% "
+            f"({r['validation_seen_rows']:,} seen, {r['validation_unseen_rows']:,} unseen)."
+        )
+        == 1
+    )
+
+
+def test_no_repeat_verdict(md):
+    assert "optimistic" not in md and "pessimistic" not in md
+
+
+# --- Cost caveats and paired interval --------------------------------------
+def test_md_cost_caveats_and_sensitivity(md, results):
+    lines = md.splitlines()
+    assert lines.count("- Our misroutes are assumed to bounce between teams as often as the bot's did.") == 1
+    assert sum("average covers all labelled months, including the validation months" in line for line in lines) == 1
+    order = ["majority", "bot", "keywords", "tfidf_final", "tfidf_bot"]
+    for key, shown in (("average", "698.06"), ("simple", "565.00")):
+        s = results["cost_sensitivity"][key]
+        costs = [f"{s['cost_rs_per_month'][name]:,.0f}" for name in order]
+        cells = [shown, *costs, f"{s['saving_rs_per_month_bot_minus_tfidf_final']:,.0f}"]
+        assert lines.count("| " + " | ".join(cells) + " |") == 1
+
+
+def test_md_paired_interval(md, results):
+    p = results["paired_accuracy_points_tfidf_final_minus_bot"]
+    assert f"interval for the difference is {p['low']:.2f} to {p['high']:.2f} points." in md
+
+
 # --- Keyword rules ---------------------------------------------------------
 @pytest.mark.parametrize(
     "text, team",
@@ -382,6 +606,7 @@ def test_findings_wording_follows_values(mod, results):
         ("need a new candle and membrane", "Filters & Consumables"),
         ("wall mounting visit needed", "Installs & Demo"),
         ("how to set the timer", "Product Advice"),
+        ("technician did not turn up for the demo", "Installs & Demo"),
     ],
 )
 def test_keyword_rules(mod, text, team):
@@ -389,7 +614,9 @@ def test_keyword_rules(mod, text, team):
     assert (predicted[0], bool(fired[0])) == (team, True)
 
 
-@pytest.mark.parametrize("text", ["i have paid", "settled through emi", "it is in warranty", "please call me"])
+@pytest.mark.parametrize(
+    "text", ["i have paid", "settled through emi", "it is in warranty", "please call me", "awaiting your technician"]
+)
 def test_mention_alone_fires_nothing(mod, text):
     predicted, fired = mod.keyword_predict([text], "fallback")
     assert (predicted[0], bool(fired[0])) == ("fallback", False)
@@ -400,12 +627,17 @@ def test_keyword_rule_teams_are_canonical(mod, config):
 
 
 # --- Other -----------------------------------------------------------------
-def test_committed_reports_current(out_dir, reports_dir):
-    for name in ("baselines.json", "baselines.md"):
-        # Universal newlines: git may check the files out with CRLF.
-        fresh = (out_dir / name).read_text(encoding="utf-8")
-        stored = (reports_dir / name).read_text(encoding="utf-8")
-        assert stored == fresh, f"{name} is stale: run clean, then baselines"
+def test_committed_reports_current(mod, results, reports_dir):
+    # Tolerance: another BLAS or CPU may move model floats slightly. One row of validation moves accuracy by 4.7e-4.
+    stored = json.loads((reports_dir / "baselines.json").read_text(encoding="utf-8"))
+    stored_leaves, fresh_leaves = dict(leaves(stored)), dict(leaves(results))
+    assert set(stored_leaves) == set(fresh_leaves), "baselines.json is stale: run clean, then baselines"
+    for path, fresh in fresh_leaves.items():
+        expected = pytest.approx(fresh, rel=1e-9, abs=1e-4) if isinstance(fresh, float) else fresh
+        assert stored_leaves[path] == expected, f"baselines.json is stale at {path}: run clean, then baselines"
+    # The markdown is checked exactly against its own JSON. Universal newlines: git may check it out with CRLF.
+    stored_md = (reports_dir / "baselines.md").read_text(encoding="utf-8")
+    assert stored_md == mod.render_markdown(stored), "baselines.md is stale: run clean, then baselines"
 
 
 def test_no_request_text_in_reports(out_dir, df):

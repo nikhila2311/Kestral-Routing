@@ -18,6 +18,7 @@ from src.split import time_split
 JSON_NAME, MD_NAME = "baselines.json", "baselines.md"
 MONTHS_PER_YEAR = 12
 CI_LEVEL = 0.95  # what bootstrap_ci returns
+JSON_DECIMALS = 6  # solver noise below this must not change the reports
 
 TARGET, BOT = "final_team_canon", "team_label_canon"
 TEXT, CATEGORICAL = "text_clean", ("channel", "product_family", "warranty_status")
@@ -35,7 +36,8 @@ BASELINES = {
     "tfidf_bot": "(e) TF-IDF, trained on the bot label",
 }
 
-# Written from the teams.csv descriptions and ops-policy section 3, not tuned on any scores. First match wins.
+# Written from the teams.csv descriptions and ops-policy section 3. First match wins. One change came from data:
+# "technician" was removed from Repairs on train-window counts (see PROGRESS.md, M4 notes).
 # A mention of paying, EMI or warranty matches nothing on its own. Faults come before spares ("Not faults").
 KEYWORD_RULES = (
     (
@@ -65,7 +67,7 @@ KEYWORD_RULES = (
     (
         "Repairs",
         r"\bnot (?:working|turning on|starting|switching on)\b|\bstopped working\b|\bfault\w*|\bbreakdown\b"
-        r"|\bbroken?\b|\berror\b|\bnois[ey]\w*|\bleak\w*|\btechnician\b|\brepair\w*",
+        r"|\bbroken?\b|\berror\b|\bnois[ey]\w*|\bleak\w*|\brepair\w*",
     ),
     ("Billing", r"\brefund\w*"),  # any refund without a return or a fault
     (
@@ -147,8 +149,61 @@ def score(val_df: pd.DataFrame, pred, proba=None) -> dict:
     }
 
 
-def compute_baselines(df: pd.DataFrame) -> dict:
-    """Fit on the train window, score on the validation window. Aggregates only."""
+def _mean_or_none(values) -> float | None:
+    return float(values.mean()) if len(values) else None
+
+
+def repeated_text(train: pd.DataFrame, val: pd.DataFrame, preds: dict, test_text: pd.Series) -> dict:
+    """Share of validation and test texts in the train window, and accuracy on seen and unseen validation text."""
+    train_texts = set(train[TEXT])
+    seen = val[TEXT].isin(train_texts).to_numpy()
+    truth = val[TARGET].to_numpy(dtype=object)
+    accuracy = {}
+    for name, pred in preds.items():
+        correct = np.asarray(pred, dtype=object) == truth
+        accuracy[name] = {"seen": _mean_or_none(correct[seen]), "unseen": _mean_or_none(correct[~seen])}
+
+    test_share = float(test_text.isin(train_texts).mean())
+    final = accuracy["tfidf_final"]
+    reweighted = None
+    if None not in final.values():
+        reweighted = test_share * final["seen"] + (1 - test_share) * final["unseen"]
+    return {
+        "validation_seen_share": float(seen.mean()),
+        "validation_seen_rows": int(seen.sum()),
+        "validation_unseen_rows": int((~seen).sum()),
+        "test_seen_share": test_share,
+        "accuracy": accuracy,
+        "tfidf_final_accuracy_at_test_share": reweighted,
+    }
+
+
+def paired_difference(truth, pred, reference) -> dict:
+    """Accuracy of pred minus accuracy of reference, in points, resampling both on the same rows."""
+
+    def points(correct, reference_correct):
+        return float(100 * (np.mean(correct.astype(float)) - np.mean(reference_correct.astype(float))))
+
+    low, point, high = bootstrap_ci(pred == truth, reference == truth, points)
+    return {"low": low, "point": point, "high": high}
+
+
+def cost_sensitivity(scores: dict) -> dict:
+    """Misroute cost per month of every baseline at the average and at the simple cost per misroute."""
+
+    def at(cost):
+        monthly = {name: s["evaluate"]["misroutes"] * cost / _validation_months() for name, s in scores.items()}
+        return {
+            "cost_per_misroute_rs": cost,
+            "cost_rs_per_month": monthly,
+            "saving_rs_per_month_bot_minus_tfidf_final": monthly["bot"] - monthly["tfidf_final"],
+        }
+
+    return {"average": at(config.COST_PER_MISROUTE), "simple": at(config.COST_PER_MISROUTE_SIMPLE)}
+
+
+def compute_baselines(df: pd.DataFrame, test_text: pd.Series) -> dict:
+    """Fit on the train window, score on the validation window. test_text is only compared for repeats."""
     train, val = time_split(df)
     majority = majority_class(train[TARGET])
     keyword_pred, fired = keyword_predict(val[TEXT], majority)
@@ -158,8 +213,12 @@ def compute_baselines(df: pd.DataFrame) -> dict:
         "bot": score(val, val[BOT]),
         "keywords": {**score(val, keyword_pred), "rule_fired_share": float(fired.mean())},
     }
+    preds = {"bot": val[BOT]}
     for name, target in (("tfidf_final", TARGET), ("tfidf_bot", BOT)):
-        scores[name] = score(val, *predict_with_proba(fit_model(train, target), val))
+        pred, proba = predict_with_proba(fit_model(train, target), val)
+        scores[name] = score(val, pred, proba)
+        if name == "tfidf_final":
+            preds[name] = pred
 
     accuracy = {name: s["evaluate"]["accuracy"] for name, s in scores.items()}
     agreement = {name: s["agreement_with_team_label"] for name, s in scores.items()}
@@ -173,6 +232,11 @@ def compute_baselines(df: pd.DataFrame) -> dict:
             "agreement_points_tfidf_bot_minus_tfidf_final": 100 * (agreement["tfidf_bot"] - agreement["tfidf_final"]),
             "cost_rs_per_month_bot_minus_tfidf_final": monthly["bot"] - monthly["tfidf_final"],
         },
+        "paired_accuracy_points_tfidf_final_minus_bot": paired_difference(
+            val[TARGET].to_numpy(dtype=object), preds["tfidf_final"], val[BOT].to_numpy(dtype=object)
+        ),
+        "cost_sensitivity": cost_sensitivity(scores),
+        "repeated_text": repeated_text(train, val, preds, test_text),
         "meta": {
             "train_rows": len(train),
             "validation_rows": len(val),
@@ -196,8 +260,17 @@ def compute_baselines(df: pd.DataFrame) -> dict:
     }
 
 
-def _pct(x: float, decimals: int = 2) -> str:
-    return f"{x * 100:.{decimals}f}%"
+def round_floats(node):
+    """Copy of nested dicts and lists with every float rounded to JSON_DECIMALS."""
+    if isinstance(node, dict):
+        return {key: round_floats(value) for key, value in node.items()}
+    if isinstance(node, list):
+        return [round_floats(value) for value in node]
+    return round(node, JSON_DECIMALS) if isinstance(node, float) else node
+
+
+def _pct(x: float | None, decimals: int = 2) -> str:
+    return "n/a" if x is None else f"{x * 100:.{decimals}f}%"
 
 
 def _rs(x: float) -> str:
@@ -220,10 +293,13 @@ def _findings(results: dict) -> list[str]:
         final["accuracy_ci95"]["low"] <= bot["accuracy_ci95"]["high"]
         and bot["accuracy_ci95"]["low"] <= final["accuracy_ci95"]["high"]
     )
+    paired = results["paired_accuracy_points_tfidf_final_minus_bot"]
     saving = c["cost_rs_per_month_bot_minus_tfidf_final"]
     return [
         f"TF-IDF trained on the final team reaches {acc(final)}, {points('accuracy_points_tfidf_final_minus_bot')} the "
-        f"bot's {acc(bot)}; their {_pct(m['ci_level'], 0)} intervals {'overlap' if overlap else 'do not overlap'}.",
+        f"bot's {acc(bot)}; their {_pct(m['ci_level'], 0)} intervals {'overlap' if overlap else 'do not overlap'}. "
+        f"On the same rows, the paired {_pct(m['ci_level'], 0)} interval for the difference is {paired['low']:.2f} to "
+        f"{paired['high']:.2f} points.",
         f"The same pipeline trained on the bot's labels agrees with the bot on "
         f"{_pct(as_bot['agreement_with_team_label'])} of requests (against "
         f"{_pct(final['agreement_with_team_label'])}) but matches the final team on {acc(as_bot)}; the model trained on "
@@ -234,9 +310,54 @@ def _findings(results: dict) -> list[str]:
         f"per month on validation and the TF-IDF model's Rs {_rs(final['cost_rs_per_month'])}, a monthly "
         f"{'saving' if saving >= 0 else 'increase'} of Rs {_rs(abs(saving))}, before the bot's licence of "
         f"Rs {_rs(m['bot_licence_rs_per_month'])} per month.",
-        "Some messages repeat word for word across months, so the TF-IDF scores may be optimistic and the intervals "
-        "slightly too narrow.",
+        "Repeated messages are resampled as if independent, so the intervals are slightly too narrow.",
     ]
+
+
+def _cost_section(results: dict) -> list[str]:
+    rows = [
+        ["Cost per misroute (Rs)", *BASELINES.values(), "Saving, (d) against (b)"],
+        ["---:"] * (len(BASELINES) + 2),
+    ]
+    for key in ("average", "simple"):
+        s = results["cost_sensitivity"][key]
+        rows.append(
+            [
+                f"{s['cost_per_misroute_rs']:,.2f}",
+                *[_rs(s["cost_rs_per_month"][name]) for name in BASELINES],
+                _rs(s["saving_rs_per_month_bot_minus_tfidf_final"]),
+            ]
+        )
+    average, simple = (results["cost_sensitivity"][key]["cost_per_misroute_rs"] for key in ("average", "simple"))
+    return [
+        "## Cost sensitivity (Rs per month)",
+        "",
+        *["| " + " | ".join(cells) + " |" for cells in rows],
+        "",
+        "- Our misroutes are assumed to bounce between teams as often as the bot's did.",
+        f"- The Rs {average:,.2f} average covers all labelled months, including the validation months, so it is a "
+        "reporting constant and must not be used to choose thresholds.",
+        f"- Rs {simple:,.2f} assumes a single transfer per misroute.",
+        "",
+    ]
+
+
+def _repeat_section(results: dict) -> list[str]:
+    r = results["repeated_text"]
+    lines = [
+        "## Repeated text",
+        "",
+        f"- Validation texts also in the train window: {_pct(r['validation_seen_share'])} "
+        f"({r['validation_seen_rows']:,} seen, {r['validation_unseen_rows']:,} unseen).",
+        f"- Test texts also in the train window: {_pct(r['test_seen_share'])}.",
+        "",
+        "| Baseline | Accuracy, seen text | Accuracy, unseen text |",
+        "| --- | ---: | ---: |",
+    ]
+    for name in ("bot", "tfidf_final"):
+        acc = r["accuracy"][name]
+        lines.append(f"| {BASELINES[name]} | {_pct(acc['seen'])} | {_pct(acc['unseen'])} |")
+    return [*lines, ""]
 
 
 def render_markdown(results: dict) -> str:
@@ -278,6 +399,8 @@ def render_markdown(results: dict) -> str:
         "",
         *["| " + " | ".join(cells) + " |" for cells in rows],
         "",
+        *_cost_section(results),
+        *_repeat_section(results),
         "## Findings",
         "",
         *[f"- {sentence}" for sentence in _findings(results)],
@@ -286,8 +409,9 @@ def render_markdown(results: dict) -> str:
 
 
 def build(out_dir: Path = config.REPORTS_DIR) -> dict:
-    """Write baselines.json and baselines.md to out_dir and return the results."""
-    results = compute_baselines(pd.read_parquet(config.TRAIN_CLEAN_PARQUET))
+    """Write baselines.json and baselines.md to out_dir and return the results, rounded as in the JSON."""
+    test_text = pd.read_parquet(config.TEST_CLEAN_PARQUET, columns=[TEXT])[TEXT]
+    results = round_floats(compute_baselines(pd.read_parquet(config.TRAIN_CLEAN_PARQUET), test_text))
     markdown = render_markdown(results)
     out_dir.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(results, indent=2, sort_keys=True) + "\n"

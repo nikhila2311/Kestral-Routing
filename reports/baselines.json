@@ -2,15 +2,15 @@
   "baselines": {
     "bot": {
       "accuracy_ci95": {
-        "high": 0.7836182669789228,
-        "low": 0.7489461358313817,
-        "point": 0.7667447306791569
+        "high": 0.783618,
+        "low": 0.748946,
+        "point": 0.766745
       },
       "agreement_with_team_label": 1.0,
-      "cost_rs": 347633.62606232293,
-      "cost_rs_per_month": 115877.87535410764,
+      "cost_rs": 347633.626062,
+      "cost_rs_per_month": 115877.875354,
       "evaluate": {
-        "accuracy": 0.7667447306791569,
+        "accuracy": 0.766745,
         "confusion_matrix": [
           [
             224,
@@ -76,51 +76,51 @@
             208
           ]
         ],
-        "cost_rs": 347633.62606232293,
-        "macro_f1": 0.7795065346542681,
+        "cost_rs": 347633.626062,
+        "macro_f1": 0.779507,
         "misroutes": 498,
         "n": 2135,
         "per_class": {
           "Billing": {
-            "f1": 0.7474402730375427,
-            "precision": 0.6616314199395771,
-            "recall": 0.8588235294117647,
+            "f1": 0.74744,
+            "precision": 0.661631,
+            "recall": 0.858824,
             "support": 255
           },
           "Filters & Consumables": {
-            "f1": 0.7032520325203252,
-            "precision": 0.6070175438596491,
-            "recall": 0.8357487922705314,
+            "f1": 0.703252,
+            "precision": 0.607018,
+            "recall": 0.835749,
             "support": 207
           },
           "Installs & Demo": {
-            "f1": 0.8130671506352087,
-            "precision": 0.9739130434782609,
-            "recall": 0.6978193146417445,
+            "f1": 0.813067,
+            "precision": 0.973913,
+            "recall": 0.697819,
             "support": 321
           },
           "Product Advice": {
-            "f1": 0.8489795918367347,
-            "precision": 0.9411764705882353,
-            "recall": 0.7732342007434945,
+            "f1": 0.84898,
+            "precision": 0.941176,
+            "recall": 0.773234,
             "support": 269
           },
           "Repairs": {
-            "f1": 0.6905829596412556,
-            "precision": 0.6239870340356564,
-            "recall": 0.7730923694779116,
+            "f1": 0.690583,
+            "precision": 0.623987,
+            "recall": 0.773092,
             "support": 498
           },
           "Returns & Replacement": {
-            "f1": 0.8235294117647058,
-            "precision": 0.9444444444444444,
-            "recall": 0.7300613496932515,
+            "f1": 0.823529,
+            "precision": 0.944444,
+            "recall": 0.730061,
             "support": 326
           },
           "Warranty Claims": {
-            "f1": 0.8296943231441049,
-            "precision": 0.9547738693467337,
-            "recall": 0.7335907335907336,
+            "f1": 0.829694,
+            "precision": 0.954774,
+            "recall": 0.733591,
             "support": 259
           }
         }
@@ -128,19 +128,19 @@
     },
     "keywords": {
       "accuracy_ci95": {
-        "high": 0.6637002341920375,
-        "low": 0.6243559718969555,
-        "point": 0.643559718969555
+        "high": 0.679637,
+        "low": 0.640749,
+        "point": 0.659485
       },
-      "agreement_with_team_label": 0.6730679156908665,
-      "cost_rs": 531223.2719546742,
-      "cost_rs_per_month": 177074.4239848914,
+      "agreement_with_team_label": 0.686183,
+      "cost_rs": 507489.249292,
+      "cost_rs_per_month": 169163.083097,
       "evaluate": {
-        "accuracy": 0.643559718969555,
+        "accuracy": 0.659485,
         "confusion_matrix": [
           [
-            217,
-            91,
+            251,
+            57,
             5,
             2,
             5,
@@ -148,8 +148,8 @@
             1
           ],
           [
-            3,
-            479,
+            4,
+            478,
             2,
             4,
             7,
@@ -158,8 +158,8 @@
           ],
           [
             1,
-            31,
-            168,
+            30,
+            169,
             1,
             3,
             1,
@@ -175,8 +175,8 @@
             2
           ],
           [
-            2,
-            92,
+            3,
+            91,
             2,
             2,
             227,
@@ -184,8 +184,8 @@
             1
           ],
           [
-            1,
-            166,
+            2,
+            165,
             1,
             3,
             6,
@@ -202,68 +202,68 @@
             40
           ]
         ],
-        "cost_rs": 531223.2719546742,
-        "macro_f1": 0.6414232405194644,
-        "misroutes": 761,
+        "cost_rs": 507489.249292,
+        "macro_f1": 0.653036,
+        "misroutes": 727,
         "n": 2135,
         "per_class": {
           "Billing": {
-            "f1": 0.7488372093023256,
+            "f1": 0.748837,
             "precision": 0.92,
-            "recall": 0.6313725490196078,
+            "recall": 0.631373,
             "support": 255
           },
           "Filters & Consumables": {
-            "f1": 0.8593350383631714,
-            "precision": 0.9130434782608695,
-            "recall": 0.8115942028985508,
+            "f1": 0.862245,
+            "precision": 0.913514,
+            "recall": 0.816425,
             "support": 207
           },
           "Installs & Demo": {
-            "f1": 0.7890909090909091,
-            "precision": 0.9475982532751092,
-            "recall": 0.67601246105919,
+            "f1": 0.855196,
+            "precision": 0.943609,
+            "recall": 0.781931,
             "support": 321
           },
           "Product Advice": {
-            "f1": 0.25236593059936907,
-            "precision": 0.8333333333333334,
-            "recall": 0.14869888475836432,
+            "f1": 0.252366,
+            "precision": 0.833333,
+            "recall": 0.148699,
             "support": 269
           },
           "Repairs": {
-            "f1": 0.5767609873570139,
-            "precision": 0.411865864144454,
-            "recall": 0.9618473895582329,
+            "f1": 0.589033,
+            "precision": 0.424889,
+            "recall": 0.959839,
             "support": 498
           },
           "Returns & Replacement": {
-            "f1": 0.7868284228769498,
-            "precision": 0.9043824701195219,
-            "recall": 0.696319018404908,
+            "f1": 0.786828,
+            "precision": 0.904382,
+            "recall": 0.696319,
             "support": 326
           },
           "Warranty Claims": {
-            "f1": 0.47674418604651164,
-            "precision": 0.9647058823529412,
-            "recall": 0.3166023166023166,
+            "f1": 0.476744,
+            "precision": 0.964706,
+            "recall": 0.316602,
             "support": 259
           }
         }
       },
-      "rule_fired_share": 0.6168618266978922
+      "rule_fired_share": 0.616862
     },
     "majority": {
       "accuracy_ci95": {
-        "high": 0.25152224824355973,
-        "low": 0.2154566744730679,
-        "point": 0.2332552693208431
+        "high": 0.251522,
+        "low": 0.215457,
+        "point": 0.233255
       },
-      "agreement_with_team_label": 0.2889929742388759,
-      "cost_rs": 1142723.3852691217,
-      "cost_rs_per_month": 380907.79508970724,
+      "agreement_with_team_label": 0.288993,
+      "cost_rs": 1142723.385269,
+      "cost_rs_per_month": 380907.79509,
       "evaluate": {
-        "accuracy": 0.2332552693208431,
+        "accuracy": 0.233255,
         "confusion_matrix": [
           [
             0,
@@ -329,8 +329,8 @@
             0
           ]
         ],
-        "cost_rs": 1142723.3852691217,
-        "macro_f1": 0.05403939015788617,
+        "cost_rs": 1142723.385269,
+        "macro_f1": 0.054039,
         "misroutes": 1637,
         "n": 2135,
         "per_class": {
@@ -359,8 +359,8 @@
             "support": 269
           },
           "Repairs": {
-            "f1": 0.3782757311052032,
-            "precision": 0.2332552693208431,
+            "f1": 0.378276,
+            "precision": 0.233255,
             "recall": 1.0,
             "support": 498
           },
@@ -381,15 +381,15 @@
     },
     "tfidf_bot": {
       "accuracy_ci95": {
-        "high": 0.7798829039812646,
-        "low": 0.7447189695550351,
-        "point": 0.7620608899297424
+        "high": 0.779883,
+        "low": 0.744719,
+        "point": 0.762061
       },
-      "agreement_with_team_label": 0.956440281030445,
-      "cost_rs": 354614.2209631728,
-      "cost_rs_per_month": 118204.7403210576,
+      "agreement_with_team_label": 0.95644,
+      "cost_rs": 354614.220963,
+      "cost_rs_per_month": 118204.740321,
       "evaluate": {
-        "accuracy": 0.7620608899297424,
+        "accuracy": 0.762061,
         "confusion_matrix": [
           [
             228,
@@ -455,119 +455,119 @@
             209
           ]
         ],
-        "cost_rs": 354614.2209631728,
+        "cost_rs": 354614.220963,
         "coverage_curve": [
           {
-            "accuracy_on_covered": 0.7618377871542429,
-            "coverage": 0.9990632318501171,
+            "accuracy_on_covered": 0.761838,
+            "coverage": 0.999063,
             "threshold": 0.3
           },
           {
-            "accuracy_on_covered": 0.7618377871542429,
-            "coverage": 0.9990632318501171,
+            "accuracy_on_covered": 0.761838,
+            "coverage": 0.999063,
             "threshold": 0.35
           },
           {
-            "accuracy_on_covered": 0.7617260787992496,
-            "coverage": 0.9985948477751756,
+            "accuracy_on_covered": 0.761726,
+            "coverage": 0.998595,
             "threshold": 0.4
           },
           {
-            "accuracy_on_covered": 0.763653483992467,
-            "coverage": 0.994847775175644,
+            "accuracy_on_covered": 0.763653,
+            "coverage": 0.994848,
             "threshold": 0.45
           },
           {
-            "accuracy_on_covered": 0.7661596958174905,
-            "coverage": 0.985480093676815,
+            "accuracy_on_covered": 0.76616,
+            "coverage": 0.98548,
             "threshold": 0.5
           },
           {
-            "accuracy_on_covered": 0.7704523580365736,
-            "coverage": 0.9733021077283373,
+            "accuracy_on_covered": 0.770452,
+            "coverage": 0.973302,
             "threshold": 0.55
           },
           {
-            "accuracy_on_covered": 0.7764763299170327,
-            "coverage": 0.9597189695550351,
+            "accuracy_on_covered": 0.776476,
+            "coverage": 0.959719,
             "threshold": 0.6
           },
           {
-            "accuracy_on_covered": 0.7820069204152249,
-            "coverage": 0.9475409836065574,
+            "accuracy_on_covered": 0.782007,
+            "coverage": 0.947541,
             "threshold": 0.65
           },
           {
-            "accuracy_on_covered": 0.7855349070818685,
-            "coverage": 0.9325526932084309,
+            "accuracy_on_covered": 0.785535,
+            "coverage": 0.932553,
             "threshold": 0.7
           },
           {
-            "accuracy_on_covered": 0.7915176290240163,
-            "coverage": 0.9166276346604215,
+            "accuracy_on_covered": 0.791518,
+            "coverage": 0.916628,
             "threshold": 0.75
           },
           {
-            "accuracy_on_covered": 0.8044955567171981,
-            "coverage": 0.8960187353629977,
+            "accuracy_on_covered": 0.804496,
+            "coverage": 0.896019,
             "threshold": 0.8
           },
           {
-            "accuracy_on_covered": 0.8176406926406926,
-            "coverage": 0.8655737704918033,
+            "accuracy_on_covered": 0.817641,
+            "coverage": 0.865574,
             "threshold": 0.85
           },
           {
-            "accuracy_on_covered": 0.8251833740831296,
-            "coverage": 0.7662763466042155,
+            "accuracy_on_covered": 0.825183,
+            "coverage": 0.766276,
             "threshold": 0.9
           }
         ],
-        "log_loss": 1.085284742612146,
-        "macro_f1": 0.7735039899458879,
+        "log_loss": 1.085285,
+        "macro_f1": 0.773504,
         "misroutes": 508,
         "n": 2135,
         "per_class": {
           "Billing": {
-            "f1": 0.7315436241610739,
-            "precision": 0.6392961876832844,
-            "recall": 0.8549019607843137,
+            "f1": 0.731544,
+            "precision": 0.639296,
+            "recall": 0.854902,
             "support": 255
           },
           "Filters & Consumables": {
-            "f1": 0.6813627254509018,
-            "precision": 0.5821917808219178,
-            "recall": 0.821256038647343,
+            "f1": 0.681363,
+            "precision": 0.582192,
+            "recall": 0.821256,
             "support": 207
           },
           "Installs & Demo": {
-            "f1": 0.8186714542190305,
-            "precision": 0.9661016949152542,
-            "recall": 0.7102803738317757,
+            "f1": 0.818671,
+            "precision": 0.966102,
+            "recall": 0.71028,
             "support": 321
           },
           "Product Advice": {
-            "f1": 0.8495934959349594,
-            "precision": 0.9372197309417041,
-            "recall": 0.7769516728624535,
+            "f1": 0.849593,
+            "precision": 0.93722,
+            "recall": 0.776952,
             "support": 269
           },
           "Repairs": {
-            "f1": 0.6923076923076923,
-            "precision": 0.6363636363636364,
-            "recall": 0.7590361445783133,
+            "f1": 0.692308,
+            "precision": 0.636364,
+            "recall": 0.759036,
             "support": 498
           },
           "Returns & Replacement": {
-            "f1": 0.8167539267015707,
-            "precision": 0.9473684210526315,
-            "recall": 0.7177914110429447,
+            "f1": 0.816754,
+            "precision": 0.947368,
+            "recall": 0.717791,
             "support": 326
           },
           "Warranty Claims": {
-            "f1": 0.824295010845987,
-            "precision": 0.9405940594059405,
-            "recall": 0.7335907335907336,
+            "f1": 0.824295,
+            "precision": 0.940594,
+            "recall": 0.733591,
             "support": 259
           }
         }
@@ -575,15 +575,15 @@
     },
     "tfidf_final": {
       "accuracy_ci95": {
-        "high": 0.853864168618267,
-        "low": 0.8229508196721311,
-        "point": 0.8388758782201405
+        "high": 0.853864,
+        "low": 0.822951,
+        "point": 0.838876
       },
-      "agreement_with_team_label": 0.805152224824356,
-      "cost_rs": 240132.4645892351,
-      "cost_rs_per_month": 80044.15486307837,
+      "agreement_with_team_label": 0.805152,
+      "cost_rs": 240132.464589,
+      "cost_rs_per_month": 80044.154863,
       "evaluate": {
-        "accuracy": 0.8388758782201405,
+        "accuracy": 0.838876,
         "confusion_matrix": [
           [
             265,
@@ -649,119 +649,119 @@
             209
           ]
         ],
-        "cost_rs": 240132.4645892351,
+        "cost_rs": 240132.464589,
         "coverage_curve": [
           {
-            "accuracy_on_covered": 0.9161864850707176,
-            "coverage": 0.8941451990632319,
+            "accuracy_on_covered": 0.916186,
+            "coverage": 0.894145,
             "threshold": 0.3
           },
           {
-            "accuracy_on_covered": 0.9297963558413719,
-            "coverage": 0.8740046838407494,
+            "accuracy_on_covered": 0.929796,
+            "coverage": 0.874005,
             "threshold": 0.35
           },
           {
-            "accuracy_on_covered": 0.9392295170916983,
-            "coverage": 0.863231850117096,
+            "accuracy_on_covered": 0.93923,
+            "coverage": 0.863232,
             "threshold": 0.4
           },
           {
-            "accuracy_on_covered": 0.9437158469945355,
-            "coverage": 0.8571428571428571,
+            "accuracy_on_covered": 0.943716,
+            "coverage": 0.857143,
             "threshold": 0.45
           },
           {
-            "accuracy_on_covered": 0.9528824833702882,
-            "coverage": 0.8449648711943794,
+            "accuracy_on_covered": 0.952882,
+            "coverage": 0.844965,
             "threshold": 0.5
           },
           {
-            "accuracy_on_covered": 0.9594137542277339,
-            "coverage": 0.8309133489461358,
+            "accuracy_on_covered": 0.959414,
+            "coverage": 0.830913,
             "threshold": 0.55
           },
           {
-            "accuracy_on_covered": 0.9624145785876993,
-            "coverage": 0.8224824355971897,
+            "accuracy_on_covered": 0.962415,
+            "coverage": 0.822482,
             "threshold": 0.6
           },
           {
-            "accuracy_on_covered": 0.9658959537572255,
-            "coverage": 0.810304449648712,
+            "accuracy_on_covered": 0.965896,
+            "coverage": 0.810304,
             "threshold": 0.65
           },
           {
-            "accuracy_on_covered": 0.9668989547038328,
-            "coverage": 0.8065573770491803,
+            "accuracy_on_covered": 0.966899,
+            "coverage": 0.806557,
             "threshold": 0.7
           },
           {
-            "accuracy_on_covered": 0.9702102803738317,
-            "coverage": 0.8018735362997658,
+            "accuracy_on_covered": 0.97021,
+            "coverage": 0.801874,
             "threshold": 0.75
           },
           {
-            "accuracy_on_covered": 0.9711595055915244,
-            "coverage": 0.795784543325527,
+            "accuracy_on_covered": 0.97116,
+            "coverage": 0.795785,
             "threshold": 0.8
           },
           {
-            "accuracy_on_covered": 0.975551580202743,
-            "coverage": 0.785480093676815,
+            "accuracy_on_covered": 0.975552,
+            "coverage": 0.78548,
             "threshold": 0.85
           },
           {
-            "accuracy_on_covered": 0.9782608695652174,
-            "coverage": 0.7540983606557377,
+            "accuracy_on_covered": 0.978261,
+            "coverage": 0.754098,
             "threshold": 0.9
           }
         ],
-        "log_loss": 0.4886625905339466,
-        "macro_f1": 0.8398207321471035,
+        "log_loss": 0.488663,
+        "macro_f1": 0.839821,
         "misroutes": 344,
         "n": 2135,
         "per_class": {
           "Billing": {
-            "f1": 0.8722986247544204,
-            "precision": 0.8740157480314961,
-            "recall": 0.8705882352941177,
+            "f1": 0.872299,
+            "precision": 0.874016,
+            "recall": 0.870588,
             "support": 255
           },
           "Filters & Consumables": {
-            "f1": 0.8521303258145363,
-            "precision": 0.8854166666666666,
-            "recall": 0.821256038647343,
+            "f1": 0.85213,
+            "precision": 0.885417,
+            "recall": 0.821256,
             "support": 207
           },
           "Installs & Demo": {
-            "f1": 0.8426073131955485,
-            "precision": 0.8603896103896104,
-            "recall": 0.8255451713395638,
+            "f1": 0.842607,
+            "precision": 0.86039,
+            "recall": 0.825545,
             "support": 321
           },
           "Product Advice": {
-            "f1": 0.8228346456692913,
-            "precision": 0.8744769874476988,
-            "recall": 0.7769516728624535,
+            "f1": 0.822835,
+            "precision": 0.874477,
+            "recall": 0.776952,
             "support": 269
           },
           "Repairs": {
-            "f1": 0.8351851851851851,
-            "precision": 0.7749140893470791,
-            "recall": 0.9056224899598394,
+            "f1": 0.835185,
+            "precision": 0.774914,
+            "recall": 0.905622,
             "support": 498
           },
           "Returns & Replacement": {
-            "f1": 0.8372827804107424,
-            "precision": 0.8631921824104235,
-            "recall": 0.8128834355828221,
+            "f1": 0.837283,
+            "precision": 0.863192,
+            "recall": 0.812883,
             "support": 326
           },
           "Warranty Claims": {
-            "f1": 0.81640625,
-            "precision": 0.8260869565217391,
-            "recall": 0.806949806949807,
+            "f1": 0.816406,
+            "precision": 0.826087,
+            "recall": 0.80695,
             "support": 259
           }
         }
@@ -769,16 +769,40 @@
     }
   },
   "comparisons": {
-    "accuracy_points_keywords_minus_bot": -12.318501170960195,
-    "accuracy_points_tfidf_final_minus_bot": 7.21311475409836,
-    "accuracy_points_tfidf_final_minus_tfidf_bot": 7.681498829039812,
-    "agreement_points_tfidf_bot_minus_tfidf_final": 15.128805620608897,
-    "cost_rs_per_month_bot_minus_tfidf_final": 35833.72049102928
+    "accuracy_points_keywords_minus_bot": -10.725995,
+    "accuracy_points_tfidf_final_minus_bot": 7.213115,
+    "accuracy_points_tfidf_final_minus_tfidf_bot": 7.681499,
+    "agreement_points_tfidf_bot_minus_tfidf_final": 15.128806,
+    "cost_rs_per_month_bot_minus_tfidf_final": 35833.720491
+  },
+  "cost_sensitivity": {
+    "average": {
+      "cost_per_misroute_rs": 698.05949,
+      "cost_rs_per_month": {
+        "bot": 115877.875354,
+        "keywords": 169163.083097,
+        "majority": 380907.79509,
+        "tfidf_bot": 118204.740321,
+        "tfidf_final": 80044.154863
+      },
+      "saving_rs_per_month_bot_minus_tfidf_final": 35833.720491
+    },
+    "simple": {
+      "cost_per_misroute_rs": 565,
+      "cost_rs_per_month": {
+        "bot": 93790.0,
+        "keywords": 136918.333333,
+        "majority": 308301.666667,
+        "tfidf_bot": 95673.333333,
+        "tfidf_final": 64786.666667
+      },
+      "saving_rs_per_month_bot_minus_tfidf_final": 29003.333333
+    }
   },
   "meta": {
-    "bot_licence_rs_per_month": 26666.666666666668,
+    "bot_licence_rs_per_month": 26666.666667,
     "ci_level": 0.95,
-    "cost_per_misroute_rs": 698.0594900849858,
+    "cost_per_misroute_rs": 698.05949,
     "features": [
       "text_clean",
       "channel",
@@ -805,5 +829,27 @@
     "validation_last_day": "2026-06-30",
     "validation_months": 3,
     "validation_rows": 2135
+  },
+  "paired_accuracy_points_tfidf_final_minus_bot": {
+    "high": 8.805621,
+    "low": 5.759953,
+    "point": 7.213115
+  },
+  "repeated_text": {
+    "accuracy": {
+      "bot": {
+        "seen": 0.802817,
+        "unseen": 0.762747
+      },
+      "tfidf_final": {
+        "seen": 0.849765,
+        "unseen": 0.837669
+      }
+    },
+    "test_seen_share": 0.101469,
+    "tfidf_final_accuracy_at_test_share": 0.838896,
+    "validation_seen_rows": 213,
+    "validation_seen_share": 0.099766,
+    "validation_unseen_rows": 1922
   }
 }

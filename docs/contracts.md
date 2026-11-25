@@ -172,7 +172,83 @@ Time-based split and evaluation harness. Code `src/split.py`, `src/evaluate.py`,
 
 ## M4
 
-status: not started
+status: VERIFIED
+
+Baselines. Code `src/baselines.py`, tests `tests/test_m4_baselines.py`, run `bash scripts/run_all.sh baselines` (run
+`clean` first). Fit on the train window, scored on the validation window against `final_team_canon`.
+
+**Inputs**
+
+- `data/processed/train_clean.parquet` (M1).
+- `data/processed/test_clean.parquet` (M1): column `text_clean` only, for overlap counts only. Never fitted on or scored.
+- Code from M3: `time_split`, `evaluate`, `align_proba`, `bootstrap_ci`, cost constants in `src/config.py`.
+
+**Baselines** (JSON name: title)
+
+- `majority`: (a) most frequent `final_team_canon` in the train window; ties go to the first in `config.TEAMS`.
+- `bot`: (b) `team_label_canon` as given.
+- `keywords`: (c) `KEYWORD_RULES`, first match wins, train majority team when no rule fires.
+- `tfidf_final`, `tfidf_bot`: (d) and (e), the same pipeline trained on `final_team_canon` / `team_label_canon`.
+
+Features of (d) and (e): `text_clean`, `channel`, `product_family`, `warranty_status`. Pipeline: `TfidfVectorizer` word
+1-2 grams + `TfidfVectorizer` char_wb 3-5 grams (both `min_df=2`, `sublinear_tf=True`) + `OneHotEncoder`, then
+`LogisticRegression(C=1.0, max_iter=2000, class_weight=None, random_state=SEED)`. Settings are not tuned.
+
+**Interface**
+
+- `build(out_dir=config.REPORTS_DIR) -> dict`: writes both outputs, returns the results rounded as in the JSON.
+- `compute_baselines(df, test_text) -> dict`: full precision; `df` is all of `train_clean`, `test_text` the test `text_clean`.
+- `render_markdown(results) -> str`: pure.
+- `make_pipeline() -> Pipeline`: unfitted; the only place where (d) and (e) are defined.
+- `fit_model(train_df, target_col) -> Pipeline`; `predict_with_proba(model, df) -> (teams, proba)`, `proba` in
+  `config.TEAMS` order through `align_proba`.
+- `keyword_predict(text, fallback) -> (teams, fired)`; `majority_class(y) -> str`.
+- `score(val_df, pred, proba=None) -> dict`; `paired_difference(truth, pred, reference) -> dict`;
+  `cost_sensitivity(scores) -> dict`; `repeated_text(train, val, preds, test_text) -> dict`.
+- `round_floats(node)`: floats rounded to `JSON_DECIMALS` = 6.
+
+**Output `reports/baselines.json`** (aggregates only, floats rounded to 6 decimals, sorted keys)
+
+6 top-level keys, no others. Shares are 0-1; keys containing `points` are percentage points.
+
+| Key | Content |
+|---|---|
+| baselines | the 5 names above -> `evaluate` (M3 keys; `log_loss` and `coverage_curve` only for (d) and (e)), `accuracy_ci95` {low, point, high}, `agreement_with_team_label`, `cost_rs`, `cost_rs_per_month`; `keywords` also has `rule_fired_share` |
+| comparisons | `accuracy_points_tfidf_final_minus_bot`, `accuracy_points_tfidf_final_minus_tfidf_bot`, `accuracy_points_keywords_minus_bot`, `agreement_points_tfidf_bot_minus_tfidf_final`, `cost_rs_per_month_bot_minus_tfidf_final` |
+| paired_accuracy_points_tfidf_final_minus_bot | {low, point, high}: 95% bootstrap interval of the accuracy difference, both baselines resampled on the same rows |
+| cost_sensitivity | `average` (`COST_PER_MISROUTE`) and `simple` (`COST_PER_MISROUTE_SIMPLE`) -> `cost_per_misroute_rs`, `cost_rs_per_month` (name -> Rs), `saving_rs_per_month_bot_minus_tfidf_final` |
+| repeated_text | see below |
+| meta | `train_rows`, `validation_rows`, `validation_first_day`, `validation_last_day`, `validation_months`, `majority_team`, `features`, `model_settings` {word_ngrams, char_wb_ngrams, min_df, C, max_iter, seed}, `ci_level`, `cost_per_misroute_rs`, `bot_licence_rs_per_month` |
+
+`repeated_text`: exact `text_clean` matches. The reference set is the train window for validation and for test.
+
+| Key | Content |
+|---|---|
+| validation_seen_share, validation_seen_rows, validation_unseen_rows | validation texts that are / are not in the train window |
+| test_seen_share | share of test texts in the train window |
+| accuracy | `bot` and `tfidf_final` -> `seen`, `unseen` accuracy on validation (None if the group is empty) |
+| tfidf_final_accuracy_at_test_share | (d) seen / unseen accuracy weighted by `test_seen_share` (None if a group is empty); JSON only |
+
+**Output `reports/baselines.md`**: rendered from the rounded results only. States the M3 cost caveats, the cost sensitivity
+rows, the paired interval and the seen / unseen accuracies.
+
+**Caveats:** costs are for misroutes only and leave out the bot licence; the other cost and interval caveats are in M3.
+
+**Acceptance criteria**
+
+1. All 5 baselines and all keys exist; costs, comparisons, sensitivity and the paired interval can be recomputed; the JSON
+   equals the results rounded to 6 decimals.
+2. Bot accuracy equals the parquet value; agreement of the bot with itself is 1.0.
+3. (d) has higher validation accuracy than the bot.
+4. (d) has higher accuracy than (e); (e) agrees with the bot label more than (d) does.
+5. (a) has the lowest accuracy and its team comes from the train window.
+6. Only the allowed features are used and everything is fitted on the train window only. Scrambling the bot label, first
+   team, transfers, misrouted and resolution columns leaves the predictions of (a), (c) and (d) unchanged. (d) and (e)
+   have identical parameters, sub-steps included, and settings match the values above.
+7. `build` is deterministic on one machine. The committed JSON matches a fresh run within 1e-4 and the committed markdown
+   equals the rendering of the committed JSON.
+8. Every number in `baselines.md` is in the results (allowing rounding), no request text (4-word runs) and no old team
+   names are in the reports.
 
 ## M5
 
