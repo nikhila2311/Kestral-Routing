@@ -10,6 +10,7 @@
     --bg: #F6F7F9; --card: #FFFFFF; --line: #E4E7EC; --input-line: #8A93A0;
     --primary: #0F766E; --primary-hover: #115E59; --text: #1F2937; --muted: #6B7280;
     --ok: #15803D; --ok-bg: #DCFCE7; --ask: #B45309; --ask-bg: #FEF3C7; --bad: #B91C1C; --bad-bg: #FEE2E2;
+    --tip: #2563A8; --tip-bg: #EFF5FC; --accent: #6B7280;
     --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 4px 12px rgba(16, 24, 40, .05);
   }
   * { box-sizing: border-box; }
@@ -25,97 +26,173 @@
   .muted { color: var(--muted); font-size: .875rem; }
 
   header { background: var(--card); border-top: 4px solid var(--primary); border-bottom: 1px solid var(--line); }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+  .wrap { max-width: 1272px; margin: 0 auto; padding: 0 16px; }
   header .wrap { display: flex; flex-wrap: wrap; gap: 4px 24px; align-items: center; justify-content: space-between;
     padding-top: 16px; padding-bottom: 16px; }
   #status { text-wrap: balance; }
   #status.down { color: var(--bad); font-weight: 600; }
+
+  .session { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding-top: 24px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 20px; display: flex;
+    flex-wrap: wrap; gap: 0 10px; align-items: baseline; }
+  .tile strong { font-size: 1.5rem; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .tile.ready strong { color: var(--ok); }
+  .tile.ask_first strong { color: var(--ask); }
+
   main { display: grid; gap: 24px; padding-top: 24px !important; padding-bottom: 48px !important; align-items: start; }
-  main > * { min-width: 0; }
+  main > *, .side > *, .body > * { min-width: 0; }
   .side { display: grid; gap: 24px; }
-  .side > * { min-width: 0; }
   @media (min-width: 900px) { main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
-  @media (min-width: 900px) and (min-height: 800px) { main > * { position: sticky; top: 24px; } }
+  @media (min-width: 1200px) { main { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+  @media (min-width: 900px) and (min-height: 800px) { #form { position: sticky; top: 24px; } }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
-  @media (max-width: 480px) { .card { padding: 16px; } }
 
   label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: 6px; }
   textarea, select { width: 100%; font: inherit; color: inherit; background: var(--card); border: 1px solid var(--input-line);
-    border-radius: 8px; padding: 10px 12px; min-height: 44px; }
-  textarea { min-height: 140px; resize: vertical; display: block; }
+    border-radius: 8px; padding: 10px 12px; min-height: 44px; transition: border-color .15s; }
+  textarea:hover, select:hover { border-color: var(--primary); }
+  textarea { min-height: 148px; resize: vertical; display: block; }
   textarea[aria-invalid="true"] { border-color: var(--bad); }
   form h2 { margin-bottom: 16px; }
   #count { margin-top: 6px; font-variant-numeric: tabular-nums; }
   #count.near { color: var(--ask); font-weight: 600; }
   #count.full { color: var(--bad); font-weight: 600; }
-  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 16px 0 24px; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 16px; margin: 16px 0 24px; }
+  @media (max-width: 480px), (min-width: 900px) and (max-width: 1023px) {
+    .fields { grid-template-columns: 1fr 1fr; }
+    .fields > :first-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 360px) { .fields { grid-template-columns: 1fr; } }
   .actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  kbd { font: inherit; font-size: .8125rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); padding: 1px 6px;
+    color: var(--text); }
   .examples { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
   button { font: inherit; color: inherit; min-height: 44px; border-radius: 8px; border: 1px solid var(--line);
-    background: var(--card); padding: 8px 16px; cursor: pointer; transition: background-color .15s, border-color .15s; }
+    background: var(--card); padding: 8px 16px; cursor: pointer;
+    transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, transform .15s; }
+  button:active:not(:disabled) { transform: scale(.98); }
   button:disabled { cursor: default; opacity: .75; }
   .chips button { font-size: .875rem; border-radius: 999px; background: var(--bg); color: var(--primary); font-weight: 600; }
-  .chips button:hover, #copy:hover { border-color: var(--primary); color: var(--primary-hover); }
+  .chips button:hover { background: var(--card); border-color: var(--primary); color: var(--primary-hover); box-shadow: var(--shadow);
+    transform: translateY(-1px); }
+  .copy { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; font-weight: 600; color: var(--text); }
+  .copy svg { width: 16px; height: 16px; }
+  .copy:hover:not(:disabled) { border-color: var(--primary); color: var(--primary-hover); }
   #submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 132px;
     background: var(--primary); border-color: var(--primary); color: #FFFFFF; font-weight: 600; }
-  #submit:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); }
+  #submit:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); box-shadow: var(--shadow); }
   .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #FFFFFF;
     animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .alert { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: 8px;
     background: var(--bad-bg); color: var(--bad); font-weight: 600; overflow-wrap: anywhere; }
-  .empty { text-align: center; padding: 56px 24px; color: var(--muted); }
-  .empty svg { width: 36px; height: 36px; stroke-width: 1.5; margin: 0 auto 12px; display: block; color: var(--primary); }
+  .alert svg { margin-top: 2px; }
+  .empty { text-align: center; padding: 72px 24px; color: var(--muted); }
+  .empty svg { width: 40px; height: 40px; stroke-width: 1.5; margin: 0 auto 12px; display: block; color: var(--primary); }
 
-  #result { overflow: hidden; padding: 0; transition: opacity .15s; }
-  #result.stale { opacity: .45; }
-  .banner { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 16px 24px; }
-  .banner h2 { flex: 1 1 160px; overflow-wrap: anywhere; }
-  .banner svg { width: 24px; height: 24px; }
-  [data-state="ready"] .banner { background: var(--ok-bg); color: var(--ok); }
-  [data-state="ask"] .banner { background: var(--ask-bg); color: var(--ask); }
-  .badge { font-size: .875rem; font-weight: 600; border: 1px solid currentColor; border-radius: 999px; padding: 2px 12px; }
+  #skeleton { padding: 0; overflow: hidden; }
+  .bone { border-radius: 8px; background: linear-gradient(90deg, #E9ECF0 25%, #F4F6F8 50%, #E9ECF0 75%); background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+  .bone_hero { height: 112px; border-radius: 0; }
+  .bone_row { display: flex; gap: 24px; align-items: center; }
+  .bone_ring { width: 96px; height: 96px; border-radius: 50%; flex: none; }
+  .bone_lines { flex: 1; display: grid; gap: 12px; }
+  .bone_line { height: 16px; }
+
+  #result { overflow: hidden; padding: 0; }
+  .stale_note { display: flex; gap: 10px; align-items: center; padding: 10px 24px; background: var(--card); color: var(--ask);
+    border-bottom: 1px solid var(--line); font-size: .875rem; font-weight: 600; }
+  .hero, .body { transition: opacity .2s; }
+  #result.outdated .hero, #result.outdated .body { opacity: .45; }
+  .hero { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 20px 24px; border-left: 6px solid var(--accent); }
+  [data-state="ready"] .hero { background: var(--ok-bg); color: var(--ok); }
+  [data-state="ask"] .hero { background: var(--ask-bg); color: var(--ask); }
+  .hero_icon { flex: none; width: 56px; height: 56px; border-radius: 14px; background: var(--accent); color: #FFFFFF; display: grid;
+    place-items: center; }
+  .hero_icon svg { width: 30px; height: 30px; }
+  .hero_text { flex: 1 1 220px; min-width: 0; }
+  .hero h2 { font-size: 1.75rem; line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: .875rem; font-weight: 600; margin-top: 6px; }
+  .badge svg { width: 18px; height: 18px; }
   .body { display: grid; gap: 24px; padding: 24px; }
-  .body > * { min-width: 0; }
-  @media (max-width: 480px) { .banner, .body { padding: 16px; } }
-  .team { font-size: 1.5rem; line-height: 1.3; font-weight: 700; overflow-wrap: anywhere; }
-  .confidence { display: flex; justify-content: space-between; margin: 12px 0 6px; font-size: .875rem; }
-  .confidence strong, .number { font-variant-numeric: tabular-nums; }
-  .track { background: var(--line); border-radius: 999px; height: 10px; overflow: hidden; }
-  .fill { height: 100%; border-radius: 999px; background: var(--primary); }
-  [data-state="ready"] #confidence_fill { background: var(--ok); }
-  [data-state="ask"] #confidence_fill { background: var(--ask); }
-  .ask { background: var(--ask-bg); border-left: 4px solid var(--ask); border-radius: 8px; padding: 16px; }
+
+  .summary { display: flex; gap: 20px; align-items: center; }
+  .gauge { position: relative; flex: none; width: 96px; height: 96px; }
+  .gauge svg { width: 96px; height: 96px; transform: rotate(-90deg); stroke-width: 9; }
+  .gauge_track { stroke: var(--line); }
+  #confidence_fill { stroke-dasharray: 100; stroke-dashoffset: 100; }
+  [data-state="ready"] #confidence_fill { stroke: var(--ok); }
+  [data-state="ask"] #confidence_fill { stroke: var(--ask); }
+  #confidence { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.125rem; font-weight: 700;
+    font-variant-numeric: tabular-nums; }
+  .summary > div:last-child { min-width: 0; }
+  .team { font-size: 1.5rem; line-height: 1.3; font-weight: 700; color: var(--accent); overflow-wrap: anywhere; }
+  .tag { display: inline-block; margin-top: 6px; font-size: .875rem; font-weight: 600; border-radius: 999px; padding: 2px 12px; }
+  [data-state="ready"] .tag { background: var(--ok-bg); color: var(--ok); }
+  [data-state="ask"] .tag { background: var(--ask-bg); color: var(--ask); }
+
+  .box { border-radius: 8px; padding: 16px; border-left: 4px solid; overflow-wrap: anywhere; }
+  .ask { background: var(--ask-bg); border-color: var(--ask); }
   .ask h3 { color: var(--ask); }
-  .ask .question { font-size: 1.0625rem; overflow-wrap: anywhere; }
-  #copy { margin-top: 12px; font-size: .875rem; font-weight: 600; }
+  .ask .question { font-size: 1.0625rem; }
+  .ask .copy { margin-top: 12px; }
+  .tip { display: flex; gap: 12px; background: var(--tip-bg); border-color: var(--tip); }
+  .tip svg { color: var(--tip); margin-top: 1px; }
+  .tip h3 { color: var(--tip); margin: 0 0 2px; font-size: 1rem; }
   ul { list-style: none; margin: 0; padding: 0; }
   #reasons { display: grid; gap: 8px; }
   #reasons li { display: flex; gap: 10px; align-items: flex-start; }
   #reasons li span { min-width: 0; overflow-wrap: anywhere; }
   #reasons svg { width: 18px; height: 18px; margin-top: 3px; color: var(--primary); }
-  .bar { display: grid; grid-template-columns: minmax(96px, 168px) 1fr 56px; gap: 12px; align-items: center; font-size: .875rem;
+  .bar { display: grid; grid-template-columns: minmax(96px, 176px) 1fr 56px; gap: 12px; align-items: center; font-size: .875rem;
     padding: 4px 0; }
-  .number { text-align: right; }
-  @media (max-width: 480px) {
-    .bar { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 6px 0; }
-    .bar .track { grid-column: 1 / -1; grid-row: 2; }
-  }
+  .bar:first-child { font-weight: 600; }
+  .track { background: var(--line); border-radius: 999px; height: 10px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 999px; background: var(--primary); }
+  .number { text-align: right; font-variant-numeric: tabular-nums; }
 
   #recent_list { display: grid; gap: 8px; margin-top: 12px; }
-  #recent_list button { width: 100%; text-align: left; display: grid; gap: 2px; padding: 10px 14px; }
-  #recent_list button:hover { border-color: var(--primary); }
+  #recent_list button { width: 100%; text-align: left; display: flex; gap: 12px; align-items: center; padding: 10px 14px; }
+  #recent_list button:hover { border-color: var(--primary); background: var(--bg); }
   #recent_list button[aria-current="true"] { border-color: var(--primary); background: var(--bg); }
+  .recent_main { display: grid; gap: 2px; min-width: 0; }
   .recent_text { overflow-wrap: anywhere; }
   .recent_meta { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .875rem; color: var(--muted); }
   .recent_meta .ready { color: var(--ok); font-weight: 600; }
   .recent_meta .ask_first { color: var(--ask); font-weight: 600; }
 
+  #toasts { position: fixed; right: 24px; bottom: 24px; z-index: 10; max-width: min(400px, calc(100vw - 32px)); }
+  .toast { display: flex; gap: 12px; align-items: center; background: var(--text); color: #FFFFFF; border-radius: 10px;
+    padding: 12px 16px; box-shadow: 0 8px 24px rgba(16, 24, 40, .2); overflow-wrap: anywhere; }
+  .toast.bad { background: var(--bad); }
+  .toast button { background: transparent; border-color: rgba(255, 255, 255, .6); color: #FFFFFF; font-weight: 600; }
+  .toast button:focus-visible { outline-color: #FFFFFF; }
+
+  @media (max-width: 480px) {
+    .card { padding: 16px; }
+    .session { gap: 8px; padding-top: 16px; }
+    .tile { padding: 10px 12px; }
+    .tile strong { flex-basis: 100%; font-size: 1.25rem; }
+    main { gap: 16px; padding-top: 16px !important; }
+    .side { gap: 16px; }
+    .hero, .body { padding: 16px; }
+    .stale_note { padding: 10px 16px; }
+    .hero { gap: 12px; }
+    .hero_icon { width: 48px; height: 48px; }
+    .hero_text { flex-basis: 180px; }
+    .hero h2 { font-size: 1.375rem; }
+    .hero .copy { width: 100%; justify-content: center; }
+    .bar { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 6px 0; }
+    .bar .track { grid-column: 1 / -1; grid-row: 2; }
+    #toasts { left: 16px; right: 16px; top: 16px; bottom: auto; max-width: none; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .chips button:hover, button:active:not(:disabled) { transform: none; }
   }
 </style>
 </head>
@@ -130,6 +207,12 @@
   </div>
 </header>
 
+<section class="wrap session" aria-label="This session">
+  <div class="tile"><strong id="session_total">0</strong><span class="muted">routed this session</span></div>
+  <div class="tile ready"><strong id="session_ready">–</strong><span class="muted">ready to route</span></div>
+  <div class="tile ask_first"><strong id="session_ask">–</strong><span class="muted">needing a question</span></div>
+</section>
+
 <main class="wrap">
   <form class="card" id="form" novalidate autocomplete="off">
     <h2>New request</h2>
@@ -143,7 +226,7 @@
     </div>
     <div class="actions">
       <button type="submit" id="submit"><span class="spinner" id="spinner" aria-hidden="true" hidden></span><span id="submit_label">Submit</span></button>
-      <span class="muted">or press Ctrl+Enter</span>
+      <span class="muted"><kbd>Ctrl</kbd> <kbd>Enter</kbd> to submit · <kbd>Esc</kbd> to clear</span>
     </div>
     <div class="alert" id="error_box" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
@@ -167,27 +250,66 @@
       <p>Paste a customer request or try an example</p>
     </div>
 
+    <div class="card" id="skeleton" aria-hidden="true" hidden>
+      <div class="bone bone_hero"></div>
+      <div class="body">
+        <div class="bone_row">
+          <div class="bone bone_ring"></div>
+          <div class="bone_lines">
+            <div class="bone bone_line" style="width: 40%"></div>
+            <div class="bone bone_line" style="width: 70%"></div>
+            <div class="bone bone_line" style="width: 30%"></div>
+          </div>
+        </div>
+        <div class="bone_lines">
+          <div class="bone bone_line" style="width: 25%"></div>
+          <div class="bone bone_line" style="width: 80%"></div>
+          <div class="bone bone_line" style="width: 65%"></div>
+        </div>
+        <div class="bone_lines">
+          <div class="bone bone_line"></div>
+          <div class="bone bone_line"></div>
+          <div class="bone bone_line"></div>
+        </div>
+      </div>
+    </div>
+
     <section class="card" id="result" aria-live="polite" aria-label="Routing result" hidden>
-      <div class="banner">
-        <svg id="icon_ready" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
-        <svg id="icon_ask" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8M12 16.5v.01"/></svg>
-        <h2 id="banner_text"></h2>
-        <span class="badge" id="badge_ready" hidden>Ready to route</span>
-        <span class="badge" id="badge" hidden>Needs a clarifying question</span>
+      <p class="stale_note" id="stale_note" hidden>Result is for the previous text — Submit to update</p>
+      <div class="hero">
+        <div class="hero_icon" id="hero_icon" aria-hidden="true"></div>
+        <div class="hero_text">
+          <h2 id="banner_text"></h2>
+          <span class="badge" id="badge_ready" hidden><svg id="icon_ready" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>Ready to route</span>
+          <span class="badge" id="badge" hidden><svg id="icon_ask" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8M12 16.5v.01"/></svg>Needs a clarifying question</span>
+        </div>
+        <button type="button" class="copy" id="copy_note" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span aria-live="off">Copy routing note</span></button>
       </div>
       <div class="body">
-        <div>
-          <p class="muted" id="team_label">Team</p>
-          <p class="team" id="team"></p>
-          <p class="confidence"><span class="muted">Confidence</span> <strong id="confidence"></strong></p>
-          <div class="track" aria-hidden="true"><div class="fill" id="confidence_fill"></div></div>
+        <div class="summary">
+          <div class="gauge">
+            <svg viewBox="0 0 96 96" aria-hidden="true"><circle class="gauge_track" cx="48" cy="48" r="42"/><circle id="confidence_fill" cx="48" cy="48" r="42" pathLength="100"/></svg>
+            <span id="confidence"></span>
+          </div>
+          <div>
+            <p class="muted" id="team_label">Team</p>
+            <p class="team" id="team"></p>
+            <span class="tag" id="line_tag"></span>
+          </div>
         </div>
-        <div class="ask" id="question_block" hidden>
+        <div class="box ask" id="question_block" hidden>
           <h3>Ask the customer</h3>
           <p class="question" id="question"></p>
-          <button type="button" id="copy" hidden>Copy question</button>
+          <button type="button" class="copy" id="copy" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span aria-live="off">Copy question</span></button>
         </div>
-        <div>
+        <div class="box tip" id="policy_tip" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>
+          <div>
+            <h3 id="policy_title"></h3>
+            <p id="policy_text"></p>
+          </div>
+        </div>
+        <div id="reasons_block">
           <h3>Reasons</h3>
           <ul id="reasons"></ul>
         </div>
@@ -201,14 +323,24 @@
 
     <section class="card" id="recent" aria-labelledby="recent_title" hidden>
       <h2 id="recent_title">Recent requests</h2>
-      <p class="muted">Last 5, kept in this tab only and cleared on reload</p>
+      <p class="muted">Last 5 with their text, kept in this tab only and cleared on reload. Click one to bring it back.</p>
       <ul id="recent_list"></ul>
     </section>
   </div>
 </main>
 
+<div id="toasts" role="status" aria-live="polite"></div>
+
 <template id="icon_quote"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></template>
 <template id="icon_info"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg></template>
+<template id="team_installs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg></template>
+<template id="team_repairs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.3 5.2L4 17l3 3 5.5-5.4a4 4 0 0 0 5.2-5.3L15 12l-3-3z"/></svg></template>
+<template id="team_filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.5 7.5V19l-3-1.5v-5z"/></svg></template>
+<template id="team_billing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></template>
+<template id="team_returns"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5L4 10l5 5"/><path d="M4 10h10a5 5 0 0 1 0 10h-3"/></svg></template>
+<template id="team_warranty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 7.6-8 9-4.6-1.4-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></template>
+<template id="team_advice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M8.5 15a6 6 0 1 1 7 0c-.6.5-.9 1-.9 1.5h-5.2c0-.5-.3-1-.9-1.5z"/></svg></template>
+<template id="team_other"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3.5 3.5 0 0 1 0 6.5M18 15a6 6 0 0 1 3 5"/></svg></template>
 
 <script type="application/json" id="options">__OPTIONS__</script>
 <script>
@@ -218,14 +350,30 @@ const LIMIT = 2000;
 const NEAR_LIMIT = 1800;
 const RECENT_MAX = 5;
 const EXCERPT = 40;
+const EMPTY_MESSAGE = "Please type or paste the customer's request";
+const SKELETON_AFTER = 150;  // ms: a quick answer does not flash
 const FIELDS = ["channel", "product_family", "warranty_status"];
+const TEAM_STYLES = new Map([  // look only; the team itself comes from the server
+  ["Installs & Demo", ["#2563A8", "team_installs"]],
+  ["Repairs", ["#4338A0", "team_repairs"]],
+  ["Filters & Consumables", ["#0E7490", "team_filters"]],
+  ["Billing", ["#8E4585", "team_billing"]],
+  ["Returns & Replacement", ["#B0406B", "team_returns"]],
+  ["Warranty Claims", ["#7A5230", "team_warranty"]],
+  ["Product Advice", ["#5E6B1F", "team_advice"]],
+]);
 const byId = (id) => document.getElementById(id);
 const percent = (x) => (x * 100).toFixed(1) + "%";
+const teamStyle = (team) => TEAM_STYLES.get(team) || ["#4B5563", "team_other"];
 const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 const canCopy = Boolean(navigator.clipboard && navigator.clipboard.writeText);
 let latest = 0;
-let recent = [];  // memory only: at most 5 of { out, excerpt }
-let copyTimer = 0;
+let recent = [];      // memory only: at most 5 of { out, request }
+let current = null;   // the entry on the result card
+let session = { total: 0, ready: 0 };
+let skeletonTimer = 0;
+let toastTimer = 0;
+const captions = [];  // put each copy button's own caption back
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -242,13 +390,65 @@ function animate(node, frames, options) {
   if (!still.matches && node.animate) node.animate(frames, { easing: "ease-out", ...options });
 }
 
+function clamp(share) {
+  return Math.min(Math.max(share, 0), 1);
+}
+
+// Scrolls only if the top of the node is off screen (or nearly: on phones the result is below the form).
+function reveal(node, block) {
+  const top = node.getBoundingClientRect().top;
+  if (top < 0 || top > window.innerHeight * .75) node.scrollIntoView({ block, behavior: still.matches ? "auto" : "smooth" });
+}
+
 // The fill is full width and slides in from the left, so only transform is animated.
 function fillBar(fill, share, delay) {
-  const end = "translateX(" + (Math.min(Math.max(share, 0), 1) - 1) * 100 + "%)";
+  const end = "translateX(" + (clamp(share) - 1) * 100 + "%)";
   fill.style.transform = end;
   animate(fill, [{ transform: "translateX(-100%)" }, { transform: end }], { duration: 400, delay, fill: "backwards" });
 }
 
+function fillGauge(share) {
+  const end = String((1 - clamp(share)) * 100);
+  byId("confidence_fill").style.strokeDashoffset = end;
+  animate(byId("confidence_fill"), [{ strokeDashoffset: "100" }, { strokeDashoffset: end }],
+    { duration: 400, delay: 80, fill: "backwards" });
+}
+
+// --- Toasts -----------------------------------------------------------------------------------
+function hideToast() {
+  clearTimeout(toastTimer);
+  byId("toasts").replaceChildren();
+}
+
+function toast(message, { bad = false, action = null, time = 4000 } = {}) {
+  hideToast();
+  const box = element("div", "", bad ? "toast bad" : "toast");
+  if (bad) box.setAttribute("aria-hidden", "true");  // the inline alert is the one that is read out
+  box.append(element("span", message));
+  if (action) {
+    const button = element("button", action.label);
+    button.type = "button";
+    button.addEventListener("click", () => {
+      hideToast();
+      action.run();
+    });
+    box.append(button);
+  }
+  const start = () => {
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, time);
+  };
+  const pause = () => clearTimeout(toastTimer);
+  box.addEventListener("mouseenter", pause);
+  box.addEventListener("focusin", pause);
+  box.addEventListener("mouseleave", start);
+  box.addEventListener("focusout", start);
+  byId("toasts").append(box);
+  animate(box, [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 180 });
+  start();
+}
+
+// --- Form ---------------------------------------------------------------------------------------
 function fillDropdowns() {
   const options = JSON.parse(byId("options").textContent);
   for (const field of FIELDS) {
@@ -263,6 +463,18 @@ function fillDropdowns() {
   }
 }
 
+function readForm() {
+  const request = { request_text: byId("request_text").value };
+  for (const field of FIELDS) request[field] = byId(field).value;
+  return request;
+}
+
+function writeForm(request) {
+  byId("request_text").value = request.request_text;
+  for (const field of FIELDS) byId(field).value = request[field];
+  updateCount();
+}
+
 function updateCount() {
   const length = [...byId("request_text").value].length;
   let text = length.toLocaleString("en") + " / " + LIMIT.toLocaleString("en") + " characters";
@@ -274,24 +486,52 @@ function updateCount() {
   byId("count").classList.toggle("full", length >= LIMIT);
 }
 
+function updateStale() {
+  const form = readForm();
+  const stale = Boolean(current) && Object.keys(form).some((key) => form[key] !== current.request[key]);
+  byId("stale_note").hidden = !stale;
+  byId("result").classList.toggle("outdated", stale);
+  byId("copy").disabled = stale;
+  byId("copy_note").disabled = stale;
+}
+
 function hideError() {
   byId("error").hidden = true;
   byId("error_box").hidden = true;
   byId("request_text").removeAttribute("aria-invalid");
 }
 
-function showError(message) {
+function clearResult() {
+  current = null;
   byId("result").hidden = true;
   byId("empty").hidden = false;
-  markRecent(null);
+  markRecent();
+}
+
+function showError(message) {
+  clearResult();
   byId("error").textContent = message;
   byId("error_box").hidden = false;
   byId("error").hidden = false;
+  reveal(byId("error_box"), "center");
+  toast(message, { bad: true });
 }
 
-function resetCopy() {
-  clearTimeout(copyTimer);
-  byId("copy").textContent = "Copy question";
+// --- Result --------------------------------------------------------------------------------------
+function isPolicyTip(reason) {
+  return reason.includes("policy §3");
+}
+
+// Quoted reasons repeat the customer's own words, so they never go into the note.
+function noteText(out) {
+  const reasons = out.reasons.filter((reason) => !/'[^']+'/.test(reason)).slice(0, 3);
+  const lines = [
+    out.needs_triage ? "Ask the customer first. First guess: " + out.team : "Send to " + out.team,
+    "Confidence: " + percent(out.confidence) + (out.needs_triage ? " (needs a clarifying question)" : " (ready to route)"),
+    "Reasons: " + (reasons.length ? reasons.join("; ") : "matched wording typical of " + out.team),
+  ];
+  if (out.clarifying_question) lines.push("Question to ask: " + out.clarifying_question);
+  return lines.join("\n");
 }
 
 function reasonItem(reason) {
@@ -300,30 +540,49 @@ function reasonItem(reason) {
   return item;
 }
 
-function showResult(out) {
+function showPolicyTip(out) {
+  const tips = out.reasons.filter(isPolicyTip);
+  const certain = out.team !== "Billing" && !out.needs_triage;
+  byId("policy_tip").hidden = !tips.length;
+  byId("policy_title").textContent = certain
+    ? "Payment mentioned, but this isn't a billing problem"
+    : "Payment mentioned: check whether the payment itself is the problem";
+  byId("policy_text").textContent = tips.join(" ");
+}
+
+function showResult(entry) {
+  const out = entry.out;
   const ask = out.needs_triage;
+  const [color, iconId] = teamStyle(out.team);
+  current = entry;
   hideError();
   byId("empty").hidden = true;
-  byId("result").classList.remove("stale");
+  byId("skeleton").hidden = true;
   byId("result").dataset.state = ask ? "ask" : "ready";
-  byId("icon_ready").toggleAttribute("hidden", ask);
-  byId("icon_ask").toggleAttribute("hidden", !ask);
+  byId("result").style.setProperty("--accent", color);
+  byId("hero_icon").replaceChildren(icon(iconId));
   byId("banner_text").textContent = ask ? "Ask the customer first" : "Send to " + out.team;
   byId("badge_ready").hidden = ask;
   byId("badge").hidden = !ask;
   byId("team_label").textContent = ask ? "First guess, not yet sent to a team" : "Team";
   byId("team").textContent = out.team;
   byId("confidence").textContent = percent(out.confidence);
+  byId("line_tag").textContent = ask ? "Below the line" : "Ready";
   byId("question_block").hidden = !out.clarifying_question;
   byId("question").textContent = out.clarifying_question || "";
   byId("copy").hidden = !canCopy;
-  resetCopy();
-  byId("reasons").replaceChildren(...out.reasons.map(reasonItem));
+  byId("copy_note").hidden = !canCopy;
+  captions.forEach((reset) => reset());
+  showPolicyTip(out);
+  const reasons = out.reasons.filter((reason) => !isPolicyTip(reason));
+  byId("reasons_block").hidden = !reasons.length;
+  byId("reasons").replaceChildren(...reasons.map(reasonItem));
   const fills = [];
   byId("bars").replaceChildren(...out.top3.map((item) => {
     const bar = element("div", "", "bar");
     const track = element("div", "", "track");
     const fill = element("div", "", "fill");
+    fill.style.background = teamStyle(item.team)[0];
     track.append(fill);
     fills.push([fill, item.prob]);
     bar.append(element("span", item.team), track, element("span", percent(item.prob), "number"));
@@ -331,65 +590,104 @@ function showResult(out) {
   }));
   byId("version").textContent = out.model_version;
   byId("result").hidden = false;
+  updateStale();
+  markRecent();
   animate(byId("result"), [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 220 });
-  fillBar(byId("confidence_fill"), out.confidence, 80);
+  fillGauge(out.confidence);
   fills.forEach(([fill, share], i) => fillBar(fill, share, 140 + i * 50));
-  const box = byId("result").getBoundingClientRect();
-  if (box.top < 0 || box.top > window.innerHeight * .75) {
-    byId("result").scrollIntoView({ block: "start", behavior: still.matches ? "auto" : "smooth" });
-  }
+  reveal(byId("result"), "start");
 }
 
-function markRecent(entry) {
+// --- Session and recent requests: memory only -------------------------------------------------------
+function updateSession() {
+  const ready = session.total ? Math.round(session.ready / session.total * 100) : 0;
+  byId("session_total").textContent = session.total.toLocaleString("en");
+  byId("session_ready").textContent = session.total ? ready + "%" : "–";
+  byId("session_ask").textContent = session.total ? 100 - ready + "%" : "–";
+}
+
+function markRecent() {
   [...byId("recent_list").querySelectorAll("button")].forEach((button, i) => {
-    if (recent[i] === entry) button.setAttribute("aria-current", "true");
+    if (current && recent[i] === current) button.setAttribute("aria-current", "true");
     else button.removeAttribute("aria-current");
   });
 }
 
+function restore(entry) {
+  cancel();
+  writeForm(entry.request);
+  showResult(entry);
+}
+
 function recentItem(entry) {
+  const characters = [...entry.request.request_text.replace(/\s+/g, " ").trim()];
+  const excerpt = characters.slice(0, EXCERPT).join("") + (characters.length > EXCERPT ? "…" : "");
+  const [color, iconId] = teamStyle(entry.out.team);
   const button = element("button", "");
   button.type = "button";
+  const mark = icon(iconId);
+  mark.style.color = color;
   const meta = element("span", "", "recent_meta");
   meta.append(
     element("span", entry.out.team + " · " + percent(entry.out.confidence)),
     entry.out.needs_triage ? element("span", "Ask first", "ask_first") : element("span", "Ready to route", "ready"),
   );
-  button.append(element("span", entry.excerpt, "recent_text"), meta);
-  button.addEventListener("click", () => {
-    showResult(entry.out);
-    markRecent(entry);
-  });
+  const main = element("span", "", "recent_main");
+  main.append(element("span", excerpt, "recent_text"), meta);
+  button.append(mark, main);
+  button.addEventListener("click", () => restore(entry));
   const item = element("li", "");
   item.append(button);
   return item;
 }
 
-function remember(text, out) {
-  const characters = [...text.replace(/\s+/g, " ").trim()];
-  const excerpt = characters.slice(0, EXCERPT).join("") + (characters.length > EXCERPT ? "…" : "");
-  const entry = { out, excerpt };
+function remember(entry) {
   recent = [entry, ...recent].slice(0, RECENT_MAX);
   byId("recent_list").replaceChildren(...recent.map(recentItem));
   byId("recent").hidden = false;
-  markRecent(entry);
+  markRecent();
+  session.total += 1;
+  if (!entry.out.needs_triage) session.ready += 1;
+  updateSession();
 }
 
+// --- Sending ----------------------------------------------------------------------------------------
 function setBusy(busy) {
+  clearTimeout(skeletonTimer);
   byId("submit").disabled = busy;
   byId("spinner").hidden = !busy;
   byId("submit_label").textContent = busy ? "Routing…" : "Submit";
   byId("form").setAttribute("aria-busy", String(busy));
-  byId("result").classList.toggle("stale", busy);
+  if (!busy) {
+    byId("skeleton").hidden = true;
+    return;
+  }
+  skeletonTimer = setTimeout(() => {
+    byId("result").hidden = true;
+    byId("empty").hidden = true;
+    byId("skeleton").hidden = false;
+    reveal(byId("skeleton"), "start");
+  }, SKELETON_AFTER);
+}
+
+function cancel() {  // the answer to a request in flight is ignored
+  latest += 1;
+  setBusy(false);
 }
 
 async function send() {
+  const request = readForm();
+  if (!request.request_text.trim()) {  // the server checks this too
+    showError(EMPTY_MESSAGE);
+    byId("request_text").setAttribute("aria-invalid", "true");
+    return;
+  }
   const call = ++latest;  // only the newest answer is shown
-  const text = byId("request_text").value;
-  const body = { request_text: text };
-  for (const field of FIELDS) if (byId(field).value) body[field] = byId(field).value;
+  const body = { request_text: request.request_text };
+  for (const field of FIELDS) if (request[field]) body[field] = request[field];
   const refocus = document.activeElement === byId("submit");  // a disabled button loses the focus
   hideError();
+  hideToast();
   setBusy(true);
   try {
     const response = await fetch("/predict", {
@@ -399,9 +697,11 @@ async function send() {
     });
     const out = await response.json();
     if (call !== latest) return;
+    setBusy(false);
     if (response.ok) {
-      showResult(out);
-      remember(text, out);
+      const entry = { out, request };
+      showResult(entry);
+      remember(entry);
     } else {
       showError(out.detail);
       if (response.status === 422) byId("request_text").setAttribute("aria-invalid", "true");
@@ -414,6 +714,32 @@ async function send() {
       if (refocus) byId("submit").focus();
     }
   }
+}
+
+function clearAll() {
+  const before = readForm();
+  const entry = current;
+  const anything = Object.values(before).some(Boolean) || entry || !byId("error_box").hidden || byId("submit").disabled;
+  if (!anything) return;
+  cancel();
+  hideError();
+  writeForm({ request_text: "", channel: "", product_family: "", warranty_status: "" });
+  clearResult();
+  byId("request_text").focus();
+  if (!Object.values(before).some(Boolean)) return;
+  toast("Form cleared", {
+    time: 8000,
+    action: {
+      label: "Undo",
+      run: () => {
+        cancel();
+        hideError();
+        writeForm(before);
+        if (entry) showResult(entry);
+        byId("request_text").focus();
+      },
+    },
+  });
 }
 
 async function showStatus() {
@@ -430,6 +756,27 @@ async function showStatus() {
   byId("status").classList.toggle("down", !up);
 }
 
+function copyButton(id, label, text) {
+  const caption = byId(id).querySelector("span");
+  let timer = 0;
+  captions.push(() => {
+    clearTimeout(timer);
+    caption.textContent = label;
+  });
+  byId(id).addEventListener("click", async () => {
+    if (!current) return;
+    try {
+      await navigator.clipboard.writeText(text(current.out));
+      clearTimeout(timer);
+      caption.textContent = "Copied";
+      timer = setTimeout(() => { caption.textContent = label; }, 2000);
+      toast("Copied");
+    } catch (error) {
+      byId(id).hidden = true;
+    }
+  });
+}
+
 byId("form").addEventListener("submit", (event) => {
   event.preventDefault();
   send();
@@ -439,30 +786,27 @@ byId("form").addEventListener("keydown", (event) => {
   event.preventDefault();
   if (!byId("submit").disabled) send();
 });
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || event.isComposing || event.target.closest?.("select")) return;
+  clearAll();
+});
 byId("request_text").addEventListener("input", () => {
   byId("request_text").removeAttribute("aria-invalid");
   updateCount();
 });
-byId("copy").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(byId("question").textContent);
-    clearTimeout(copyTimer);
-    byId("copy").textContent = "Copied";
-    copyTimer = setTimeout(resetCopy, 2000);
-  } catch (error) {
-    byId("copy").hidden = true;
-  }
-});
+byId("form").addEventListener("input", updateStale);
+copyButton("copy", "Copy question", (out) => out.clarifying_question || "");
+copyButton("copy_note", "Copy routing note", noteText);
 for (const button of document.querySelectorAll("button[data-text]")) {
   button.addEventListener("click", () => {
-    byId("request_text").value = button.dataset.text;
-    for (const field of FIELDS) byId(field).value = "";
-    updateCount();
+    writeForm({ request_text: button.dataset.text, channel: "", product_family: "", warranty_status: "" });
+    updateStale();
     send();
   });
 }
 fillDropdowns();
 updateCount();
+updateSession();
 showStatus();
 </script>
 </body>
