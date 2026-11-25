@@ -1,0 +1,23 @@
+# Customer data: never publish (ops-policy section 10)
+data/raw/
+data/
+*.csv
+*.parquet
+*.xlsx
+!/predictions.csv
+
+# Trained models can embed customer text; rebuild locally
+models/
+*.joblib
+*.pkl
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Local
+.env
+.claude/settings.local.json
