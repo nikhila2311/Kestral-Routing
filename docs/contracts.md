@@ -51,7 +51,55 @@ Types as read by pandas 3: string = `str`, datetime = `datetime64[us]`, int = `i
 
 ## M2
 
-status: not started
+status: VERIFIED
+
+Data audit. Code `src/audit.py`, tests `tests/test_m2_audit.py`, run `bash scripts/run_all.sh audit` (run `clean` first:
+M1's tests rewrite the parquet). No models, no train/validation split.
+
+**Inputs:** `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` (M1)
+
+**Interface:** `build(out_dir=REPORTS_DIR) -> dict` writes both outputs; `compute_metrics(train, test) -> dict` and
+`render_markdown(metrics) -> str` are pure; rules are `product_conflict_mask(df)` and `vague_mask(text)`.
+
+**Output `reports/audit_metrics.json`** (aggregates only, all of train, full precision, sorted keys)
+
+22 top-level keys, no others. Shares are 0-1 floats, counts are ints.
+
+| Key | Content |
+|---|---|
+| bot_vs_final_agreement | share, `team_label_canon` = `final_team_canon` |
+| agreement_by_month | `YYYY-MM` -> share; a month without rows is absent |
+| agreement_by_source | source -> share |
+| agreement_by_channel | channel -> share |
+| confusion_bot_to_final | bot -> final -> count, zero-filled; total = train rows |
+| transfers_distribution | transfers (string key) -> rows |
+| transfer_consistency | `misrouted_with_0_transfers`, `correct_with_transfers` (row counts) |
+| final_volume_by_team | team -> rows, zero-filled |
+| bot_label_volume_by_team | team -> rows, zero-filled |
+| final_team_volume_by_month | `YYYY-MM` -> team -> rows; every month in `months_covered`, zero-filled |
+| product_text_conflict_count | rows naming another product family and not their own |
+| product_text_conflict_rule | rule text |
+| product_text_conflict_patterns | product family -> pattern |
+| duplicate_text_count | train rows repeating an earlier `text_clean` |
+| duplicate_text_count_raw | same, on `request_text` |
+| test_text_overlap_count | test rows whose `text_clean` appears in train |
+| test_text_overlap_count_raw | same, on `request_text` |
+| vague_request_estimate | `count`, `rule`, `filler_words`, `product_words`, `final_team_distribution` |
+| bot_cost_rs_per_month | (transfers x transfer cost + misroutes x contact cost) / months; no licence |
+| bot_cost_misrouted_only_rs_per_month | same formula, counting only transfers on misrouted rows |
+| cost_inputs | `rs_per_transfer`, `rs_per_misroute`, `transfers`, `misroutes`, `transfers_on_correct_rows`, `transfers_on_correct_rows_rs_per_month`, `licence_rs_per_year`, `licence_rs_per_month` |
+| months_covered | `first`, `last`, `count`: full range `config.TRAIN_START` to `config.VALID_END` |
+
+**Output `reports/data_audit.md`**: rendered from the JSON only.
+
+**Acceptance criteria**
+
+1. All keys exist in the JSON.
+2. `bot_vs_final_agreement` and `bot_cost_rs_per_month` recomputed from the parquet equal the JSON values.
+3. Agreement is between 0.70 and 0.85.
+4. Both volume-by-team dicts sum to the train row count; only the 7 canonical names appear.
+5. Every number in `data_audit.md` appears in `audit_metrics.json` (allowing rounding).
+6. Costs come from `src/config.py`, not hardcoded.
 
 ## M3
 

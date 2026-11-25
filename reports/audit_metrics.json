@@ -1,0 +1,397 @@
+{
+  "agreement_by_channel": {
+    "chat": 0.7770452502247528,
+    "email": 0.781867145421903,
+    "ivr": 0.7695001591849729,
+    "whatsapp": 0.7647058823529411
+  },
+  "agreement_by_month": {
+    "2025-04": 0.7929155313351499,
+    "2025-05": 0.766042780748663,
+    "2025-06": 0.7883211678832117,
+    "2025-07": 0.7627586206896552,
+    "2025-08": 0.75,
+    "2025-09": 0.7646198830409356,
+    "2025-10": 0.7549575070821529,
+    "2025-11": 0.7838577291381669,
+    "2025-12": 0.7860892388451444,
+    "2026-01": 0.7823613086770982,
+    "2026-02": 0.752906976744186,
+    "2026-03": 0.7876447876447876,
+    "2026-04": 0.7890961262553802,
+    "2026-05": 0.7697547683923706,
+    "2026-06": 0.7414772727272727
+  },
+  "agreement_by_source": {
+    "crm": 0.7723777299292526,
+    "legacy_zoho": 0.7706018518518518
+  },
+  "bot_cost_misrouted_only_rs_per_month": 114993.66666666667,
+  "bot_cost_rs_per_month": 122171.33333333333,
+  "bot_label_volume_by_team": {
+    "Billing": 1656,
+    "Filters & Consumables": 1458,
+    "Installs & Demo": 1185,
+    "Product Advice": 1180,
+    "Repairs": 3129,
+    "Returns & Replacement": 1174,
+    "Warranty Claims": 1040
+  },
+  "bot_vs_final_agreement": 0.7716688227684346,
+  "confusion_bot_to_final": {
+    "Billing": {
+      "Billing": 1071,
+      "Filters & Consumables": 9,
+      "Installs & Demo": 146,
+      "Product Advice": 7,
+      "Repairs": 192,
+      "Returns & Replacement": 125,
+      "Warranty Claims": 106
+    },
+    "Filters & Consumables": {
+      "Billing": 43,
+      "Filters & Consumables": 872,
+      "Installs & Demo": 67,
+      "Product Advice": 40,
+      "Repairs": 315,
+      "Returns & Replacement": 56,
+      "Warranty Claims": 65
+    },
+    "Installs & Demo": {
+      "Billing": 7,
+      "Filters & Consumables": 7,
+      "Installs & Demo": 1146,
+      "Product Advice": 10,
+      "Repairs": 10,
+      "Returns & Replacement": 2,
+      "Warranty Claims": 3
+    },
+    "Product Advice": {
+      "Billing": 9,
+      "Filters & Consumables": 9,
+      "Installs & Demo": 6,
+      "Product Advice": 1135,
+      "Repairs": 9,
+      "Returns & Replacement": 4,
+      "Warranty Claims": 8
+    },
+    "Repairs": {
+      "Billing": 178,
+      "Filters & Consumables": 157,
+      "Installs & Demo": 218,
+      "Product Advice": 182,
+      "Repairs": 1993,
+      "Returns & Replacement": 214,
+      "Warranty Claims": 187
+    },
+    "Returns & Replacement": {
+      "Billing": 6,
+      "Filters & Consumables": 7,
+      "Installs & Demo": 7,
+      "Product Advice": 7,
+      "Repairs": 7,
+      "Returns & Replacement": 1132,
+      "Warranty Claims": 8
+    },
+    "Warranty Claims": {
+      "Billing": 4,
+      "Filters & Consumables": 5,
+      "Installs & Demo": 6,
+      "Product Advice": 9,
+      "Repairs": 8,
+      "Returns & Replacement": 6,
+      "Warranty Claims": 1002
+    }
+  },
+  "cost_inputs": {
+    "licence_rs_per_month": 26666.666666666668,
+    "licence_rs_per_year": 320000,
+    "misroutes": 2471,
+    "rs_per_misroute": 260,
+    "rs_per_transfer": 305,
+    "transfers": 3902,
+    "transfers_on_correct_rows": 353,
+    "transfers_on_correct_rows_rs_per_month": 7177.666666666667
+  },
+  "duplicate_text_count": 688,
+  "duplicate_text_count_raw": 663,
+  "final_team_volume_by_month": {
+    "2025-04": {
+      "Billing": 87,
+      "Filters & Consumables": 76,
+      "Installs & Demo": 101,
+      "Product Advice": 101,
+      "Repairs": 156,
+      "Returns & Replacement": 102,
+      "Warranty Claims": 111
+    },
+    "2025-05": {
+      "Billing": 75,
+      "Filters & Consumables": 76,
+      "Installs & Demo": 104,
+      "Product Advice": 98,
+      "Repairs": 191,
+      "Returns & Replacement": 106,
+      "Warranty Claims": 98
+    },
+    "2025-06": {
+      "Billing": 91,
+      "Filters & Consumables": 73,
+      "Installs & Demo": 86,
+      "Product Advice": 84,
+      "Repairs": 159,
+      "Returns & Replacement": 93,
+      "Warranty Claims": 99
+    },
+    "2025-07": {
+      "Billing": 89,
+      "Filters & Consumables": 70,
+      "Installs & Demo": 102,
+      "Product Advice": 111,
+      "Repairs": 176,
+      "Returns & Replacement": 96,
+      "Warranty Claims": 81
+    },
+    "2025-08": {
+      "Billing": 88,
+      "Filters & Consumables": 70,
+      "Installs & Demo": 134,
+      "Product Advice": 81,
+      "Repairs": 181,
+      "Returns & Replacement": 87,
+      "Warranty Claims": 103
+    },
+    "2025-09": {
+      "Billing": 80,
+      "Filters & Consumables": 58,
+      "Installs & Demo": 97,
+      "Product Advice": 87,
+      "Repairs": 163,
+      "Returns & Replacement": 114,
+      "Warranty Claims": 85
+    },
+    "2025-10": {
+      "Billing": 83,
+      "Filters & Consumables": 69,
+      "Installs & Demo": 117,
+      "Product Advice": 104,
+      "Repairs": 159,
+      "Returns & Replacement": 97,
+      "Warranty Claims": 77
+    },
+    "2025-11": {
+      "Billing": 95,
+      "Filters & Consumables": 69,
+      "Installs & Demo": 102,
+      "Product Advice": 90,
+      "Repairs": 185,
+      "Returns & Replacement": 92,
+      "Warranty Claims": 98
+    },
+    "2025-12": {
+      "Billing": 91,
+      "Filters & Consumables": 69,
+      "Installs & Demo": 126,
+      "Product Advice": 91,
+      "Repairs": 176,
+      "Returns & Replacement": 116,
+      "Warranty Claims": 93
+    },
+    "2026-01": {
+      "Billing": 83,
+      "Filters & Consumables": 80,
+      "Installs & Demo": 98,
+      "Product Advice": 91,
+      "Repairs": 160,
+      "Returns & Replacement": 96,
+      "Warranty Claims": 95
+    },
+    "2026-02": {
+      "Billing": 96,
+      "Filters & Consumables": 72,
+      "Installs & Demo": 97,
+      "Product Advice": 88,
+      "Repairs": 137,
+      "Returns & Replacement": 109,
+      "Warranty Claims": 89
+    },
+    "2026-03": {
+      "Billing": 105,
+      "Filters & Consumables": 77,
+      "Installs & Demo": 111,
+      "Product Advice": 95,
+      "Repairs": 193,
+      "Returns & Replacement": 105,
+      "Warranty Claims": 91
+    },
+    "2026-04": {
+      "Billing": 95,
+      "Filters & Consumables": 62,
+      "Installs & Demo": 110,
+      "Product Advice": 82,
+      "Repairs": 158,
+      "Returns & Replacement": 105,
+      "Warranty Claims": 85
+    },
+    "2026-05": {
+      "Billing": 90,
+      "Filters & Consumables": 79,
+      "Installs & Demo": 97,
+      "Product Advice": 91,
+      "Repairs": 169,
+      "Returns & Replacement": 118,
+      "Warranty Claims": 90
+    },
+    "2026-06": {
+      "Billing": 70,
+      "Filters & Consumables": 66,
+      "Installs & Demo": 114,
+      "Product Advice": 96,
+      "Repairs": 171,
+      "Returns & Replacement": 103,
+      "Warranty Claims": 84
+    }
+  },
+  "final_volume_by_team": {
+    "Billing": 1318,
+    "Filters & Consumables": 1066,
+    "Installs & Demo": 1596,
+    "Product Advice": 1390,
+    "Repairs": 2534,
+    "Returns & Replacement": 1539,
+    "Warranty Claims": 1379
+  },
+  "months_covered": {
+    "count": 15,
+    "first": "2025-04",
+    "last": "2026-06"
+  },
+  "product_text_conflict_count": 1744,
+  "product_text_conflict_patterns": {
+    "Air Fryer": "fryers?",
+    "Ceiling Fan": "fans?",
+    "Induction Cooktop": "cooktops?|induction",
+    "Mixer Grinder": "mixers?|grinders?|mixies?",
+    "Robot Vacuum": "vacuums?|robots?",
+    "Room Heater": "heaters?",
+    "Water Purifier": "purifiers?|ro"
+  },
+  "product_text_conflict_rule": "text_clean names at least one other product family and not the row's own product_family (whole-word match on the patterns listed)",
+  "test_text_overlap_count": 260,
+  "test_text_overlap_count_raw": 258,
+  "transfer_consistency": {
+    "correct_with_transfers": 351,
+    "misrouted_with_0_transfers": 126
+  },
+  "transfers_distribution": {
+    "0": 8126,
+    "1": 1490,
+    "2": 1206
+  },
+  "vague_request_estimate": {
+    "count": 878,
+    "filler_words": [
+      "a",
+      "about",
+      "afternoon",
+      "am",
+      "an",
+      "and",
+      "asap",
+      "back",
+      "call",
+      "callback",
+      "care",
+      "complaint",
+      "contact",
+      "customer",
+      "dear",
+      "evening",
+      "for",
+      "from",
+      "good",
+      "hai",
+      "have",
+      "hello",
+      "help",
+      "hi",
+      "i",
+      "in",
+      "is",
+      "issue",
+      "it",
+      "ji",
+      "ka",
+      "ki",
+      "kindly",
+      "ko",
+      "maam",
+      "madam",
+      "me",
+      "morning",
+      "my",
+      "namaste",
+      "need",
+      "no",
+      "number",
+      "of",
+      "on",
+      "order",
+      "our",
+      "please",
+      "pls",
+      "plz",
+      "problem",
+      "product",
+      "query",
+      "regarding",
+      "regards",
+      "request",
+      "se",
+      "service",
+      "sir",
+      "someone",
+      "support",
+      "team",
+      "thank",
+      "thanks",
+      "the",
+      "this",
+      "to",
+      "urgent",
+      "us",
+      "want",
+      "with",
+      "you"
+    ],
+    "final_team_distribution": {
+      "Billing": 118,
+      "Filters & Consumables": 96,
+      "Installs & Demo": 128,
+      "Product Advice": 114,
+      "Repairs": 179,
+      "Returns & Replacement": 125,
+      "Warranty Claims": 118
+    },
+    "product_words": [
+      "air",
+      "ceiling",
+      "cooktop",
+      "fan",
+      "fryer",
+      "grinder",
+      "heater",
+      "home",
+      "induction",
+      "kestrel",
+      "mixer",
+      "purifier",
+      "ro",
+      "robot",
+      "room",
+      "vacuum",
+      "water"
+    ],
+    "rule": "no words of text_clean are left after removing the filler words and product words listed (digits and punctuation are ignored)"
+  }
+}

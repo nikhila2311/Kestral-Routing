@@ -62,6 +62,10 @@ TRAIN_CLEAN_COLUMNS = _RAW_COLUMNS + (
 )
 TEST_CLEAN_COLUMNS = _RAW_COLUMNS + ("text_clean", "created_month")
 
+# --- M2 outputs ------------------------------------------------------------
+AUDIT_METRICS_JSON = REPORTS_DIR / "audit_metrics.json"
+DATA_AUDIT_MD = REPORTS_DIR / "data_audit.md"
+
 # --- Teams -----------------------------------------------------------------
 TEAMS = (
     "Installs & Demo",
