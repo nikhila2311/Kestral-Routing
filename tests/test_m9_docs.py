@@ -1,6 +1,6 @@
-"""M9 acceptance tests: memo, submission form answers, recording script. Contract: docs/contracts.md#m9.
+"""M9 acceptance tests: memo. Contract: docs/contracts.md#m9.
 
-Every number in the documents is bound to its wording: a CLAIMS template is filled from reports/*.json and the resulting
+Every number in the memo is bound to its wording: a CLAIMS template is filled from reports/*.json and the resulting
 sentence fragment must be in the document. Digits left over must be in ALLOWED (not measurements) or in a sentence marked
 as an estimate or proposal.
 """
@@ -13,19 +13,9 @@ import pytest
 
 from src import config
 
-MEMO, FORM, SCRIPT = "memo.md", "submission_form_answers.md", "recording_script.md"
-DOCS = (MEMO, FORM, SCRIPT)
-PLACEHOLDER = "[YOUR COST]"
+MEMO = "memo.md"
+DOCS = (MEMO,)
 MEMO_HEADINGS = ["The decision", "The number", "The rupees", "Next week"]
-SCRIPT_HEADINGS = ["What I tried", "What I changed", "What I threw away"]
-FORM_HEADINGS = [
-    "Expected score",
-    "Approach summary",
-    "Decisions on unclear points",
-    "What I tried, changed and threw away",
-    "AI tools used",
-    "Known limitations",
-]
 JARGON = ["F1", "logistic", "TF-IDF", "calibration", "log loss", "bootstrap", "confusion matrix", "parquet", "sklearn"]
 
 
@@ -182,63 +172,15 @@ CLAIMS = {
         "overstate Repairs by {g_rep}, Billing by {g_bil} and Filters by {g_fil}",
         "understate Installs, Returns and Warranty by {g_under} and Product Advice by {g_adv}",
     ],
-    FORM: [
-        "{router} accuracy, likely range {low} to {high} (macro-F1 about {f1})",
-        "scored on {val_rows} requests",
-        "The bot gets {bot} on the same requests, so the lead is {lead} points "
-        "(paired {ci_level} interval {lead_low} to {lead_high})",
-        "bootstrap interval ({ci_low} to {ci_high})",
-        "moved down {drift} points for drift",
-        "fell each month ({m_router[0]}, {m_router[1]}, {m_router[2]}); "
-        "the bot's fell too ({m_bot[0]}, {m_bot[1]}, {m_bot[2]})",
-        "about {bl} (range {bl_low} to {bl_high}, macro-F1 about {bl_f1})",
-        "agrees with them {copy_agree} of the time but is right on only {copy}",
-        "ceiling is {ceiling}: about {vague_share} of requests are too vague",
-        "confidence threshold of {threshold}",
-        "On validation {sent} are sent straight on at {sent_acc}; the first guess on the {flagged} flagged would be "
-        "right only {flagged_acc}",
-        "all {train_rows} labelled requests",
-        "has {test_rows} rows",
-        "agrees with it on {bot_all} of requests",
-        "All {vague} on validation and all {vague_test} in the test set",
-        "headline Rs {save} a month saved assumes no clarifying question",
-        "from Rs {save_worst} (never helps) to Rs {save_best} (always works); break-even is {break_even} of flagged",
-        "labelled data covers {label_months}.",
-        "scored {first_rule} on validation, {first_drop} points below the baseline and outside the allowed {allowed_drop}.",
-        "so {router} is not an untouched estimate",
-        "keyword rules ({keywords})",
-        "{n_cand} candidate configurations",
-        "up to {svm_gain} points higher on the inner check",
-        "the {router} belongs to the version trained to March 2026",
-        "over-predicted by {bias} points on validation",
-        "Of the router's {errors} validation errors, {vague_close} are vague requests or close calls",
-        "at Rs {cost_simple} instead of Rs {cost_avg}, the saving is Rs {save_simple} a month",
-        "About {seen_test} of test texts also appear in the training window; validation is similar ({seen_val})",
-    ],
-    SCRIPT: [
-        "The bot was right about {bot_all0} of the time",
-        "the bot scored {bot} and its copy {copy}",
-        "trained on the closing team scored {router}",
-        "It sends {sent} straight on, and {sent_acc} of those are right",
-        "matches the old labels {copy_agree} of the time",
-        "The safe figure is Rs {save} a month",
-    ],
 }
 
 # Not measurements: the client's bar, policy sections, calendar years, confidence bins named in the M6 findings.
 ALLOWED = {
     MEMO: [r"Head of D2C Operations", r'"90% match to the old labels"', r"April–June 2026", r"policy §10"],
-    FORM: [
-        r"The 90% bar",
-        r"(?:January|March|April|June)(?: to (?:March|June))? 20(?:25|26)",
-        r"macro-F1",
-        r"the 0\.2 to 0\.5 range",
-    ],
-    SCRIPT: [r"under 3 minutes", r"April to June 2026", r"the 90% bar"],
 }
 MARKER = re.compile(r"\bestimate\b|\bproposed\b", re.IGNORECASE)
 # Marked sentences: the exact unsourced figures the owner accepted, so that the marker cannot hide a measurement.
-MARKED = {MEMO: ["3", "93%", "2,000", "4,000"], FORM: [], SCRIPT: []}
+MARKED = {MEMO: ["3", "93%", "2,000", "4,000"]}
 NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?%?")
 
 
@@ -285,7 +227,7 @@ def test_memo_length_and_headings():
 
 @pytest.mark.parametrize("name", DOCS)
 def test_every_number_is_sourced(name, facts):
-    """Criterion 2 (also applied to the recording script)."""
+    """Criterion 2."""
     missing, left = unsourced(name, read(name), facts)
     assert missing == []
     assert left == []
@@ -314,26 +256,13 @@ def test_memo_no_jargon():
     assert [j for j in JARGON if j.lower() in text] == []
 
 
-def test_script_length_and_parts():
-    """Criterion 4."""
-    text = read(SCRIPT)
-    assert len(text.split()) <= 450
-    found = sections(text)
-    assert list(found) == SCRIPT_HEADINGS
-    assert all(found.values())
-    for cue in ("confusion_matrices.png", "coverage_accuracy.png", "humming sound", "Paid, but not a payment problem"):
-        assert cue in text
-    for figure in re.findall(r"reports/figures/\w+\.png", text):
-        assert (config.ROOT / figure).is_file()
-
-
 def four_word_runs(text):
     w = words(text)
     return {tuple(w[i : i + 4]) for i in range(len(w) - 3)}
 
 
 def test_no_customer_text():
-    """Criterion 5. Failures show counts only, never the text."""
+    """Criterion 4. Failures show counts only, never the text."""
     customer = set()
     for path in (config.TRAIN_CLEAN_PARQUET, config.TEST_CLEAN_PARQUET):
         for text in pd.read_parquet(path, columns=["text_clean"])["text_clean"]:
@@ -341,14 +270,3 @@ def test_no_customer_text():
     assert len(customer) > 1000
     overlaps = {name: len(four_word_runs(read(name)) & customer) for name in DOCS}
     assert overlaps == dict.fromkeys(DOCS, 0)
-
-
-def test_form_sections_and_placeholders():
-    """Criterion 6."""
-    text = read(FORM)
-    found = sections(text)
-    assert list(found) == FORM_HEADINGS
-    assert all(len(body.split()) >= 10 for body in found.values())
-    assert text.count(PLACEHOLDER) == 1 and PLACEHOLDER in found["AI tools used"]
-    assert re.findall(r"\[[^\]]*\]", text.replace(PLACEHOLDER, "")) == []
-    assert re.findall(r"\b(?:TODO|TBD|TBC|FIXME|XXX)\b|<[a-z ]+>|\.\.\.", text, flags=re.IGNORECASE) == []

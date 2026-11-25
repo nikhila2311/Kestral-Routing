@@ -2,7 +2,7 @@
 
 A module may only read the inputs listed in its contract: raw data or outputs of VERIFIED modules.
 Each contract states inputs, outputs (exact paths + schema), acceptance criteria and its test file
-(`tests/test_mN_<name>.py`). Workflow rules are in `CLAUDE.md`.
+(`tests/test_mN_<name>.py`).
 
 ## M1
 
@@ -374,7 +374,7 @@ Router: the M5a configuration with confidence, triage, reasons and a clarifying 
 
 - `needs_triage = (1 - confidence) x COST_PER_MISROUTE_TRAIN > COST_CLARIFY`, i.e. confidence below
   `config.TRIAGE_THRESHOLD` = 1 - 260 / 699.49 = 0.6283. Also true when the text has no letter or digit.
-- `config.COST_PER_MISROUTE_TRAIN` = 305 x 2843 / 1973 + 260, train window only (`CLAUDE.md` rule 6). The spec's
+- `config.COST_PER_MISROUTE_TRAIN` = 305 x 2843 / 1973 + 260, train window only (preprocessing and thresholds are fitted on it). The spec's
   `COST_PER_MISROUTE` (698.06, all labelled months) stays the reporting constant. `COST_CLARIFY` = 260. Not tuned.
 
 **Reasons**
@@ -618,20 +618,17 @@ evidence that an LLM would be more accurate; policy section 10 restricts sharing
 
 status: BUILT (tests pass; not yet verified by the project owner)
 
-Documents, written by hand: no build step or run target. Tests `tests/test_m9_docs.py`.
+Memo, written by hand: no build step or run target. Tests `tests/test_m9_docs.py`.
 
 **Inputs**
 
 - `reports/audit_metrics.json` (M2), `baselines.json` (M4), `experiments.json` (M5a), `router.json` (M5b), `evaluation.json`
-  (M6), `predictions_summary.json` (M7): the only source of numbers. Figures in `reports/figures/` are named as cues.
+  (M6), `predictions_summary.json` (M7): the only source of numbers.
 - Tests only: the parquet files, `text_clean`, for the 4-word run check (counts only).
 
 **Outputs** (repo root, tracked)
 
 - `memo.md`: to Ritu Deshpande, non-technical, at most 450 words; sections The decision, The number, The rupees, Next week.
-- `submission_form_answers.md`: Expected score, Approach summary, Decisions on unclear points, What I tried, changed and
-  threw away, AI tools used, Known limitations. Only placeholder: `[YOUR COST]`.
-- `recording_script.md`: at most 450 words; What I tried, What I changed, What I threw away, with `[SHOW: ...]` cues.
 
 **Number rule.** Each measured number is tied in the test to its wording and to a JSON key, or to a formula over JSON keys
 (for example label volume / closing volume - 1). Other digits must be in the test's allowlist (the 90% bar, policy
@@ -640,12 +637,41 @@ section, calendar dates, names) or be one of the listed estimates and proposals 
 **Acceptance criteria**
 
 1. `memo.md` has at most 450 words and the 4 headings.
-2. Number rule, for all three documents.
+2. Number rule.
 3. No technical jargon in `memo.md` (list in the test).
-4. `recording_script.md` has at most 450 words and the three parts; named figures exist.
-5. No 4-word run shared with train or test `text_clean`.
-6. `submission_form_answers.md` has no empty section and no placeholder other than `[YOUR COST]`.
+4. No 4-word run shared with train or test `text_clean`.
 
 ## M10
 
-status: not started
+status: BUILT (tests pass; not yet verified by the project owner)
+
+Integration test and final README. No change to pipeline code or to any verified output except the rerun of M6 `evaluate`
+(phrase lists only, see PROGRESS.md, M8 notes). Tests `tests/test_m10_integration.py`.
+
+**Inputs**
+
+- The committed repo (HEAD), `data/raw/`, `scripts/run_all.sh`; every verified module through its run target.
+
+**Outputs**
+
+- `scripts/integration_test.ps1` (Windows) and `scripts/integration_test.sh` (macOS/Linux, Git Bash): one PASS, FAIL or SKIP per
+  step, exit code 0 only if every step passes. Both run on a fresh clone in a temp folder that is deleted afterwards (it holds
+  customer data), and change nothing in the working copy. Uncommitted changes are not tested; the script says so.
+- `pytest.ini`: marker `slow`, `--strict-markers`. Slow tests rebuild reports or models from scratch.
+- `README.md`.
+
+| Step | Check |
+|---|---|
+| clone, tracking, data, venv, pip | nothing under data/ or models/ tracked, `predictions.csv` tracked; fresh venv from `requirements.txt` |
+| pipeline | clean, audit, baselines, experiments, router, evaluate, train, predict. The clone's `predictions.csv` is deleted first |
+| byte-identical | raw-byte git hash of the new `predictions.csv` equals the committed blob |
+| quick tests | `pytest tests -m "not slow"` |
+| API | start, `GET /health` (model loaded), `POST /predict` (a canonical team), stop (the port no longer answers) |
+
+**Acceptance criteria**
+
+1. No file under data/ or models/ is tracked, and no model or table file; `predictions.csv` is the only tracked CSV.
+2. `slow` is registered; every module keeps quick tests; `pytest -m "not slow"` runs in about 2 minutes on the dev machine.
+3. Both scripts have every step, in the pipeline order above.
+4. The README covers a clean machine and names the deliverables and every raw file.
+5. The integration script passes every step.

@@ -396,6 +396,7 @@ def test_consistency_detects_changed_value(mod, results, sources, path):
     assert mod.consistency(results, sources) == results["consistency"]
 
 
+@pytest.mark.slow
 def test_mismatch_writes_nothing(mod, sources, monkeypatch, tmp_path):
     changed = copy.deepcopy(sources)
     changed["baselines"]["baselines"]["bot"]["cost_rs_per_month"] += 1
@@ -612,6 +613,7 @@ def test_md_discloses(md):
 
 
 # --- Criterion 7: deterministic, rounded, current ------------------------------
+@pytest.mark.slow
 def test_deterministic(mod, built, tmp_path):
     mod.build(tmp_path)
     for path in (p for p in built.rglob("*") if p.is_file()):

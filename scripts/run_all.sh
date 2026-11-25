@@ -13,7 +13,7 @@ if [ -x .venv/Scripts/python.exe ]; then
 elif [ -x .venv/bin/python ]; then
   PY=.venv/bin/python
 else
-  echo "No .venv found. See Setup in CLAUDE.md." >&2
+  echo "No .venv found. See Setup in README.md." >&2
   exit 1
 fi
 

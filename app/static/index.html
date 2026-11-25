@@ -6,113 +6,247 @@
 <title>Kestrel Home request router</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f4f6f8; --card: #ffffff; --text: #1b2733; --muted: #556474; --line: #d3dae1;
-    --accent: #0b6e6e; --accent-text: #ffffff; --track: #e4e9ee;
-    --warn-bg: #fff1d6; --warn-text: #6b4300; --error: #a3221b;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12181e; --card: #1b232b; --text: #e8edf2; --muted: #a3b1be; --line: #35414d;
-      --accent: #4fc0bd; --accent-text: #06201f; --track: #2a343e;
-      --warn-bg: #4a3610; --warn-text: #ffe2a8; --error: #ff9c94;
-    }
+    color-scheme: light;
+    --bg: #F6F7F9; --card: #FFFFFF; --line: #E4E7EC; --input-line: #8A93A0;
+    --primary: #0F766E; --primary-hover: #115E59; --text: #1F2937; --muted: #6B7280;
+    --ok: #15803D; --ok-bg: #DCFCE7; --ask: #B45309; --ask-bg: #FEF3C7; --bad: #B91C1C; --bad-bg: #FEE2E2;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 4px 12px rgba(16, 24, 40, .05);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, "Segoe UI", sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  h2 { font-size: 1rem; margin: 20px 0 6px; }
-  p { margin: 0 0 12px; }
-  .muted { color: var(--muted); font-size: .9rem; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-top: 16px; }
-  label { display: block; font-weight: 600; margin-bottom: 4px; }
-  textarea, select { width: 100%; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 6px; padding: 8px 10px; }
-  textarea { min-height: 110px; resize: vertical; }
-  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
-  .spread { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
-  button { font: inherit; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: inherit;
-    padding: 8px 12px; cursor: pointer; }
-  button[type="submit"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600;
-    padding: 8px 24px; }
-  button:disabled { opacity: .6; cursor: default; }
-  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .examples { display: flex; flex-wrap: wrap; gap: 8px; }
-  .examples button { font-size: .9rem; padding: 6px 10px; }
-  .team { font-size: 1.4rem; font-weight: 700; overflow-wrap: anywhere; }
-  .badge { background: var(--warn-bg); color: var(--warn-text); border-radius: 999px; padding: 3px 12px; font-size: .9rem;
-    font-weight: 600; }
-  ul { margin: 0; padding-left: 20px; overflow-wrap: anywhere; }
-  .question { border-left: 4px solid var(--accent); padding: 4px 0 4px 12px; overflow-wrap: anywhere; }
-  .bar { display: grid; grid-template-columns: minmax(110px, 190px) 1fr 56px; gap: 10px; align-items: center; margin: 6px 0; }
-  .track { background: var(--track); border-radius: 4px; height: 14px; overflow: hidden; }
-  .fill { background: var(--accent); height: 100%; }
-  .number { text-align: right; font-variant-numeric: tabular-nums; }
-  .error { color: var(--error); font-weight: 600; margin: 12px 0 0; }
   [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 "Segoe UI", system-ui, sans-serif; }
+  h1, h2, h3, p { margin: 0; }
+  h1 { font-size: 1.25rem; line-height: 1.3; font-weight: 700; }
+  h2 { font-size: 1.125rem; line-height: 1.35; font-weight: 600; }
+  h3 { font-size: .875rem; font-weight: 600; margin: 0 0 8px; }
+  svg { flex: none; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+    stroke-linejoin: round; }
+  :focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+  .muted { color: var(--muted); font-size: .875rem; }
+
+  header { background: var(--card); border-top: 4px solid var(--primary); border-bottom: 1px solid var(--line); }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+  header .wrap { display: flex; flex-wrap: wrap; gap: 4px 24px; align-items: center; justify-content: space-between;
+    padding-top: 16px; padding-bottom: 16px; }
+  #status { text-wrap: balance; }
+  #status.down { color: var(--bad); font-weight: 600; }
+  main { display: grid; gap: 24px; padding-top: 24px !important; padding-bottom: 48px !important; align-items: start; }
+  main > * { min-width: 0; }
+  .side { display: grid; gap: 24px; }
+  .side > * { min-width: 0; }
+  @media (min-width: 900px) { main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  @media (min-width: 900px) and (min-height: 800px) { main > * { position: sticky; top: 24px; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+  @media (max-width: 480px) { .card { padding: 16px; } }
+
+  label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: 6px; }
+  textarea, select { width: 100%; font: inherit; color: inherit; background: var(--card); border: 1px solid var(--input-line);
+    border-radius: 8px; padding: 10px 12px; min-height: 44px; }
+  textarea { min-height: 140px; resize: vertical; display: block; }
+  textarea[aria-invalid="true"] { border-color: var(--bad); }
+  form h2 { margin-bottom: 16px; }
+  #count { margin-top: 6px; font-variant-numeric: tabular-nums; }
+  #count.near { color: var(--ask); font-weight: 600; }
+  #count.full { color: var(--bad); font-weight: 600; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 16px 0 24px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .examples { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  button { font: inherit; color: inherit; min-height: 44px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--card); padding: 8px 16px; cursor: pointer; transition: background-color .15s, border-color .15s; }
+  button:disabled { cursor: default; opacity: .75; }
+  .chips button { font-size: .875rem; border-radius: 999px; background: var(--bg); color: var(--primary); font-weight: 600; }
+  .chips button:hover, #copy:hover { border-color: var(--primary); color: var(--primary-hover); }
+  #submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 132px;
+    background: var(--primary); border-color: var(--primary); color: #FFFFFF; font-weight: 600; }
+  #submit:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); }
+  .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #FFFFFF;
+    animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .alert { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: 8px;
+    background: var(--bad-bg); color: var(--bad); font-weight: 600; overflow-wrap: anywhere; }
+  .empty { text-align: center; padding: 56px 24px; color: var(--muted); }
+  .empty svg { width: 36px; height: 36px; stroke-width: 1.5; margin: 0 auto 12px; display: block; color: var(--primary); }
+
+  #result { overflow: hidden; padding: 0; transition: opacity .15s; }
+  #result.stale { opacity: .45; }
+  .banner { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 16px 24px; }
+  .banner h2 { flex: 1 1 160px; overflow-wrap: anywhere; }
+  .banner svg { width: 24px; height: 24px; }
+  [data-state="ready"] .banner { background: var(--ok-bg); color: var(--ok); }
+  [data-state="ask"] .banner { background: var(--ask-bg); color: var(--ask); }
+  .badge { font-size: .875rem; font-weight: 600; border: 1px solid currentColor; border-radius: 999px; padding: 2px 12px; }
+  .body { display: grid; gap: 24px; padding: 24px; }
+  .body > * { min-width: 0; }
+  @media (max-width: 480px) { .banner, .body { padding: 16px; } }
+  .team { font-size: 1.5rem; line-height: 1.3; font-weight: 700; overflow-wrap: anywhere; }
+  .confidence { display: flex; justify-content: space-between; margin: 12px 0 6px; font-size: .875rem; }
+  .confidence strong, .number { font-variant-numeric: tabular-nums; }
+  .track { background: var(--line); border-radius: 999px; height: 10px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 999px; background: var(--primary); }
+  [data-state="ready"] #confidence_fill { background: var(--ok); }
+  [data-state="ask"] #confidence_fill { background: var(--ask); }
+  .ask { background: var(--ask-bg); border-left: 4px solid var(--ask); border-radius: 8px; padding: 16px; }
+  .ask h3 { color: var(--ask); }
+  .ask .question { font-size: 1.0625rem; overflow-wrap: anywhere; }
+  #copy { margin-top: 12px; font-size: .875rem; font-weight: 600; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  #reasons { display: grid; gap: 8px; }
+  #reasons li { display: flex; gap: 10px; align-items: flex-start; }
+  #reasons li span { min-width: 0; overflow-wrap: anywhere; }
+  #reasons svg { width: 18px; height: 18px; margin-top: 3px; color: var(--primary); }
+  .bar { display: grid; grid-template-columns: minmax(96px, 168px) 1fr 56px; gap: 12px; align-items: center; font-size: .875rem;
+    padding: 4px 0; }
+  .number { text-align: right; }
+  @media (max-width: 480px) {
+    .bar { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 6px 0; }
+    .bar .track { grid-column: 1 / -1; grid-row: 2; }
+  }
+
+  #recent_list { display: grid; gap: 8px; margin-top: 12px; }
+  #recent_list button { width: 100%; text-align: left; display: grid; gap: 2px; padding: 10px 14px; }
+  #recent_list button:hover { border-color: var(--primary); }
+  #recent_list button[aria-current="true"] { border-color: var(--primary); background: var(--bg); }
+  .recent_text { overflow-wrap: anywhere; }
+  .recent_meta { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .875rem; color: var(--muted); }
+  .recent_meta .ready { color: var(--ok); font-weight: 600; }
+  .recent_meta .ask_first { color: var(--ask); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Request router</h1>
-  <p class="muted" id="status">Checking the model…</p>
+<header>
+  <div class="wrap">
+    <div>
+      <h1>Kestrel Home · Service Request Router</h1>
+      <p class="muted">Internal tool for service-desk agents</p>
+    </div>
+    <p class="muted" id="status">Checking the model…</p>
+  </div>
+</header>
 
-  <form class="card" id="form" novalidate>
+<main class="wrap">
+  <form class="card" id="form" novalidate autocomplete="off">
+    <h2>New request</h2>
     <label for="request_text">Customer request</label>
     <textarea id="request_text" aria-describedby="count"></textarea>
     <p class="muted" id="count">0 / 2,000 characters</p>
-    <div class="row">
+    <div class="fields">
       <div><label for="channel">Channel (optional)</label><select id="channel"></select></div>
       <div><label for="product_family">Product (optional)</label><select id="product_family"></select></div>
       <div><label for="warranty_status">Warranty (optional)</label><select id="warranty_status"></select></div>
     </div>
-    <button type="submit" id="submit">Submit</button>
-    <p class="error" id="error" role="alert" hidden></p>
-    <h2>Try an example</h2>
+    <div class="actions">
+      <button type="submit" id="submit"><span class="spinner" id="spinner" aria-hidden="true" hidden></span><span id="submit_label">Submit</span></button>
+      <span class="muted">or press Ctrl+Enter</span>
+    </div>
+    <div class="alert" id="error_box" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+      <p class="error" id="error" role="alert" hidden></p>
+    </div>
     <div class="examples">
-      <button type="button" data-text="My mixer grinder stopped working and makes a burning smell">Clear repair</button>
-      <button type="button" data-text="New ceiling fan delivered, please send someone to install it">Clear installation</button>
-      <button type="button" data-text="I paid for installation but technician never came">Paid, but not a payment problem</button>
-      <button type="button" data-text="please call me about my purifier">Vague request</button>
-      <button type="button" data-text="Is it normal that my cooktop makes a humming sound">Close call</button>
+      <h3>Try an example</h3>
+      <div class="chips">
+        <button type="button" data-text="My mixer grinder stopped working and makes a burning smell">Clear repair</button>
+        <button type="button" data-text="New ceiling fan delivered, please send someone to install it">Clear installation</button>
+        <button type="button" data-text="I paid for installation but technician never came">Paid, but not a payment problem</button>
+        <button type="button" data-text="please call me about my purifier">Vague request</button>
+        <button type="button" data-text="Is it normal that my cooktop makes a humming sound">Close call</button>
+      </div>
     </div>
   </form>
 
-  <section class="card" id="result" aria-live="polite" hidden>
-    <p class="muted" id="team_label">Team</p>
-    <div class="spread">
-      <span class="team" id="team"></span>
-      <span class="badge" id="badge" hidden>Needs a clarifying question</span>
+  <div class="side">
+    <div class="card empty" id="empty">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
+      <p>Paste a customer request or try an example</p>
     </div>
-    <p class="muted">Confidence <span id="confidence"></span></p>
-    <div id="question_block" hidden>
-      <h2>Ask the customer</h2>
-      <p class="question" id="question"></p>
-    </div>
-    <h2>Reasons</h2>
-    <ul id="reasons"></ul>
-    <h2>Top teams</h2>
-    <div id="bars"></div>
-    <p class="muted">Model <span id="version"></span></p>
-  </section>
+
+    <section class="card" id="result" aria-live="polite" aria-label="Routing result" hidden>
+      <div class="banner">
+        <svg id="icon_ready" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
+        <svg id="icon_ask" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1.9-1.1 1.8M12 16.5v.01"/></svg>
+        <h2 id="banner_text"></h2>
+        <span class="badge" id="badge_ready" hidden>Ready to route</span>
+        <span class="badge" id="badge" hidden>Needs a clarifying question</span>
+      </div>
+      <div class="body">
+        <div>
+          <p class="muted" id="team_label">Team</p>
+          <p class="team" id="team"></p>
+          <p class="confidence"><span class="muted">Confidence</span> <strong id="confidence"></strong></p>
+          <div class="track" aria-hidden="true"><div class="fill" id="confidence_fill"></div></div>
+        </div>
+        <div class="ask" id="question_block" hidden>
+          <h3>Ask the customer</h3>
+          <p class="question" id="question"></p>
+          <button type="button" id="copy" hidden>Copy question</button>
+        </div>
+        <div>
+          <h3>Reasons</h3>
+          <ul id="reasons"></ul>
+        </div>
+        <div>
+          <h3>Top teams</h3>
+          <div id="bars"></div>
+        </div>
+        <p class="muted">Model <span id="version"></span></p>
+      </div>
+    </section>
+
+    <section class="card" id="recent" aria-labelledby="recent_title" hidden>
+      <h2 id="recent_title">Recent requests</h2>
+      <p class="muted">Last 5, kept in this tab only and cleared on reload</p>
+      <ul id="recent_list"></ul>
+    </section>
+  </div>
 </main>
+
+<template id="icon_quote"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></template>
+<template id="icon_info"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg></template>
 
 <script type="application/json" id="options">__OPTIONS__</script>
 <script>
 "use strict";
 // Everything from the server is shown with textContent, so it can never become markup.
 const LIMIT = 2000;
+const NEAR_LIMIT = 1800;
+const RECENT_MAX = 5;
+const EXCERPT = 40;
 const FIELDS = ["channel", "product_family", "warranty_status"];
 const byId = (id) => document.getElementById(id);
 const percent = (x) => (x * 100).toFixed(1) + "%";
+const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+const canCopy = Boolean(navigator.clipboard && navigator.clipboard.writeText);
 let latest = 0;
+let recent = [];  // memory only: at most 5 of { out, excerpt }
+let copyTimer = 0;
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
   node.textContent = text;
   if (className) node.className = className;
   return node;
+}
+
+function icon(id) {
+  return byId(id).content.firstElementChild.cloneNode(true);
+}
+
+function animate(node, frames, options) {
+  if (!still.matches && node.animate) node.animate(frames, { easing: "ease-out", ...options });
+}
+
+// The fill is full width and slides in from the left, so only transform is animated.
+function fillBar(fill, share, delay) {
+  const end = "translateX(" + (Math.min(Math.max(share, 0), 1) - 1) * 100 + "%)";
+  fill.style.transform = end;
+  animate(fill, [{ transform: "translateX(-100%)" }, { transform: end }], { duration: 400, delay, fill: "backwards" });
 }
 
 function fillDropdowns() {
@@ -131,42 +265,132 @@ function fillDropdowns() {
 
 function updateCount() {
   const length = [...byId("request_text").value].length;
-  byId("count").textContent = length.toLocaleString("en") + " / " + LIMIT.toLocaleString("en") + " characters";
+  let text = length.toLocaleString("en") + " / " + LIMIT.toLocaleString("en") + " characters";
+  if (length > LIMIT) text += " · " + (length - LIMIT).toLocaleString("en") + " over the limit";
+  else if (length === LIMIT) text += " · limit reached";
+  else if (length > NEAR_LIMIT) text += " · near the limit";
+  byId("count").textContent = text;
+  byId("count").classList.toggle("near", length > NEAR_LIMIT && length < LIMIT);
+  byId("count").classList.toggle("full", length >= LIMIT);
+}
+
+function hideError() {
+  byId("error").hidden = true;
+  byId("error_box").hidden = true;
+  byId("request_text").removeAttribute("aria-invalid");
 }
 
 function showError(message) {
   byId("result").hidden = true;
+  byId("empty").hidden = false;
+  markRecent(null);
   byId("error").textContent = message;
+  byId("error_box").hidden = false;
   byId("error").hidden = false;
 }
 
+function resetCopy() {
+  clearTimeout(copyTimer);
+  byId("copy").textContent = "Copy question";
+}
+
+function reasonItem(reason) {
+  const item = element("li", "");
+  item.append(icon(reason.startsWith("mentions '") ? "icon_quote" : "icon_info"), element("span", reason));
+  return item;
+}
+
 function showResult(out) {
-  byId("error").hidden = true;
-  byId("team_label").textContent = out.needs_triage ? "First guess, not yet sent to a team" : "Team";
+  const ask = out.needs_triage;
+  hideError();
+  byId("empty").hidden = true;
+  byId("result").classList.remove("stale");
+  byId("result").dataset.state = ask ? "ask" : "ready";
+  byId("icon_ready").toggleAttribute("hidden", ask);
+  byId("icon_ask").toggleAttribute("hidden", !ask);
+  byId("banner_text").textContent = ask ? "Ask the customer first" : "Send to " + out.team;
+  byId("badge_ready").hidden = ask;
+  byId("badge").hidden = !ask;
+  byId("team_label").textContent = ask ? "First guess, not yet sent to a team" : "Team";
   byId("team").textContent = out.team;
-  byId("badge").hidden = !out.needs_triage;
   byId("confidence").textContent = percent(out.confidence);
   byId("question_block").hidden = !out.clarifying_question;
   byId("question").textContent = out.clarifying_question || "";
-  byId("reasons").replaceChildren(...out.reasons.map((reason) => element("li", reason)));
+  byId("copy").hidden = !canCopy;
+  resetCopy();
+  byId("reasons").replaceChildren(...out.reasons.map(reasonItem));
+  const fills = [];
   byId("bars").replaceChildren(...out.top3.map((item) => {
     const bar = element("div", "", "bar");
     const track = element("div", "", "track");
     const fill = element("div", "", "fill");
-    fill.style.width = percent(item.prob);
     track.append(fill);
+    fills.push([fill, item.prob]);
     bar.append(element("span", item.team), track, element("span", percent(item.prob), "number"));
     return bar;
   }));
   byId("version").textContent = out.model_version;
   byId("result").hidden = false;
+  animate(byId("result"), [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 220 });
+  fillBar(byId("confidence_fill"), out.confidence, 80);
+  fills.forEach(([fill, share], i) => fillBar(fill, share, 140 + i * 50));
+  const box = byId("result").getBoundingClientRect();
+  if (box.top < 0 || box.top > window.innerHeight * .75) {
+    byId("result").scrollIntoView({ block: "start", behavior: still.matches ? "auto" : "smooth" });
+  }
+}
+
+function markRecent(entry) {
+  [...byId("recent_list").querySelectorAll("button")].forEach((button, i) => {
+    if (recent[i] === entry) button.setAttribute("aria-current", "true");
+    else button.removeAttribute("aria-current");
+  });
+}
+
+function recentItem(entry) {
+  const button = element("button", "");
+  button.type = "button";
+  const meta = element("span", "", "recent_meta");
+  meta.append(
+    element("span", entry.out.team + " · " + percent(entry.out.confidence)),
+    entry.out.needs_triage ? element("span", "Ask first", "ask_first") : element("span", "Ready to route", "ready"),
+  );
+  button.append(element("span", entry.excerpt, "recent_text"), meta);
+  button.addEventListener("click", () => {
+    showResult(entry.out);
+    markRecent(entry);
+  });
+  const item = element("li", "");
+  item.append(button);
+  return item;
+}
+
+function remember(text, out) {
+  const characters = [...text.replace(/\s+/g, " ").trim()];
+  const excerpt = characters.slice(0, EXCERPT).join("") + (characters.length > EXCERPT ? "…" : "");
+  const entry = { out, excerpt };
+  recent = [entry, ...recent].slice(0, RECENT_MAX);
+  byId("recent_list").replaceChildren(...recent.map(recentItem));
+  byId("recent").hidden = false;
+  markRecent(entry);
+}
+
+function setBusy(busy) {
+  byId("submit").disabled = busy;
+  byId("spinner").hidden = !busy;
+  byId("submit_label").textContent = busy ? "Routing…" : "Submit";
+  byId("form").setAttribute("aria-busy", String(busy));
+  byId("result").classList.toggle("stale", busy);
 }
 
 async function send() {
   const call = ++latest;  // only the newest answer is shown
-  const body = { request_text: byId("request_text").value };
+  const text = byId("request_text").value;
+  const body = { request_text: text };
   for (const field of FIELDS) if (byId(field).value) body[field] = byId(field).value;
-  byId("submit").disabled = true;
+  const refocus = document.activeElement === byId("submit");  // a disabled button loses the focus
+  hideError();
+  setBusy(true);
   try {
     const response = await fetch("/predict", {
       method: "POST",
@@ -175,31 +399,60 @@ async function send() {
     });
     const out = await response.json();
     if (call !== latest) return;
-    if (response.ok) showResult(out);
-    else showError(out.detail);
+    if (response.ok) {
+      showResult(out);
+      remember(text, out);
+    } else {
+      showError(out.detail);
+      if (response.status === 422) byId("request_text").setAttribute("aria-invalid", "true");
+    }
   } catch (error) {
     if (call === latest) showError("The service could not be reached. Is it still running?");
   } finally {
-    if (call === latest) byId("submit").disabled = false;
+    if (call === latest) {
+      setBusy(false);
+      if (refocus) byId("submit").focus();
+    }
   }
 }
 
 async function showStatus() {
+  let up = false;
   try {
     const health = await (await fetch("/health")).json();
+    up = health.model_loaded;
     byId("status").textContent = health.model_loaded
       ? "Model trained on requests from " + health.training_window
       : "The model is not loaded. Run the train step (see the README) and restart the service.";
   } catch (error) {
     byId("status").textContent = "The service could not be reached.";
   }
+  byId("status").classList.toggle("down", !up);
 }
 
 byId("form").addEventListener("submit", (event) => {
   event.preventDefault();
   send();
 });
-byId("request_text").addEventListener("input", updateCount);
+byId("form").addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey) || event.target.closest("button")) return;
+  event.preventDefault();
+  if (!byId("submit").disabled) send();
+});
+byId("request_text").addEventListener("input", () => {
+  byId("request_text").removeAttribute("aria-invalid");
+  updateCount();
+});
+byId("copy").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(byId("question").textContent);
+    clearTimeout(copyTimer);
+    byId("copy").textContent = "Copied";
+    copyTimer = setTimeout(resetCopy, 2000);
+  } catch (error) {
+    byId("copy").hidden = true;
+  }
+});
 for (const button of document.querySelectorAll("button[data-text]")) {
   button.addEventListener("click", () => {
     byId("request_text").value = button.dataset.text;

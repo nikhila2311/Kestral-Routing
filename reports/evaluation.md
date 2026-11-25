@@ -128,11 +128,11 @@ A close call is a gap of at most 0.10 between the first and second probability. 
 
 Router phrases seen most on these misroutes, with the number of misroutes (at most 3 words, only phrases found in at least 10 different train messages, §10):
 
-- Vague request (M2 rule): 'mixer' (18); 'service request' (14); 'heater' (12); 'need help' (11); 'someone contact' (11).
-- Close call between two teams: 'not happy' (11); 'vacuum' (10); 'water purifier' (8); 'purifier' (7); 'service request' (7).
-- Text names another product than the request field: 'box' (7); 'open' (4); 'scratched' (4); 'missing parts' (3); 'paid' (3).
-- IVR transcript: 'return' (3); 'warranty' (3); 'between lite' (2); 'cancel' (2); 'issue' (2).
-- None of these: 'order' (7); 'not happy' (5); 'paid' (5); 'warranty' (5); 'water purifier' (5).
+- Vague request (M2 rule): 'service request' (14); 'mixer' (13); 'need help' (11); 'someone contact' (11); 'complaint' (10).
+- Close call between two teams: 'not happy' (11); 'service request' (7); 'vacuum' (7); 'mixer' (6); 'resolve' (6).
+- Text names another product than the request field: 'box' (7); 'open' (4); 'scratched' (4); 'missing parts' (3); 'purifier order' (3).
+- IVR transcript: 'warranty' (3); 'between lite' (2); 'cancel' (2); 'issue' (2); 'purifier order' (2).
+- None of these: 'order' (6); 'not happy' (5); 'install' (4); 'technician come' (4); 'upi' (4).
 
 ## Expected hidden-test score
 

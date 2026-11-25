@@ -163,6 +163,7 @@ def test_inner_split_matches_config(config):
     assert str(config.INNER_VAL_START) == "2026-01-01"
 
 
+@pytest.mark.slow
 def test_corrupting_validation_rows_does_not_change_selection(mod, df, windows):
     # A few fast candidates are enough: this checks which rows reach the selection, not the models.
     corrupted = df.copy()
@@ -184,6 +185,7 @@ def test_corrupting_validation_rows_does_not_change_selection(mod, df, windows):
 
 
 # --- Criterion 2: which rows score which candidate --------------------------
+@pytest.mark.slow
 def test_every_candidate_has_inner_metrics(results):
     rows = by_name(results)
     assert len(rows) == len(results["candidates"]) == results["selection"]["candidate_count"]
@@ -196,6 +198,7 @@ def test_every_candidate_has_inner_metrics(results):
         assert row["complexity"] == len(row["config"]["feature_groups"]) + (row["config"]["calibration"] is not None)
 
 
+@pytest.mark.slow
 def test_real_val_only_for_chosen_and_reference(results):
     assert set(results) == TOP_KEYS
     assert results["reference"] == REFERENCE
@@ -210,6 +213,7 @@ def test_real_val_only_for_chosen_and_reference(results):
     assert set(results["original_rule"]["real_val"]) == REAL_VAL_KEYS
 
 
+@pytest.mark.slow
 def test_each_fit_uses_its_own_window_and_validation_is_scored_once(calls, results, windows):
     ids = {name: list(frame["request_id"]) for name, frame in windows.items()}
     final = len(final_scores(results))
@@ -225,6 +229,7 @@ def test_each_fit_uses_its_own_window_and_validation_is_scored_once(calls, resul
         assert call["fit_ids"] == ids["train"] and call["score_ids"] == ids["val"]
 
 
+@pytest.mark.slow
 def test_stored_metrics_recomputed_from_predictions(calls, results, windows):
     n_final = len(final_scores(results))
     rows = by_name(results) | {row["name"]: row for row in results["supplementary"]["candidates"]}
@@ -245,6 +250,7 @@ def test_stored_metrics_recomputed_from_predictions(calls, results, windows):
             assert pairs[(cell["true"], cell["predicted"])] == cell["count"]
 
 
+@pytest.mark.slow
 def test_intervals_recomputed(calls, results, windows, config):
     from src.evaluate import bootstrap_ci
 
@@ -284,6 +290,7 @@ def amended_rule(rows):
     return sorted(kept, key=lambda r: (r["inner_val"]["log_loss"], -r["inner_val"]["accuracy"], rows.index(r)))[0]
 
 
+@pytest.mark.slow
 def test_amended_rule_reproduces_choice(results):
     rows = results["candidates"]
     chosen = amended_rule(rows)
@@ -304,6 +311,7 @@ def test_amended_rule_reproduces_choice(results):
         assert row["log_loss_above_best"] == pytest.approx(row["inner_val"]["log_loss"] - best, abs=1e-6)
 
 
+@pytest.mark.slow
 def test_walk_through_counts(results):
     rows, s = results["candidates"], results["selection"]
     best = min(r["inner_val"]["log_loss"] for r in rows)
@@ -319,6 +327,7 @@ def test_walk_through_counts(results):
     assert s["accuracy_first_choice"] == max(simplest, key=lambda r: r["inner_val"]["accuracy"])["name"]
 
 
+@pytest.mark.slow
 def test_original_rule_block_records_failure(results, md, reports_dir):
     original, rows = results["original_rule"], results["candidates"]
     assert set(original) == {"rule", "chosen", "discarded", "real_val", "criterion_4"}
@@ -381,6 +390,7 @@ def test_amended_rule_on_handmade_rows(mod, rows, expected):
     assert mod.select([handmade(*row) for row in rows]) == expected
 
 
+@pytest.mark.slow
 def test_discard_reasons_match_numbers(results):
     rows, chosen = results["candidates"], by_name(results)[results["chosen"]["name"]]
     best = min(r["inner_val"]["log_loss"] for r in rows)
@@ -395,6 +405,7 @@ def test_discard_reasons_match_numbers(results):
             assert reason.endswith("more complex") == (row["complexity"] > chosen["complexity"])
 
 
+@pytest.mark.slow
 def test_original_discard_reasons_match_numbers(results):
     original, rows = results["original_rule"], results["candidates"]
     chosen = by_name(results)[original["chosen"]["name"]]
@@ -412,6 +423,7 @@ def test_original_discard_reasons_match_numbers(results):
             assert gap < 0 and row["complexity"] == chosen["complexity"]
 
 
+@pytest.mark.slow
 def test_cue_candidates_reported(results, md):
     cues = [r for r in results["candidates"] if "+" in r["name"]]
     block = results["cue_candidates"]
@@ -423,6 +435,7 @@ def test_cue_candidates_reported(results, md):
 
 
 # --- Supplementary, report-only ---------------------------------------------
+@pytest.mark.slow
 def test_chosen_config_unchanged_by_supplementary(mod, results):
     expected = next(c for c in mod.base_candidates() if c["name"] == "logreg_c1_none")
     assert results["chosen"]["name"] == "logreg_c1_none"
@@ -434,6 +447,7 @@ def test_chosen_config_unchanged_by_supplementary(mod, results):
     assert results["selection"]["candidate_count"] == len(results["candidates"]) == 22
 
 
+@pytest.mark.slow
 def test_supplementary_cannot_change_selection(mod, df):
     few = [c for c in mod.base_candidates() if c["name"] in (REFERENCE, "complement_nb_a0.1")]
     perfect = {"accuracy": 1.0, "macro_f1": 1.0, "log_loss": 0.0}
@@ -455,6 +469,7 @@ def test_supplementary_cannot_change_selection(mod, df):
     assert outputs[0] == outputs[1]
 
 
+@pytest.mark.slow
 def test_supplementary_block(results, md):
     s, base = results["supplementary"], by_name(results)[REFERENCE]
     assert set(s) == {"base", "base_inner_val", "count", "candidates", "note"}
@@ -482,6 +497,7 @@ def test_supplementary_block(results, md):
 
 
 # --- Criterion 4: result on real validation ---------------------------------
+@pytest.mark.slow
 def test_chosen_not_worse_than_d_and_beats_bot(results, reports_dir, windows):
     d = json.loads((reports_dir / "baselines.json").read_text(encoding="utf-8"))["baselines"]["tfidf_final"]["evaluate"]
     val = windows["val"]
@@ -504,6 +520,7 @@ def scrambled(frame, seed, keep):
     return out
 
 
+@pytest.mark.slow
 def test_scrambled_forbidden_columns_leave_predictions_unchanged(mod, config, results, windows):
     # Fit rows keep their target. Score rows do not need one, so it is scrambled too.
     fit = scrambled(windows["train"], config.SEED, [*ALLOWED, "final_team_canon"])
@@ -529,6 +546,7 @@ def test_cue_features_need_only_allowed_columns(mod, windows):
     assert sorted(columns) == sorted(full.columns) and set(mod.FEATURE_GROUPS) == GROUPS
 
 
+@pytest.mark.slow
 def test_allowed_column_change_is_detected(mod, results, windows):
     # Control for the scramble test: it would miss a change if predictions ignored the columns.
     val = windows["val"]
@@ -578,6 +596,7 @@ def test_conflict_columns(mod):
 
 
 # --- Models ----------------------------------------------------------------
+@pytest.mark.slow
 def test_reference_is_m4_pipeline(mod, results):
     from src.baselines import make_pipeline
 
@@ -610,6 +629,7 @@ def test_feature_candidates_add_exactly_their_columns(mod, windows):
         assert sizes[1] - sizes[0] == added
 
 
+@pytest.mark.slow
 def test_chosen_config_round_trips_through_json(mod, calls, results, windows):
     cfg = json.loads(json.dumps(results["chosen"]["config"]))
     n_final = len(final_scores(results))
@@ -620,6 +640,7 @@ def test_chosen_config_round_trips_through_json(mod, calls, results, windows):
 
 
 # --- Criterion 6: determinism ------------------------------------------------
+@pytest.mark.slow
 def test_deterministic_and_rounded(mod, out_dir, results, tmp_path, config):
     mod.build(tmp_path)
     assert {p.name for p in tmp_path.iterdir()} == {"experiments.json", "experiments.md"}
@@ -651,6 +672,7 @@ def unmatched_numbers(md, results):
     return bad
 
 
+@pytest.mark.slow
 def test_every_md_number_in_json(mod, md, results, config):
     assert len(NUMBER.findall(md)) > 100
     assert not unmatched_numbers(md, results)
@@ -670,6 +692,7 @@ def test_every_md_number_in_json(mod, md, results, config):
     assert not unmatched_numbers(mod.render_markdown(changed), changed)
 
 
+@pytest.mark.slow
 def test_md_table_cells_match_keys(md, results, config):
     lines = md.splitlines()
     for row in results["candidates"]:
@@ -707,6 +730,7 @@ def test_md_table_cells_match_keys(md, results, config):
         assert f"| {cell['true']} | {cell['predicted']} | {cell['count']} |" in lines
 
 
+@pytest.mark.slow
 def test_md_states_choice_reasons_and_caveats(mod, md, results):
     assert md.count("**Chosen: ") == 1
     assert f"**Chosen: `{results['chosen']['name']}`**, because it {results['chosen']['reason']}" in md
@@ -724,6 +748,7 @@ def test_md_states_choice_reasons_and_caveats(mod, md, results):
     assert "not blind" in caveat and "inner-val" in caveat and "after validation" in caveat
 
 
+@pytest.mark.slow
 def test_no_request_text_or_old_names(out_dir, df):
     report = set()
     for path in out_dir.iterdir():
@@ -737,6 +762,7 @@ def test_no_request_text_or_old_names(out_dir, df):
         pytest.fail(f"{shared} four-word runs shared with request text", pytrace=False)
 
 
+@pytest.mark.slow
 def test_committed_reports_current(mod, results, reports_dir):
     # Tolerance: another BLAS or CPU may move model floats slightly. One row of validation moves accuracy by 4.7e-4.
     stored = json.loads((reports_dir / "experiments.json").read_text(encoding="utf-8"))

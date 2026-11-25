@@ -221,6 +221,7 @@ def test_all_baselines_and_keys(results, config, val):
         assert ci["low"] < ci["point"] == scores["evaluate"]["accuracy"] < ci["high"]
 
 
+@pytest.mark.slow
 def test_costs_and_comparisons_recomputed(full, config):
     for scores in full["baselines"].values():
         cost = scores["evaluate"]["misroutes"] * config.COST_PER_MISROUTE
@@ -240,6 +241,7 @@ def test_costs_and_comparisons_recomputed(full, config):
     assert full["meta"]["bot_licence_rs_per_month"] == pytest.approx(320_000 / 12)
 
 
+@pytest.mark.slow
 def test_interval_matches_m3_bootstrap(full, val, config):
     from src.evaluate import bootstrap_ci
 
@@ -250,6 +252,7 @@ def test_interval_matches_m3_bootstrap(full, val, config):
     assert (ci["low"], ci["high"]) == (low, high)
 
 
+@pytest.mark.slow
 def test_json_is_rounded_results(results, full):
     json_leaves, full_leaves = dict(leaves(results)), dict(leaves(full))
     assert set(json_leaves) == set(full_leaves)
@@ -257,6 +260,7 @@ def test_json_is_rounded_results(results, full):
         assert json_leaves[path] == (round(value, 6) if isinstance(value, float) else value), path
 
 
+@pytest.mark.slow
 def test_paired_interval_recomputed(full, full_run, val, config):
     truth = val["final_team_canon"].to_numpy(dtype=object)
     final_ok = (full_run[1]["tfidf_final"][0] == truth).astype(int)
@@ -272,6 +276,7 @@ def test_paired_interval_recomputed(full, full_run, val, config):
     assert paired["low"] < paired["point"] < paired["high"]
 
 
+@pytest.mark.slow
 def test_cost_sensitivity_recomputed(full, config):
     assert set(full["cost_sensitivity"]) == {"average", "simple"}
     for key, cost in (("average", config.COST_PER_MISROUTE), ("simple", 565)):
@@ -285,6 +290,7 @@ def test_cost_sensitivity_recomputed(full, config):
 
 
 # --- Criterion 2 -----------------------------------------------------------
+@pytest.mark.slow
 def test_bot_accuracy_matches_parquet(full, val):
     assert accuracy(full, "bot") == (val["team_label_canon"] == val["final_team_canon"]).mean()
     assert agreement(full, "bot") == 1.0
@@ -302,6 +308,7 @@ def test_final_target_vs_bot_target(results):
 
 
 # --- Criterion 5 -----------------------------------------------------------
+@pytest.mark.slow
 def test_majority_is_lowest(full, df, val):
     for name in NAMES - {"majority"}:
         assert accuracy(full, "majority") < accuracy(full, name)
@@ -316,6 +323,7 @@ def test_majority_tie(mod):
     assert mod.majority_class(["Billing", "Billing", "Repairs"]) == "Billing"
 
 
+@pytest.mark.slow
 def test_majority_comes_from_train_window(mod, df, test_text, results):
     # The real majority team is the same in both windows, so give validation a different one.
     changed = df.copy()
@@ -343,6 +351,7 @@ def test_predictions_ignore_forbidden_columns(mod, df, val, planted_run):
     assert np.array_equal(actual, expected)
 
 
+@pytest.mark.slow
 def test_forbidden_columns_do_not_change_predictions(mod, config, df, test_text, full_run):
     rng = np.random.default_rng(config.SEED)
     scrambled = df.copy()
@@ -455,6 +464,7 @@ def test_proba_columns_follow_teams(mod, config, df, planted_run):
 
 
 # --- Criterion 7 -----------------------------------------------------------
+@pytest.mark.slow
 def test_build_deterministic(mod, out_dir, tmp_path):
     mod.build(tmp_path)
     assert {p.name for p in tmp_path.iterdir()} == {"baselines.json", "baselines.md"}
@@ -522,6 +532,7 @@ def test_findings_wording_follows_values(mod, results):
 
 
 # --- Repeated text --------------------------------------------------------
+@pytest.mark.slow
 def test_repeated_text_shares_recomputed(full, df, val, test_text):
     train_texts = set(df.loc[df["created_at_ist"] < "2026-04-01", "text_clean"])
     val_seen = sum(t in train_texts for t in val["text_clean"])
@@ -534,6 +545,7 @@ def test_repeated_text_shares_recomputed(full, df, val, test_text):
     assert r["test_seen_share"] == test_seen / len(test_text)
 
 
+@pytest.mark.slow
 def test_repeated_text_accuracy(full, df, val):
     r = full["repeated_text"]
     assert set(r["accuracy"]) == {"bot", "tfidf_final"}

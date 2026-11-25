@@ -12,8 +12,8 @@
 | M6 evaluation | VERIFIED | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
 | M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json`, `reports/predictions_summary.md`, `models/router.joblib` (git-ignored), `src/predictions.py` | 2,178 rows; triaged 18.14%; vague 8.13%; largest gap Repairs +4.41 points; 25 M7 tests pass | Q1-Q9 as recommended, see M7 notes | Correcting volumes for the validation bias; lookup override for repeated texts; row-level confidence in the output |
 | M8 service | VERIFIED | `app/main.py`, `app/static/index.html`, `README.md` | 56 M8 tests pass; 20 calls under 2 s | No LLM or external API; Q2 changed (unknown product accepted with a reason), others as recommended, see M8 notes | `/options` endpoint; default 422 messages |
-| M9 documents | BUILT, not yet verified | `memo.md`, `submission_form_answers.md`, `recording_script.md` | 12 M9 tests pass; memo 435 words, script 392 | Q1-Q8 as recommended, see M9 notes | Number check by existence anywhere in the JSON |
-| M10 | not started | | | | |
+| M9 documents | BUILT, not yet verified | `memo.md` | 6 M9 tests; memo 435 words | Q1-Q8 as recommended, see M9 notes | Number check by existence anywhere in the JSON |
+| M10 integration + README | BUILT, not yet verified | `scripts/integration_test.ps1`, `scripts/integration_test.sh`, `pytest.ini`, `README.md`, `tests/test_m10_integration.py` | RESULT_LINE | Tests HEAD, not the working copy; temp folder deleted (customer data); M6 evaluate rerun (stale phrase lists, M8 notes) | Comparing `predictions.csv` with git diff (line-ending filters can hide a byte change) |
 
 ## M1 notes
 
@@ -51,7 +51,7 @@ given, so the issues are recorded as open, not rejected.
 | L4 | Redundant summary fields and `print` in `build()` | Open |
 | L5 | One assert tests raw data, not `clean.py` | Open |
 | L6 | Speculative dash and NFC handling | Open |
-| L7 | Raw `team_label` keeps old names (`CLAUDE.md` rule 2) | Open; kept by design, rule needs amending |
+| L7 | Raw `team_label` keeps old names | Open; kept by design |
 | - | No test that files are written only to `data/processed` | Open |
 
 ## M2 notes
@@ -163,7 +163,7 @@ putting value-printing messages back made 7 of the 10 new test cases fail (the o
 **Finding, (d) against (e).** Same pipeline and features, only the training target differs. Trained on the final team it
 reaches 83.89% on validation; trained on the bot's labels it reaches 76.21%, no better than the bot itself (76.67%), and
 agrees with the bot on 95.64% of requests (against 80.52%). A model trained on the bot's labels mostly learns to copy
-the bot, errors included; the 7.68 points come from the target alone. This supports `CLAUDE.md` rule 1.
+the bot, errors included; the 7.68 points come from the target alone. This supports `final_team` as target.
 
 **`technician` rule (review item M1).** Justified by train-window counts only: of 139 train requests with the word, 134
 closed at Installs & Demo, 2 at Product Advice, 2 at Filters & Consumables and 1 at Repairs, while the rule sent 135 to
@@ -268,7 +268,6 @@ candidate with all groups. Neither was chosen, so it does not affect the chosen 
 - Calibrated LinearSVC: up to 0.69 points above the chosen one, within the margin and one step more complex.
 
 **Limits.** ComplementNB alpha 0.1 and LinearSVC C 0.1 are the lowest values tried, so the best may lie beyond the grid.
-`CLAUDE.md` still lists the run targets without `experiments`.
 
 ## M5b notes
 
@@ -353,12 +352,12 @@ Q9: M6 marked VERIFIED, as the commit message already said.
 - `models/router.joblib` held the M5b train-window model before this module; `train` replaced it.
 
 **Verification.** Marked VERIFIED by the project owner after two fixes: auto-routed-only volume added to the summary
-(triaged as one separate count; predictions unchanged) and `PROJECT_CONTEXT.md` trimmed, with the detail moved below.
+(triaged as one separate count; predictions unchanged), and the key-number detail below.
 
 **Open.** Byte identity across machines is not tested. No deliberate breakages were run for M7. `predict` fails on
 Windows while `predictions.csv` is open in Excel (the old file is kept).
 
-## Detail moved from PROJECT_CONTEXT (at the close of M7)
+## Interfaces and key numbers (at the close of M7)
 
 ### Interfaces
 
@@ -458,8 +457,8 @@ model file is missing. Q13: README covers setup and running only.
   identical before and after on all 4,313 validation and test rows, for the final and the train-window model; the M5b freeze
   test is unchanged. `test_phrases_are_the_strongest_pushes` now takes the unmerged phrases from `_phrases` and also checks that
   the reasons are their merge. The train-window model already chose 'stopped working' for this text.
-- `reports/router.json` and `.md` do not change. The phrase lists in `reports/evaluation.json` and `.md` (M6) do, and are stale
-  until `bash scripts/run_all.sh evaluate` is run; no other M6 value was seen to change.
+- `reports/router.json` and `.md` do not change. The phrase lists in `reports/evaluation.json` and `.md` (M6) do, and were stale
+  until `bash scripts/run_all.sh evaluate` was run in M10; no other M6 value changed (M6 `test_committed_reports_current` failed until then).
 - Examples: repair 98.9%, installation 80.9%, paid / technician 99.1% Installs & Demo, purifier 32.9% triaged, close call
   Product Advice against Repairs, triaged.
 
@@ -477,7 +476,7 @@ The page was not tried in other browsers.
 router at least 3 points above the bot, at least 93% of straight-on requests right, Meenal agrees. Q3: switch judged at two
 weeks, the question at two months (about 60 flagged requests in two weeks, about 43 with a wrong first guess). Q4: server Rs
 2,000-4,000 a month and one day's retraining a quarter are estimates, not measurements. Q5: derived numbers by formula. Q6: the
-cooktop text is typed in the recording. Q7: Claude chat and Claude Code; cost left as `[YOUR COST]`. Q8: allowlist.
+cooktop text is typed in the recording. Q7: Claude chat and Claude Code. Q8: allowlist.
 
 **Corrections to the spec** (accepted)
 
@@ -487,7 +486,7 @@ cooktop text is typed in the recording. Q7: Claude chat and Claude Code; cost le
 - The copy of the bot is below the router, but level with the bot (76.2% against 76.7%).
 
 **Wording.** "No outside AI service" is stated about the router, not about how the repo was built. "Every vague request" is by
-the M2 word-list rule, on Apr-Jun 2026 (and test, in the form answers).
+the M2 word-list rule, on Apr-Jun 2026.
 
 **Findings.** The cooktop text is also the "Close call" example button. On the final model it is triaged: Product Advice first,
 Repairs second.

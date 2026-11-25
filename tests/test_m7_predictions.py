@@ -252,6 +252,7 @@ def test_limits_in_config_match_the_spec(config):
 
 
 # --- Criterion 7: deterministic ------------------------------------------------------------------
+@pytest.mark.slow
 def test_rebuild_byte_identical(root_dir, config, tmp_path):
     folders = []
     for seed in ("1", "2"):  # two separate processes, different hash seeds

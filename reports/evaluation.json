@@ -1190,16 +1190,12 @@
         "exclusive_errors": 136,
         "phrases": [
           {
-            "count": 18,
-            "phrase": "mixer"
-          },
-          {
             "count": 14,
             "phrase": "service request"
           },
           {
-            "count": 12,
-            "phrase": "heater"
+            "count": 13,
+            "phrase": "mixer"
           },
           {
             "count": 11,
@@ -1208,6 +1204,10 @@
           {
             "count": 11,
             "phrase": "someone contact"
+          },
+          {
+            "count": 10,
+            "phrase": "complaint"
           }
         ],
         "rows": 173
@@ -1224,20 +1224,20 @@
             "phrase": "not happy"
           },
           {
-            "count": 10,
+            "count": 7,
+            "phrase": "service request"
+          },
+          {
+            "count": 7,
             "phrase": "vacuum"
           },
           {
-            "count": 8,
-            "phrase": "water purifier"
+            "count": 6,
+            "phrase": "mixer"
           },
           {
-            "count": 7,
-            "phrase": "purifier"
-          },
-          {
-            "count": 7,
-            "phrase": "service request"
+            "count": 6,
+            "phrase": "resolve"
           }
         ],
         "rows": 241
@@ -1267,7 +1267,7 @@
           },
           {
             "count": 3,
-            "phrase": "paid"
+            "phrase": "purifier order"
           }
         ],
         "rows": 339
@@ -1279,10 +1279,6 @@
         "errors_sent": 24,
         "exclusive_errors": 23,
         "phrases": [
-          {
-            "count": 3,
-            "phrase": "return"
-          },
           {
             "count": 3,
             "phrase": "warranty"
@@ -1298,6 +1294,10 @@
           {
             "count": 2,
             "phrase": "issue"
+          },
+          {
+            "count": 2,
+            "phrase": "purifier order"
           }
         ],
         "rows": 579
@@ -1310,7 +1310,7 @@
         "exclusive_errors": 62,
         "phrases": [
           {
-            "count": 7,
+            "count": 6,
             "phrase": "order"
           },
           {
@@ -1318,16 +1318,16 @@
             "phrase": "not happy"
           },
           {
-            "count": 5,
-            "phrase": "paid"
+            "count": 4,
+            "phrase": "install"
           },
           {
-            "count": 5,
-            "phrase": "warranty"
+            "count": 4,
+            "phrase": "technician come"
           },
           {
-            "count": 5,
-            "phrase": "water purifier"
+            "count": 4,
+            "phrase": "upi"
           }
         ],
         "rows": 1142

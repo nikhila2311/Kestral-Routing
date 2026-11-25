@@ -181,6 +181,7 @@ def test_team_matches_pipeline_argmax_500_val_rows(router, val, records):
     assert np.abs(np.array([o["confidence"] for o in out]) - proba.max(axis=1)).max() < 1e-12
 
 
+@pytest.mark.slow
 def test_model_is_the_chosen_config_on_the_train_window(router, windows, val, records, outputs, reports_dir):
     from src.experiments import fit_predict
 
@@ -289,6 +290,7 @@ def test_save_load_round_trip(mod, saved, records, outputs, router):
     assert loaded.meta == router.meta
 
 
+@pytest.mark.slow
 def test_trained_router_equals_loaded_one(mod, router, windows, records, outputs):
     trained = mod.Router.train(windows[0], router.meta["config"])
     assert trained.meta == router.meta
@@ -665,6 +667,7 @@ def test_rows_do_not_depend_on_the_batch(router, records, outputs):
         assert alone["confidence"] == pytest.approx(outputs[i]["confidence"], abs=1e-12)
 
 
+@pytest.mark.slow
 def test_build_is_deterministic(mod, built, tmp_path):
     mod.build(tmp_path, tmp_path)
     for name in ("router.json", "router.md"):

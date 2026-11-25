@@ -13,10 +13,8 @@ Includes the pipeline, the test-set predictions, a small web service with one pa
 | `predictions.csv` | Predicted team for the 2,178 test requests, in the `sample_submission.csv` format |
 | `memo.md` | Memo to the Head of D2C Operations |
 | `reports/evaluation.md` | Evaluation evidence (figures in `reports/figures/`) |
-| `submission_form_answers.md` | Submission form answers |
-| `recording_script.md` | Script for the recording |
 
-Project rules are in `CLAUDE.md`, module contracts in `docs/contracts.md`, decisions in `PROGRESS.md`.
+Module contracts are in `docs/contracts.md`, decisions in `PROGRESS.md`.
 
 ## Prerequisites
 
@@ -125,14 +123,14 @@ The tests need the data pack, the venv and a finished pipeline run.
 
 | | Windows | macOS / Linux |
 |---|---|---|
-| Quick (QUICK_TIME) | `.\.venv\Scripts\python -m pytest -m "not slow"` | `.venv/bin/python -m pytest -m "not slow"` |
-| Full (FULL_TIME) | `.\.venv\Scripts\python -m pytest` | `.venv/bin/python -m pytest` |
+| Quick (about 2 minutes) | `.\.venv\Scripts\python -m pytest -m "not slow"` | `.venv/bin/python -m pytest -m "not slow"` |
+| Full (about 9 minutes) | `.\.venv\Scripts\python -m pytest` | `.venv/bin/python -m pytest` |
 
 The slow tests (marker `slow`) rebuild reports or models from scratch and compare the results.
 
 **Integration test.** Clones the last commit into a temporary folder, copies `data/raw` in, makes a fresh venv, runs the
 whole pipeline, checks that `predictions.csv` is byte-identical to the committed file, runs the quick tests and calls the
-running service. Prints PASS or FAIL per step, then deletes the folder. It takes IT_TIME.
+running service. Prints PASS or FAIL per step, then deletes the folder. It takes about 10 minutes, mostly `pip install` and the pipeline.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\integration_test.ps1
