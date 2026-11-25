@@ -400,7 +400,8 @@ Router: the M5a configuration with confidence, triage, reasons and a clarifying 
 
 **Outputs**
 
-- `models/router.joblib`, `models/router_meta.json` (git-ignored). Meta: `model_version`, `training_window` {first_day,
+- `models/train_window/router.joblib`, `models/train_window/router_meta.json` (git-ignored; default folder changed in M7,
+  which owns `models/router.joblib`). Meta: `model_version`, `training_window` {first_day,
   last_day, rows}, `threshold`, `cost_inputs` {cost_per_transfer, cost_per_misroute_contact, cost_per_misroute_train,
   cost_clarify}, `sklearn_version`, `joblib_version`, `numpy_version`, `config`.
 - **joblib files are pickles and can run code when loaded: load only a file `Router.save` wrote on this machine.**
@@ -432,7 +433,7 @@ Router: the M5a configuration with confidence, triage, reasons and a clarifying 
 
 ## M6
 
-status: BUILT, awaiting owner verification
+status: VERIFIED
 
 Evaluation evidence. Code `src/evaluation.py` (not `src/evaluate.py`, which is the M3 harness), tests
 `tests/test_m6_evaluation.py`, run `bash scripts/run_all.sh evaluate` (run `clean`, `baselines`, `experiments`, `router`
@@ -501,7 +502,64 @@ sorted keys, so take team order from `meta.teams`)
 
 ## M7
 
-status: not started
+status: VERIFIED
+
+Final model and test predictions. Code `src/predictions.py`, tests `tests/test_m7_predictions.py`, run
+`bash scripts/run_all.sh train predict` (run `clean` first).
+
+**Inputs**
+
+- `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` (M1).
+- `data/raw/sample_submission.csv`: `request_id` only, for the row order.
+- `reports/experiments.json` (M5a) `chosen.config`; `reports/baselines.json` (M4) `tfidf_final` confusion matrix;
+  `reports/router.json` (M5b) `accuracy`. Always from `reports/`.
+- Code: M2 `vague_mask`; M4 `round_floats` and constants; M5b `Router`, `to_records`.
+
+**Interface**
+
+- `train_final(models_dir) -> Router`: fits on all labelled rows and saves. Threshold and cost inputs are the M5b constants.
+- `load_final(models_dir) -> Router` (M8 loads the model with this): `RuntimeError` unless the training window ends
+  2026-06-30. Same pickle warning as M5b.
+- `predict_test(router, test_df, sample_ids) -> (DataFrame in sample order, outputs in test order)`: `ValueError` if the ids
+  differ or repeat.
+- `write_predictions(df, path)`: `ValueError` on nulls, repeated ids, other columns or other team names.
+- `validation_bias(reports_dir) -> dict`; `summarise(outputs, test_df, recent_df, meta, val_bias) -> dict`;
+  `render_markdown(results) -> str` (pure); `build(root, reports_dir, models_dir) -> dict` uses the saved model.
+
+**Outputs**
+
+- `models/router.joblib`, `models/router_meta.json` (git-ignored; format as in M5b): the final model, window 2025-04-01 to
+  2026-06-30. M5b writes its train-window model to `models/train_window/`.
+- `predictions.csv` (repo root, tracked): `request_id,team`, 2,178 rows in sample order, UTF-8, LF. `team` is always the
+  model's first choice, triaged or not.
+- `reports/predictions_summary.json` (aggregates only, floats rounded to 6 decimals, sorted keys):
+
+| Key | Content |
+|---|---|
+| model | `model_version`, `training_window`, `threshold` |
+| test | `rows`, `first_day`, `last_day`, `months`, `rows_by_month` |
+| volume | team -> `total`, `auto_routed`, `triaged`, `share`, `per_month`, `by_month` {month -> total, auto_routed, triaged} |
+| auto_routed_only | `total`, `total_per_month`, `total_by_month`, `teams` {count, share of auto-routed, per_month, by_month}; triaged requests as one separate count: `triaged_count`, `triaged_per_month`, `triaged_by_month` |
+| triage | `count`, `share`, `by_month`, `allowed_low`, `allowed_high` |
+| vague | `count`, `share`, `triaged_count` (M2 rule on `text_clean`) |
+| comparison | `recent_rows`, `recent_months`, `recent_first_day`, `recent_last_day`, `teams` {recent_count, recent_per_month, recent_share, predicted_share, gap_points}, `largest_gap_team`, `largest_gap_points`, `limit_points` |
+| validation | `rows`, `accuracy`, `accuracy_auto_routed`, `accuracy_triaged`, `teams` {actual, predicted, points} |
+
+- `reports/predictions_summary.md`: rendered from the results only.
+
+**Caveats:** the final model has no held-out score. Volumes are biased (Repairs over-predicted on validation) and triaged
+requests carry a first guess, so they are not headcount.
+
+**Acceptance criteria**
+
+1. 2,178 rows; id order identical to the sample; no nulls or duplicates.
+2. Teams are a subset of the 7 current names; no old name.
+3. `predictions.csv` is tracked and not ignored.
+4. Final meta: window ends 2026-06-30, config equals `chosen.config`, threshold equals M5b; model version differs from M5b.
+5. Every row equals `Router.load(final).predict(...)`.
+6. No predicted share more than 10 points from the team's last-3-months closing share; triage share 10% to 30%.
+7. Rebuilding gives a byte-identical `predictions.csv` (one machine, pinned versions).
+8. Every number in `predictions_summary.md` is in its JSON.
 
 ## M8
 

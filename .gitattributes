@@ -1,2 +1,4 @@
 # Shell scripts need LF endings or bash fails on Windows checkouts
 *.sh text eol=lf
+# Byte-identical rebuilds: no CRLF conversion on checkout
+predictions.csv text eol=lf

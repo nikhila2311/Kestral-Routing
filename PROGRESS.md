@@ -9,8 +9,8 @@
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md`, `src/baselines.py` | Validation accuracy: bot 76.67%, rules 65.95%, (d) 83.89%, (e) 76.21%; (d) minus bot 7.21 points (paired 5.76 to 8.81); 57 tests pass | Train window is the one reference set for repeated text; JSON rounded to 6 decimals; `technician` removed from Repairs | "Likely optimistic" verdict on repeated text; exact-text check of the committed reports |
 | M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md`, `src/experiments.py` | Original rule: `complement_nb_a0.1`, real-val 82.58%, failed criterion 4 (82.89%). Amended rule: `logreg_c1_none` = (d), real-val 83.89% (bot 76.67%) | Q1-Q8 as recommended; rule amended after a real-val result, see M5a notes | Added features, balanced class weights, calibrated LinearSVC (more complex), ComplementNB (log loss) |
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md`, `models/` (git-ignored) | Auto-routed 81.55% at 96.32%; triaged 18.45% at 28.93%; Rs 49,039/month best case, 80,044 no triage, 114,191 fixes nothing, bot 115,878; break-even 52.41%; 101 M5b tests pass | Q1-Q5 as recommended, see M5b notes; scikit-learn, joblib, numpy pinned; wording revised twice, model unchanged | Threshold from `COST_PER_MISROUTE` (covers validation); character n-grams in reasons; question template per team pair |
-| M6 evaluation | BUILT, awaiting owner verification | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
-| M7 | not started | | | | |
+| M6 evaluation | VERIFIED | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
+| M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json`, `reports/predictions_summary.md`, `models/router.joblib` (git-ignored), `src/predictions.py` | 2,178 rows; triaged 18.14%; vague 8.13%; largest gap Repairs +4.41 points; 25 M7 tests pass | Q1-Q9 as recommended, see M7 notes | Correcting volumes for the validation bias; lookup override for repeated texts; row-level confidence in the output |
 | M8 | not started | | | | |
 | M9 | not started | | | | |
 | M10 | not started | | | | |
@@ -330,7 +330,108 @@ overlapping and exclusive failure categories. Q3: quoted phrases only if in at l
 - Confidence between 0.2 and 0.5 is too high (for example 46.05% mean against 30.77% right, 39 requests).
 - If clarification fixes nothing, the router saves only Rs 1,687 per month against the bot, licence left out.
 
-**Verification.** Not yet verified by the owner. 12 deliberate breakages in a scratch copy were all caught (4 of them by the
+**Verification.** Marked VERIFIED with the M7 plan approval (Q9). 12 deliberate breakages in a scratch copy were all caught (4 of them by the
 build's own consistency check). JSON key order once changed the markdown; the renderer now uses `meta.teams`.
 
 **Open.** 83.89% is not an untouched estimate (M5a). The drift allowance is rough: the inner model saw fewer months.
+
+## M7 notes
+
+**Decisions** (project owner, plan approved without changes). Q1: the M5b default folder is `models/train_window/`, and
+`load_final` refuses a model not fitted up to 2026-06-30. Q2: auto-routed and triaged volumes shown separately, with the
+validation bias per team (M4 `baselines.json`); no correction. Q3: `predictions.csv text eol=lf`. Q4: the build never runs git;
+`predictions.csv` staged once. Q5: byte identity promised on one machine with the pinned versions. Q6: triaged rows get the
+first choice. Q7: 83.89% is stated as the train-window figure. Q8: limits are not changed if criterion 6 fails (it passed).
+Q9: M6 marked VERIFIED, as the commit message already said.
+
+**Findings**
+
+- Repairs is predicted for 27.73% of test against 23.33% of Apr-Jun closing teams (+4.41 points). The same configuration
+  over-predicted it on validation by 3.93 points (582 against 498), so most of the gap may be bias rather than volume.
+- 157 of the 604 Repairs predictions are triaged first guesses.
+- All 177 vague test requests are triaged. Triage share by month: 16.98%, 18.62%, 18.83%.
+- `models/router.joblib` held the M5b train-window model before this module; `train` replaced it.
+
+**Verification.** Marked VERIFIED by the project owner after two fixes: auto-routed-only volume added to the summary
+(triaged as one separate count; predictions unchanged) and `PROJECT_CONTEXT.md` trimmed, with the detail moved below.
+
+**Open.** Byte identity across machines is not tested. No deliberate breakages were run for M7. `predict` fails on
+Windows while `predictions.csv` is open in Excel (the old file is kept).
+
+## Detail moved from PROJECT_CONTEXT (at the close of M7)
+
+### Interfaces
+
+One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md#mN`.
+
+- M0: `src/config.py` — paths, `TEAMS`, `TEAM_NAME_MAP`, costs, `SEED`, split dates (no contract section; see file).
+- M1: `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet`; `src/clean.py: clean_text` — schema in
+  docs/contracts.md#m1. Target column is `final_team_canon`; raw `team_label` still holds old names, do not use it.
+- M2: `reports/audit_metrics.json` — keys in docs/contracts.md#m2 (`reports/data_audit.md` is rendered from it).
+- M3: `src/split.py: time_split`; `src/evaluate.py: evaluate, coverage_curve, align_proba, bootstrap_ci`;
+  `config.COST_PER_MISROUTE`, `config.COST_PER_MISROUTE_SIMPLE` — signatures, rules and caveats in docs/contracts.md#m3.
+  Pass sklearn `predict_proba` output through `align_proba`; pass `confidence` when rules override predictions.
+- M4: `reports/baselines.json` (`reports/baselines.md` is rendered from it); `src/baselines.py: make_pipeline, fit_model,
+  predict_with_proba` — schema and signatures in docs/contracts.md#m4.
+- M5a: `reports/experiments.json` (`reports/experiments.md` is rendered from it), chosen configuration in `chosen.config`;
+  `src/experiments.py: build_model, cue_features` — schema in docs/contracts.md#m5a.
+- M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`); `models/train_window/router.joblib` +
+  `router_meta.json` (git-ignored, train window only; since M7 `models/router.joblib` is the final model); `reports/router.json` (`reports/router.md` is rendered from it);
+  `config.TRIAGE_THRESHOLD` — interface and schema in docs/contracts.md#m5b. Load only our own joblib file.
+- M6: `reports/evaluation.json` (`reports/evaluation.md` is rendered from it) — schema in docs/contracts.md#m6.
+
+### Key numbers
+
+Row counts, negative durations, ASCII `text_clean` and test `source` are covered by M1 tests, the M2 block by M2 tests.
+The rest was measured on raw files and is not asserted by a test.
+
+- Train: 10,822 rows, 2025-04-01 to 2026-06-30 (4,320 `legacy_zoho`, 6,502 `crm`). Test: 2,178 rows, all `crm`.
+- Bot Billing precision: 64.7% of the 1,656 requests it sent to Billing were closed there.
+- Transfers in train: 3,902 in total.
+- Mojibake: 480 rows, all `legacy_zoho`. M1 repairs them; `text_clean` is pure ASCII in both files.
+- Negative durations: 1,140 rows before the UTC fix, all `legacy_zoho`; 0 after adding 5h30m to those rows only.
+
+M2 (`reports/audit_metrics.json`, all of train):
+
+- Months covered: 15 (2025-04 to 2026-06).
+- Bot baseline: agrees with `final_team` on 77.17% (8,351 / 10,822); 2,471 misrouted.
+- Bot cost: Rs 122,171 per month (transfers + misroute contacts, licence excluded); Rs 114,994 from misrouted rows only.
+- Vague requests: 8.1% (878 rows, rule-based estimate). Product named in text conflicts with `product_family`: 1,744
+  rows (16.1%).
+
+M3 (covered by M3 tests unless noted):
+
+- Split: train 8,687 rows, validation 2,135 rows.
+- `COST_PER_MISROUTE` Rs 698.06 (1.436 transfers each); `COST_PER_MISROUTE_SIMPLE` Rs 565 (1 transfer each).
+- Bot misroute cost Rs 114,994 per month (2,471 x Rs 698.06 / 15 months, licence excluded). Same as M2's misrouted-only
+  figure; the match was checked by hand, the M2 value is not asserted in M3 tests.
+
+M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% bootstrap interval):
+
+- Bot label 76.67% (74.89 to 78.36). Keyword rules 65.95% (64.07 to 67.96).
+- TF-IDF trained on the final team 83.89% (82.30 to 85.39). Same model trained on the bot label 76.21% (74.47 to 77.99).
+- Best baseline: `tfidf_final`, 7.21 points above the bot (paired interval 5.76 to 8.81); the number to beat in later modules.
+- The training target alone is worth 7.68 points: trained on bot labels, the model copies the bot (95.64% agreement).
+- Seen / unseen text: bot 80.28% / 76.27%, `tfidf_final` 84.98% / 83.77%.
+
+M5a (`reports/experiments.json`): amended rule chose `logreg_c1_none` = (d), inner-val 84.78%, real-val 83.89%.
+Original rule: `complement_nb_a0.1`, 85.01% / 82.58%, failed criterion 4.
+
+M5b (`reports/router.json`, validation; M5b tests recompute the report, the values are not hard-coded):
+
+- Auto-routed 81.55% (1,741) at 96.32% accuracy. Triaged 18.45% (394): accuracy 28.93%, mean confidence 32.96%.
+- All 173 of 173 vague requests (M2 rule) are triaged. Threshold 0.6283, from the train-window misroute cost, not tuned.
+- Rs per month: 49,039 best case (clarification always works), 80,044 no triage, 114,191 clarification fixes nothing, bot
+  115,878 on the same rows (licence 26,667 not included). Break-even clarification rate 52.41%.
+- Repairs precision 97.35% on auto-routed, 77.49% on all.
+
+M6 (`reports/evaluation.json`, validation; headline numbers equal the M4/M5a/M5b values):
+
+- Expected hidden-test accuracy 83.89%, range 80.74 to 86.01%; 80.52% (78.20 to 83.03) if labels are the bot's.
+- Accuracy Apr, May, Jun: router 85.08, 84.33, 82.24%; bot 78.91, 76.98, 74.15%; lead 6.17, 7.36, 8.10 (intervals overlap).
+- Vague ceiling 93.61%. 230 of 344 misroutes are vague or close calls. Clarification fixing nothing: Rs 1,687/month under bot.
+
+M7 (`reports/predictions_summary.json`, test):
+
+- Triaged 395 of 2,178 (18.14%); vague 177 (8.13%), all triaged. Largest gap to the Apr-Jun 2026 closing teams:
+  Repairs, +4.41 points (604 predicted, 447 auto-routed); over-predicted by 3.93 points on validation.

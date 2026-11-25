@@ -72,6 +72,10 @@ ROUTER_META_JSON = MODELS_DIR / "router_meta.json"
 ROUTER_JSON = REPORTS_DIR / "router.json"
 ROUTER_MD = REPORTS_DIR / "router.md"
 
+# --- M7 outputs ------------------------------------------------------------
+PREDICTIONS_SUMMARY_JSON = REPORTS_DIR / "predictions_summary.json"
+PREDICTIONS_SUMMARY_MD = REPORTS_DIR / "predictions_summary.md"
+
 # --- Teams -----------------------------------------------------------------
 TEAMS = (
     "Installs & Demo",
@@ -124,3 +128,9 @@ TEST_END = date(2026, 9, 30)
 # Inner split of the train window for model selection (M5a). Inner-val ends at TRAIN_END.
 INNER_TRAIN_END = date(2025, 12, 31)
 INNER_VAL_START = date(2026, 1, 1)
+# Last labelled months, compared with the test predictions (M7). Same days as validation.
+LAST_MONTHS = (VALID_START, VALID_END)
+
+# --- Sanity limits on the test predictions (M7 spec, not tuned) ------------
+MAX_SHARE_GAP_POINTS = 10  # percentage points between a team's predicted share and its recent final_team share
+TRIAGE_SHARE_MIN, TRIAGE_SHARE_MAX = 0.10, 0.30

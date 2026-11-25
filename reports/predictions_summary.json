@@ -1,0 +1,403 @@
+{
+  "auto_routed_only": {
+    "teams": {
+      "Billing": {
+        "by_month": {
+          "2026-07": 74,
+          "2026-08": 81,
+          "2026-09": 58
+        },
+        "count": 213,
+        "per_month": 71.0,
+        "share": 0.119462
+      },
+      "Filters & Consumables": {
+        "by_month": {
+          "2026-07": 48,
+          "2026-08": 60,
+          "2026-09": 63
+        },
+        "count": 171,
+        "per_month": 57.0,
+        "share": 0.095906
+      },
+      "Installs & Demo": {
+        "by_month": {
+          "2026-07": 100,
+          "2026-08": 83,
+          "2026-09": 81
+        },
+        "count": 264,
+        "per_month": 88.0,
+        "share": 0.148065
+      },
+      "Product Advice": {
+        "by_month": {
+          "2026-07": 82,
+          "2026-08": 62,
+          "2026-09": 75
+        },
+        "count": 219,
+        "per_month": 73.0,
+        "share": 0.122827
+      },
+      "Repairs": {
+        "by_month": {
+          "2026-07": 158,
+          "2026-08": 157,
+          "2026-09": 132
+        },
+        "count": 447,
+        "per_month": 149.0,
+        "share": 0.250701
+      },
+      "Returns & Replacement": {
+        "by_month": {
+          "2026-07": 88,
+          "2026-08": 80,
+          "2026-09": 85
+        },
+        "count": 253,
+        "per_month": 84.333333,
+        "share": 0.141896
+      },
+      "Warranty Claims": {
+        "by_month": {
+          "2026-07": 61,
+          "2026-08": 80,
+          "2026-09": 75
+        },
+        "count": 216,
+        "per_month": 72.0,
+        "share": 0.121144
+      }
+    },
+    "total": 1783,
+    "total_by_month": {
+      "2026-07": 611,
+      "2026-08": 603,
+      "2026-09": 569
+    },
+    "total_per_month": 594.333333,
+    "triaged_by_month": {
+      "2026-07": 125,
+      "2026-08": 138,
+      "2026-09": 132
+    },
+    "triaged_count": 395,
+    "triaged_per_month": 131.666667
+  },
+  "comparison": {
+    "largest_gap_points": 4.406337,
+    "largest_gap_team": "Repairs",
+    "limit_points": 10,
+    "recent_first_day": "2026-04-01",
+    "recent_last_day": "2026-06-30",
+    "recent_months": 3,
+    "recent_rows": 2135,
+    "teams": {
+      "Billing": {
+        "gap_points": -0.41946,
+        "predicted_share": 0.115243,
+        "recent_count": 255,
+        "recent_per_month": 85.0,
+        "recent_share": 0.119438
+      },
+      "Filters & Consumables": {
+        "gap_points": -0.83421,
+        "predicted_share": 0.088613,
+        "recent_count": 207,
+        "recent_per_month": 69.0,
+        "recent_share": 0.096956
+      },
+      "Installs & Demo": {
+        "gap_points": -0.526405,
+        "predicted_share": 0.145087,
+        "recent_count": 321,
+        "recent_per_month": 107.0,
+        "recent_share": 0.150351
+      },
+      "Product Advice": {
+        "gap_points": -0.707888,
+        "predicted_share": 0.118916,
+        "recent_count": 269,
+        "recent_per_month": 89.666667,
+        "recent_share": 0.125995
+      },
+      "Repairs": {
+        "gap_points": 4.406337,
+        "predicted_share": 0.277319,
+        "recent_count": 498,
+        "recent_per_month": 166.0,
+        "recent_share": 0.233255
+      },
+      "Returns & Replacement": {
+        "gap_points": -1.954353,
+        "predicted_share": 0.13315,
+        "recent_count": 326,
+        "recent_per_month": 108.666667,
+        "recent_share": 0.152693
+      },
+      "Warranty Claims": {
+        "gap_points": 0.035978,
+        "predicted_share": 0.121671,
+        "recent_count": 259,
+        "recent_per_month": 86.333333,
+        "recent_share": 0.121311
+      }
+    }
+  },
+  "model": {
+    "model_version": "logreg_c1_none-918025186907",
+    "threshold": 0.628301,
+    "training_window": {
+      "first_day": "2025-04-01",
+      "last_day": "2026-06-30",
+      "rows": 10822
+    }
+  },
+  "test": {
+    "first_day": "2026-07-01",
+    "last_day": "2026-09-30",
+    "months": [
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "rows": 2178,
+    "rows_by_month": {
+      "2026-07": 736,
+      "2026-08": 741,
+      "2026-09": 701
+    }
+  },
+  "triage": {
+    "allowed_high": 0.3,
+    "allowed_low": 0.1,
+    "by_month": {
+      "2026-07": 0.169837,
+      "2026-08": 0.186235,
+      "2026-09": 0.188302
+    },
+    "count": 395,
+    "share": 0.181359
+  },
+  "vague": {
+    "count": 177,
+    "share": 0.081267,
+    "triaged_count": 177
+  },
+  "validation": {
+    "accuracy": 0.838876,
+    "accuracy_auto_routed": 0.96324,
+    "accuracy_triaged": 0.28934,
+    "rows": 2135,
+    "teams": {
+      "Billing": {
+        "actual": 255,
+        "points": -0.046838,
+        "predicted": 254
+      },
+      "Filters & Consumables": {
+        "actual": 207,
+        "points": -0.702576,
+        "predicted": 192
+      },
+      "Installs & Demo": {
+        "actual": 321,
+        "points": -0.608899,
+        "predicted": 308
+      },
+      "Product Advice": {
+        "actual": 269,
+        "points": -1.405152,
+        "predicted": 239
+      },
+      "Repairs": {
+        "actual": 498,
+        "points": 3.934426,
+        "predicted": 582
+      },
+      "Returns & Replacement": {
+        "actual": 326,
+        "points": -0.88993,
+        "predicted": 307
+      },
+      "Warranty Claims": {
+        "actual": 259,
+        "points": -0.28103,
+        "predicted": 253
+      }
+    }
+  },
+  "volume": {
+    "Billing": {
+      "auto_routed": 213,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 74,
+          "total": 90,
+          "triaged": 16
+        },
+        "2026-08": {
+          "auto_routed": 81,
+          "total": 95,
+          "triaged": 14
+        },
+        "2026-09": {
+          "auto_routed": 58,
+          "total": 66,
+          "triaged": 8
+        }
+      },
+      "per_month": 83.666667,
+      "share": 0.115243,
+      "total": 251,
+      "triaged": 38
+    },
+    "Filters & Consumables": {
+      "auto_routed": 171,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 48,
+          "total": 55,
+          "triaged": 7
+        },
+        "2026-08": {
+          "auto_routed": 60,
+          "total": 66,
+          "triaged": 6
+        },
+        "2026-09": {
+          "auto_routed": 63,
+          "total": 72,
+          "triaged": 9
+        }
+      },
+      "per_month": 64.333333,
+      "share": 0.088613,
+      "total": 193,
+      "triaged": 22
+    },
+    "Installs & Demo": {
+      "auto_routed": 264,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 100,
+          "total": 126,
+          "triaged": 26
+        },
+        "2026-08": {
+          "auto_routed": 83,
+          "total": 95,
+          "triaged": 12
+        },
+        "2026-09": {
+          "auto_routed": 81,
+          "total": 95,
+          "triaged": 14
+        }
+      },
+      "per_month": 105.333333,
+      "share": 0.145087,
+      "total": 316,
+      "triaged": 52
+    },
+    "Product Advice": {
+      "auto_routed": 219,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 82,
+          "total": 96,
+          "triaged": 14
+        },
+        "2026-08": {
+          "auto_routed": 62,
+          "total": 78,
+          "triaged": 16
+        },
+        "2026-09": {
+          "auto_routed": 75,
+          "total": 85,
+          "triaged": 10
+        }
+      },
+      "per_month": 86.333333,
+      "share": 0.118916,
+      "total": 259,
+      "triaged": 40
+    },
+    "Repairs": {
+      "auto_routed": 447,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 158,
+          "total": 193,
+          "triaged": 35
+        },
+        "2026-08": {
+          "auto_routed": 157,
+          "total": 222,
+          "triaged": 65
+        },
+        "2026-09": {
+          "auto_routed": 132,
+          "total": 189,
+          "triaged": 57
+        }
+      },
+      "per_month": 201.333333,
+      "share": 0.277319,
+      "total": 604,
+      "triaged": 157
+    },
+    "Returns & Replacement": {
+      "auto_routed": 253,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 88,
+          "total": 100,
+          "triaged": 12
+        },
+        "2026-08": {
+          "auto_routed": 80,
+          "total": 90,
+          "triaged": 10
+        },
+        "2026-09": {
+          "auto_routed": 85,
+          "total": 100,
+          "triaged": 15
+        }
+      },
+      "per_month": 96.666667,
+      "share": 0.13315,
+      "total": 290,
+      "triaged": 37
+    },
+    "Warranty Claims": {
+      "auto_routed": 216,
+      "by_month": {
+        "2026-07": {
+          "auto_routed": 61,
+          "total": 76,
+          "triaged": 15
+        },
+        "2026-08": {
+          "auto_routed": 80,
+          "total": 95,
+          "triaged": 15
+        },
+        "2026-09": {
+          "auto_routed": 75,
+          "total": 94,
+          "triaged": 19
+        }
+      },
+      "per_month": 88.333333,
+      "share": 0.121671,
+      "total": 265,
+      "triaged": 49
+    }
+  }
+}

@@ -33,90 +33,50 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M4 baselines | VERIFIED | `reports/baselines.json`, `reports/baselines.md` |
 | M5a model selection | VERIFIED | `reports/experiments.json`, `reports/experiments.md` |
 | M5b router | VERIFIED | `src/router.py`, `reports/router.json`, `reports/router.md` |
-| M6 evaluation | BUILT, awaiting owner verification | `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/` |
-| M7 | not started | |
+| M6 evaluation | VERIFIED | `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/` |
+| M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json` + `.md`, `models/router.joblib` |
 | M8 | not started | |
 | M9 | not started | |
 | M10 | not started | |
 
 ## 4. Verified interfaces
 
-One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md#mN`.
+One line per module; schemas, signatures and rules are in docs/contracts.md#mN (M0 has no section; see the file).
 
-- M0: `src/config.py` — paths, `TEAMS`, `TEAM_NAME_MAP`, costs, `SEED`, split dates (no contract section; see file).
-- M1: `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet`; `src/clean.py: clean_text` — schema in
-  docs/contracts.md#m1. Target column is `final_team_canon`; raw `team_label` still holds old names, do not use it.
-- M2: `reports/audit_metrics.json` — keys in docs/contracts.md#m2 (`reports/data_audit.md` is rendered from it).
-- M3: `src/split.py: time_split`; `src/evaluate.py: evaluate, coverage_curve, align_proba, bootstrap_ci`;
-  `config.COST_PER_MISROUTE`, `config.COST_PER_MISROUTE_SIMPLE` — signatures, rules and caveats in docs/contracts.md#m3.
-  Pass sklearn `predict_proba` output through `align_proba`; pass `confidence` when rules override predictions.
-- M4: `reports/baselines.json` (`reports/baselines.md` is rendered from it); `src/baselines.py: make_pipeline, fit_model,
-  predict_with_proba` — schema and signatures in docs/contracts.md#m4.
-- M5a: `reports/experiments.json` (`reports/experiments.md` is rendered from it), chosen configuration in `chosen.config`;
-  `src/experiments.py: build_model, cue_features` — schema in docs/contracts.md#m5a.
-- M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`); `models/router.joblib` + `router_meta.json`
-  (git-ignored, train window only); `reports/router.json` (`reports/router.md` is rendered from it);
-  `config.TRIAGE_THRESHOLD` — interface and schema in docs/contracts.md#m5b. Load only our own joblib file.
+- M0: `src/config.py` — paths, `TEAMS`, `TEAM_NAME_MAP`, costs, `SEED`, split dates.
+- M1: the two parquet files; `src/clean.py: clean_text`. Target `final_team_canon`; raw `team_label` has old names, do not use.
+- M2: `reports/audit_metrics.json`; `src/audit.py: vague_mask, product_conflict_mask`.
+- M3: `time_split`; `evaluate, coverage_curve, align_proba, bootstrap_ci`; pass sklearn probabilities through `align_proba`.
+- M4: `reports/baselines.json`; `src/baselines.py: make_pipeline, fit_model, predict_with_proba`.
+- M5a: `reports/experiments.json` (`chosen.config`); `src/experiments.py: build_model, cue_features`.
+- M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`), `config.TRIAGE_THRESHOLD`. Load only our own joblib file.
+- M6: `reports/evaluation.json`.
+- M7: `src/predictions.py: load_final` (M8 loads the final model with it), `predictions.csv`, `reports/predictions_summary.json`.
 
-Run: `bash scripts/run_all.sh <target>`. Only `clean`, `audit`, `baselines`, `experiments`,
-`router`, `evaluate` and `test` are implemented; other targets exit 2.
+Model files (git-ignored): `models/router.joblib` is the final model (M7, all labelled rows); M5b's train-window model is in
+`models/train_window/`. Run `bash scripts/run_all.sh <target>`; every target except `serve` (exits 2) is implemented. `train`
+fits and saves the final model; `predict` writes `predictions.csv` and the summary.
 
 ## 5. Key numbers
 
-Row counts, negative durations, ASCII `text_clean` and test `source` are covered by M1 tests, the M2 block by M2 tests.
-The rest was measured on raw files and is not asserted by a test.
+Accuracies are on validation against `final_team`. Full list: `PROGRESS.md`, "Detail moved from PROJECT_CONTEXT".
 
-- Train: 10,822 rows, 2025-04-01 to 2026-06-30 (4,320 `legacy_zoho`, 6,502 `crm`). Test: 2,178 rows, all `crm`.
-- Bot Billing precision: 64.7% of the 1,656 requests it sent to Billing were closed there.
-- Transfers in train: 3,902 in total.
-- Mojibake: 480 rows, all `legacy_zoho`. M1 repairs them; `text_clean` is pure ASCII in both files.
-- Negative durations: 1,140 rows before the UTC fix, all `legacy_zoho`; 0 after adding 5h30m to those rows only.
-
-M2 (`reports/audit_metrics.json`, all of train):
-
-- Months covered: 15 (2025-04 to 2026-06).
-- Bot baseline: agrees with `final_team` on 77.17% (8,351 / 10,822); 2,471 misrouted.
-- Bot cost: Rs 122,171 per month (transfers + misroute contacts, licence excluded); Rs 114,994 from misrouted rows only.
-- Vague requests: 8.1% (878 rows, rule-based estimate). Product named in text conflicts with `product_family`: 1,744
-  rows (16.1%).
-
-M3 (covered by M3 tests unless noted):
-
-- Split: train 8,687 rows, validation 2,135 rows.
-- `COST_PER_MISROUTE` Rs 698.06 (1.436 transfers each); `COST_PER_MISROUTE_SIMPLE` Rs 565 (1 transfer each).
-- Bot misroute cost Rs 114,994 per month (2,471 x Rs 698.06 / 15 months, licence excluded). Same as M2's misrouted-only
-  figure; the match was checked by hand, the M2 value is not asserted in M3 tests.
-
-M4 (`reports/baselines.json`; validation accuracy against `final_team`, 95% bootstrap interval):
-
-- Bot label 76.67% (74.89 to 78.36). Keyword rules 65.95% (64.07 to 67.96).
-- TF-IDF trained on the final team 83.89% (82.30 to 85.39). Same model trained on the bot label 76.21% (74.47 to 77.99).
-- Best baseline: `tfidf_final`, 7.21 points above the bot (paired interval 5.76 to 8.81); the number to beat in later modules.
-- The training target alone is worth 7.68 points: trained on bot labels, the model copies the bot (95.64% agreement).
-- Seen / unseen text: bot 80.28% / 76.27%, `tfidf_final` 84.98% / 83.77%.
-
-M5a (`reports/experiments.json`): amended rule chose `logreg_c1_none` = (d), inner-val 84.78%, real-val 83.89%.
-Original rule: `complement_nb_a0.1`, 85.01% / 82.58%, failed criterion 4.
-
-M5b (`reports/router.json`, validation; M5b tests recompute the report, the values are not hard-coded):
-
-- Auto-routed 81.55% (1,741) at 96.32% accuracy. Triaged 18.45% (394): accuracy 28.93%, mean confidence 32.96%.
-- All 173 of 173 vague requests (M2 rule) are triaged. Threshold 0.6283, from the train-window misroute cost, not tuned.
-- Rs per month: 49,039 best case (clarification always works), 80,044 no triage, 114,191 clarification fixes nothing, bot
-  115,878 on the same rows (licence 26,667 not included). Break-even clarification rate 52.41%.
-- Repairs precision 97.35% on auto-routed, 77.49% on all.
-
-M6 (`reports/evaluation.json`, validation; not yet verified; headline numbers equal the M4/M5a/M5b values):
-
-- Expected hidden-test accuracy 83.89%, range 80.74 to 86.01%; 80.52% (78.20 to 83.03) if labels are the bot's.
-- Accuracy Apr, May, Jun: router 85.08, 84.33, 82.24%; bot 78.91, 76.98, 74.15%; lead 6.17, 7.36, 8.10 (intervals overlap).
-- Vague ceiling 93.61%. 230 of 344 misroutes are vague or close calls. Clarification fixing nothing: Rs 1,687/month under bot.
+- M1: train 10,822 rows, test 2,178 (all `crm`); negative durations 1,140 before the UTC fix, 0 after.
+- M2: bot agrees with `final_team` on 77.17%; costs Rs 122,171 per month (licence excluded); 8.1% of requests vague.
+- M3: train 8,687 / validation 2,135 rows; `COST_PER_MISROUTE` Rs 698.06; bot misroute cost Rs 114,994 per month.
+- M4: bot 76.67%, `tfidf_final` 83.89% (82.30 to 85.39), lead 7.21 points (5.76 to 8.81).
+- M5a: chosen `logreg_c1_none` (same model as `tfidf_final`), inner-val 84.78%, real-val 83.89%.
+- M5b: auto-routed 81.55% at 96.32%; triaged 18.45% at 28.93%; Rs 49,039 per month best case, bot 115,878 on the same rows.
+- M6: expected hidden-test accuracy 80.74 to 86.01%; 80.52% if labels are the bot's; lead over the bot 6.17 to 8.10 by month.
+- M7 (test): triaged 395 (18.14%), vague 177 (8.13%); largest gap to Apr-Jun 2026 is Repairs, +4.41 points (447 auto-routed).
 
 ## 6. Open questions / known risks
 
 - The router's headline cost is a best case; triage pays only if clarification fixes over 52.41% of triaged misroutes. How
   often a question settles the team is not in the data: ask operations.
-- README to write: `Router.load`'s error message points to it. Rebuild step is the `router` target until M7.
+- README to write: `Router.load`'s error message points to it. Rebuild step: the `train` target.
+- M7 volumes are not headcount: Repairs is over-predicted and triaged requests are first guesses. No correction.
+- The final model has no held-out score. M8 should load it through `src/predictions.py: load_final`.
 - M5a's rule was amended after a real-val result; its choice (d) was already scored in M4, so 83.89% is not an untouched
   estimate. Cue features add at most 0.09 points to it on inner-val (report-only). See `PROGRESS.md`, M5a notes.
 - Ritu's 90% bar is stated against the bot's labels (~77% right); restate it against `final_team`.

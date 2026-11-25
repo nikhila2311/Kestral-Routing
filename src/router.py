@@ -481,7 +481,7 @@ def render_markdown(results: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def build(reports_dir: Path = config.REPORTS_DIR, models_dir: Path = config.MODELS_DIR) -> dict:
+def build(reports_dir: Path = config.REPORTS_DIR, models_dir: Path = config.MODELS_DIR / "train_window") -> dict:
     """Train on the train window, save the model, write router.json and router.md."""
     train_df, val_df = time_split(pd.read_parquet(config.TRAIN_CLEAN_PARQUET))
     cfg = json.loads((config.REPORTS_DIR / JSON_NAME).read_text(encoding="utf-8"))["chosen"]["config"]
