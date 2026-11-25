@@ -12,7 +12,7 @@
 | M6 evaluation | VERIFIED | `src/evaluation.py`, `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/*.png` | Validation 83.89% (82.30 to 85.39), bot 76.67%; expected hidden test 80.74% to 86.01%, or 80.52% if scored on bot labels; 38 M6 tests pass | Q1-Q7 as recommended, see M6 notes | Loading `models/router.joblib`; a combined cost total with the licence |
 | M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json`, `reports/predictions_summary.md`, `models/router.joblib` (git-ignored), `src/predictions.py` | 2,178 rows; triaged 18.14%; vague 8.13%; largest gap Repairs +4.41 points; 25 M7 tests pass | Q1-Q9 as recommended, see M7 notes | Correcting volumes for the validation bias; lookup override for repeated texts; row-level confidence in the output |
 | M8 service | VERIFIED | `app/main.py`, `app/static/index.html`, `README.md` | 56 M8 tests pass; 20 calls under 2 s | No LLM or external API; Q2 changed (unknown product accepted with a reason), others as recommended, see M8 notes | `/options` endpoint; default 422 messages |
-| M9 | not started | | | | |
+| M9 documents | BUILT, not yet verified | `memo.md`, `submission_form_answers.md`, `recording_script.md` | 12 M9 tests pass; memo 435 words, script 392 | Q1-Q8 as recommended, see M9 notes | Number check by existence anywhere in the JSON |
 | M10 | not started | | | | |
 
 ## M1 notes
@@ -470,3 +470,26 @@ request is shown as text.
 
 **Open.** Starlette warns that `httpx` in its test client is deprecated in favour of `httpx2`: harmless, left as pinned.
 The page was not tried in other browsers.
+
+## M9 notes
+
+**Decisions** (project owner, plan review). Q1: files in the repo root. Q2: proposed switch-off conditions, on closed requests:
+router at least 3 points above the bot, at least 93% of straight-on requests right, Meenal agrees. Q3: switch judged at two
+weeks, the question at two months (about 60 flagged requests in two weeks, about 43 with a wrong first guess). Q4: server Rs
+2,000-4,000 a month and one day's retraining a quarter are estimates, not measurements. Q5: derived numbers by formula. Q6: the
+cooktop text is typed in the recording. Q7: Claude chat and Claude Code; cost left as `[YOUR COST]`. Q8: allowlist.
+
+**Corrections to the spec** (accepted)
+
+- Rs 35,834 a month assumes no question is asked; with the question the saving runs from Rs 1,687 to Rs 66,839.
+- The 52.4% break-even is over flagged requests whose first guess was wrong, not over all flagged requests.
+- Bot labels overstate Repairs by 23%, not 25%; Product Advice, understated by 15%, was missing.
+- The copy of the bot is below the router, but level with the bot (76.2% against 76.7%).
+
+**Wording.** "No outside AI service" is stated about the router, not about how the repo was built. "Every vague request" is by
+the M2 word-list rule, on Apr-Jun 2026 (and test, in the form answers).
+
+**Findings.** The cooktop text is also the "Close call" example button. On the final model it is triaged: Product Advice first,
+Repairs second.
+
+**Discarded.** "Appears in some JSON": most two-digit numbers do, so a wrong number would pass.

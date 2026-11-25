@@ -36,7 +36,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | M6 evaluation | VERIFIED | `reports/evaluation.json`, `reports/evaluation.md`, `reports/figures/` |
 | M7 predictions | VERIFIED | `predictions.csv`, `reports/predictions_summary.json` + `.md`, `models/router.joblib` |
 | M8 service | VERIFIED | `app/main.py`, `app/static/index.html`, `README.md` |
-| M9 | not started | |
+| M9 documents | BUILT, not yet verified | `memo.md`, `submission_form_answers.md`, `recording_script.md` |
 | M10 | not started | |
 
 ## 4. Verified interfaces
@@ -52,6 +52,7 @@ One line per module; schemas, signatures and rules are in docs/contracts.md#mN (
 - M5b: `src/router.py: Router` (`train`, `save`, `load`, `predict`), `config.TRIAGE_THRESHOLD`. Load only our own joblib file.
 - M6: `reports/evaluation.json`.
 - M7: `src/predictions.py: load_final` (M8 loads the final model with it), `predictions.csv`, `reports/predictions_summary.json`.
+- M9 (not yet verified): the three documents; numbers only from `reports/*.json`.
 - M8: `app/main.py: create_app`; `GET /health`, `POST /predict`, `GET /`.
 
 Model files (git-ignored): `models/router.joblib` is the final model (M7, all labelled rows); M5b's train-window model is in
@@ -75,6 +76,8 @@ Accuracies are on validation against `final_team`. Full list: `PROGRESS.md`, "De
 
 - The router's headline cost is a best case; triage pays only if clarification fixes over 52.41% of triaged misroutes. How
   often a question settles the team is not in the data: ask operations.
+- `submission_form_answers.md` still has `[YOUR COST]`; the memo's server and retraining costs are estimates for Tanmay to
+  confirm, and the switch-off conditions are proposals.
 - `README.md` covers setup and running the service only; the rest is to write.
 - M7 volumes are not headcount: Repairs is over-predicted and triaged requests are first guesses. No correction.
 - The final model has no held-out score.

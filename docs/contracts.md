@@ -616,7 +616,35 @@ evidence that an LLM would be more accurate; policy section 10 restricts sharing
 
 ## M9
 
-status: not started
+status: BUILT (tests pass; not yet verified by the project owner)
+
+Documents, written by hand: no build step or run target. Tests `tests/test_m9_docs.py`.
+
+**Inputs**
+
+- `reports/audit_metrics.json` (M2), `baselines.json` (M4), `experiments.json` (M5a), `router.json` (M5b), `evaluation.json`
+  (M6), `predictions_summary.json` (M7): the only source of numbers. Figures in `reports/figures/` are named as cues.
+- Tests only: the parquet files, `text_clean`, for the 4-word run check (counts only).
+
+**Outputs** (repo root, tracked)
+
+- `memo.md`: to Ritu Deshpande, non-technical, at most 450 words; sections The decision, The number, The rupees, Next week.
+- `submission_form_answers.md`: Expected score, Approach summary, Decisions on unclear points, What I tried, changed and
+  threw away, AI tools used, Known limitations. Only placeholder: `[YOUR COST]`.
+- `recording_script.md`: at most 450 words; What I tried, What I changed, What I threw away, with `[SHOW: ...]` cues.
+
+**Number rule.** Each measured number is tied in the test to its wording and to a JSON key, or to a formula over JSON keys
+(for example label volume / closing volume - 1). Other digits must be in the test's allowlist (the 90% bar, policy
+section, calendar dates, names) or be one of the listed estimates and proposals in a sentence that says so.
+
+**Acceptance criteria**
+
+1. `memo.md` has at most 450 words and the 4 headings.
+2. Number rule, for all three documents.
+3. No technical jargon in `memo.md` (list in the test).
+4. `recording_script.md` has at most 450 words and the three parts; named figures exist.
+5. No 4-word run shared with train or test `text_clean`.
+6. `submission_form_answers.md` has no empty section and no placeholder other than `[YOUR COST]`.
 
 ## M10
 
