@@ -13,6 +13,7 @@ Includes the pipeline, the test-set predictions, a small web service with one pa
 | `predictions.csv` | Predicted team for the 2,178 test requests, in the `sample_submission.csv` format |
 | `memo.md` | Memo to the Head of D2C Operations |
 | `reports/evaluation.md` | Evaluation evidence (figures in `reports/figures/`) |
+| `reports/dashboard.html` | Management dashboard: open reports/dashboard.html in a browser (rebuild: `bash scripts/run_all.sh dashboard`) |
 
 Module contracts are in `docs/contracts.md`, decisions in `PROGRESS.md`.
 

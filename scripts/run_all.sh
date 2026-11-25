@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Task runner (Git Bash on Windows, bash elsewhere).
 # Usage: bash scripts/run_all.sh <target> [<target> ...]
-# Targets: clean audit baselines experiments router train evaluate predict serve test
+# Targets: clean audit baselines experiments router train evaluate predict dashboard serve test
 #   clean = data cleaning; it does not delete files.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -19,7 +19,7 @@ fi
 
 usage() {
   echo "Usage: bash scripts/run_all.sh <target> [<target> ...]"
-  echo "Targets: clean audit baselines experiments router train evaluate predict serve test"
+  echo "Targets: clean audit baselines experiments router train evaluate predict dashboard serve test"
 }
 
 run_target() {
@@ -32,6 +32,7 @@ run_target() {
     evaluate) "$PY" -m src.evaluation ;;
     train) "$PY" -m src.predictions train ;;
     predict) "$PY" -m src.predictions predict ;;
+    dashboard) "$PY" -m src.dashboard ;;
     serve) "$PY" -m uvicorn app.main:app --host 127.0.0.1 --port 8000 ;;
     test) "$PY" -m pytest tests ;;
     *)
