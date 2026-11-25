@@ -27,7 +27,7 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 | Module | Status | Main output path |
 |---|---|---|
 | M0 setup | VERIFIED | `src/config.py` |
-| M1 | not started | |
+| M1 clean | VERIFIED | `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet` |
 | M2 | not started | |
 | M3 | not started | |
 | M4 | not started | |
@@ -43,22 +43,25 @@ Full rules and module workflow: `CLAUDE.md`. Constants: `src/config.py`.
 One line per VERIFIED module: `MN: <output path> — schema in docs/contracts.md#mN`.
 
 - M0: `src/config.py` — paths, `TEAMS`, `TEAM_NAME_MAP`, costs, `SEED`, split dates (no contract section; see file).
-- M1–M10: none yet.
+- M1: `data/processed/train_clean.parquet`, `data/processed/test_clean.parquet`; `src/clean.py: clean_text` — schema in
+  docs/contracts.md#m1. Target column is `final_team_canon`; raw `team_label` still holds old names, do not use it.
+- M2–M10: none yet.
 
-Run: `bash scripts/run_all.sh <target>`. Only `test` is implemented; other targets exit 2.
+Run: `bash scripts/run_all.sh <target>`. Only `clean` and `test` are implemented; other targets exit 2.
 
 ## 5. Key numbers
 
-Measured on the raw files during setup; not yet covered by a module test.
+Row counts, negative durations, ASCII `text_clean` and test `source` are covered by M1 tests. The rest was measured on raw
+files and is not asserted by a test; bot baseline and transfer total were reproduced from `train_clean.parquet`.
 
 - Train: 10,822 rows, 2025-04-01 to 2026-06-30 (4,320 `legacy_zoho`, 6,502 `crm`). Test: 2,178 rows, all `crm`.
 - Bot baseline: `team_label` = `final_team` on 77.17% (8,351 / 10,822), over all of train.
 - Bot Billing precision: 64.7% of the 1,656 requests it sent to Billing were closed there.
 - Transfers in train: 3,902 in total.
-- Mojibake: 480 rows, all `legacy_zoho`. ftfy clears all 480, but 231 stray "é" remain, so fold accents after it.
-- UTC check: 1,140 Zoho rows resolve before creation as stored; 0 after adding 5h30m.
+- Mojibake: 480 rows, all `legacy_zoho`. M1 repairs them; `text_clean` is pure ASCII in both files.
+- Negative durations: 1,140 rows before the UTC fix, all `legacy_zoho`; 0 after adding 5h30m to those rows only.
 
-Module results: none yet.
+Model results: none yet.
 
 ## 6. Open questions / known risks
 
@@ -71,6 +74,11 @@ Module results: none yet.
   look optimistic.
 - Tuning on Apr–Jun 2026 would inflate the validation score; tune with time-based folds inside the train window.
 - Farhan (Finance) wants the monthly run cost in writing before the switch; Ritu wants busiest teams for headcount.
-- Parquet output needs `pyarrow`, which is not in `requirements.txt` yet. FastAPI's test client may need `httpx`.
+- FastAPI's test client may need `httpx`, which is not in `requirements.txt`.
+- Request text contains order and registration numbers; M1 does not mask them. Decide in the feature module.
+- M1 review findings are open (code unchanged since the review; list in `PROGRESS.md`). Relevant downstream: no test
+  compares `team_label_canon`, `first_team_canon`, `misrouted` or test row order with raw, and running pytest rewrites
+  `data/processed`, so rerun `clean` on known-good code after a failing test run.
+- `CLAUDE.md` rule 2 bans old names after loading, but M1 keeps raw `team_label` by design; rule needs amending.
 - Plain `python` on the dev machine is 3.10, too old for the pins; use `.venv` or `py -3.13`.
 - Repo folder is spelled `kestral-routing`; the project name is `kestrel-routing`.

@@ -35,6 +35,33 @@ RAW_FILES = (
 
 PREDICTIONS_CSV = ROOT / "predictions.csv"
 
+# --- M1 outputs ------------------------------------------------------------
+TRAIN_CLEAN_PARQUET = PROCESSED_DIR / "train_clean.parquet"
+TEST_CLEAN_PARQUET = PROCESSED_DIR / "test_clean.parquet"
+
+_RAW_COLUMNS = (
+    "request_id",
+    "created_at_ist",
+    "channel",
+    "product_family",
+    "warranty_status",
+    "request_text",
+    "source",
+)
+TRAIN_CLEAN_COLUMNS = _RAW_COLUMNS + (
+    "team_label",
+    "text_clean",
+    "team_label_canon",
+    "final_team_canon",
+    "first_team_canon",
+    "transfers",
+    "resolved_at_ist",
+    "resolution_hours",
+    "misrouted",
+    "created_month",
+)
+TEST_CLEAN_COLUMNS = _RAW_COLUMNS + ("text_clean", "created_month")
+
 # --- Teams -----------------------------------------------------------------
 TEAMS = (
     "Installs & Demo",

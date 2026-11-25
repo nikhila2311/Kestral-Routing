@@ -30,7 +30,8 @@ usage() {
 
 run_target() {
   case "$1" in
-    clean | audit | baselines | train | evaluate | predict | serve) not_implemented "$1" ;;
+    clean) "$PY" -m src.clean ;;
+    audit | baselines | train | evaluate | predict | serve) not_implemented "$1" ;;
     test) "$PY" -m pytest tests ;;
     *)
       echo "Unknown target: $1" >&2
